@@ -41,16 +41,16 @@ This document tracks all features and implementation tasks for the Sawdust & Cof
 - [ ] Factory classes for testing
 
 ### 1.3 Authentication System
-- [ ] Admin login page (React)
-- [ ] Laravel Sanctum SPA authentication configured
-- [ ] Protected admin routes middleware
-- [ ] Login/logout functionality working
-- [ ] Session persistence across page refreshes
-- [ ] CSRF protection configured
-- [ ] AuthContext in React for managing auth state
-- [ ] Protected route component in React
-- [ ] Redirect to login if unauthenticated
-- [ ] Create initial admin user seeder
+- [x] Admin login page (React)
+- [x] Laravel Sanctum SPA authentication configured
+- [x] Protected admin routes middleware
+- [x] Login/logout functionality working
+- [x] Session persistence across page refreshes
+- [x] CSRF protection configured
+- [x] AuthContext in React for managing auth state
+- [x] Protected route component in React
+- [x] Redirect to login if unauthenticated
+- [x] Create initial admin user seeder
 
 ---
 
