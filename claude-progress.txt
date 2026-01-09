@@ -1,0 +1,125 @@
+# Sawdust & Coffee Website - Progress Log
+
+## Current Status
+Project initialization complete. Full-stack foundation is in place with Laravel 11 backend, React + TypeScript frontend, Docker MySQL setup, and comprehensive project documentation. The project is ready for feature development starting with Phase 1: Foundation & Infrastructure.
+
+## Last Session Summary
+- Date: 2026-01-09
+- Features completed: Project scaffold and initialization
+- Features in progress: None
+- Known issues: None
+- Next recommended action: Install Laravel Sanctum and configure CORS for SPA authentication
+
+## Environment Notes
+- Database: MySQL 8.0 container configured in docker-compose.yml (not yet started)
+  - Container name: sawdust_mysql
+  - Database: sawdust_coffee
+  - User: sawdust
+  - Password: sawdust_secret
+  - Port: 3306
+  - PHPMyAdmin available on port 8080
+- Frontend dev server: Not started (will run on port 5173 via Vite)
+- Backend dev server: Not started (will run on port 8000 via `php artisan serve`)
+- Stripe: Placeholder keys configured in .env, needs actual test keys from Stripe dashboard
+
+## Session History
+
+### Session 1 - 2026-01-09 (Initialization)
+**Worked on:** Complete project initialization and scaffold
+
+**Completed:**
+- ✅ Created main project directory structure
+- ✅ Initialized Laravel 11 backend with PHP 8.3
+- ✅ Initialized React + Vite + TypeScript frontend
+- ✅ Configured Tailwind CSS with custom woodworking theme colors:
+  - Wood shades (50-900)
+  - Sawdust (light, default, dark)
+  - Coffee (light, default, dark)
+- ✅ Created docker-compose.yml with MySQL 8.0 and phpMyAdmin
+- ✅ Configured Laravel .env with database credentials
+- ✅ Configured Laravel .env.example with Stripe placeholder keys
+- ✅ Generated comprehensive FEATURES.md with all project features as checklist
+- ✅ Created detailed README.md with:
+  - Project overview
+  - Tech stack documentation
+  - Installation instructions
+  - API endpoints reference
+  - Development workflow
+  - Deployment guide
+  - Code standards
+- ✅ Initialized git repository
+- ✅ Made initial commit (ad5f1a6)
+- ✅ Created this progress tracking file
+
+**Commits:**
+- ad5f1a6 - Initial project setup
+
+**Notes for next agent:**
+1. **First priority:** Install and configure Laravel Sanctum for SPA authentication
+   - Run: `composer require laravel/sanctum`
+   - Publish config: `php artisan vendor:publish --provider="Laravel\Sanctum\SanctumServiceProvider"`
+   - Configure CORS in `config/cors.php`
+   - Update `config/sanctum.php` for SPA authentication
+   - Add Sanctum middleware to `bootstrap/app.php`
+
+2. **Second priority:** Start Docker containers and verify MySQL connection
+   - Run: `docker-compose up -d`
+   - Verify: `docker-compose ps`
+   - Test connection from Laravel
+
+3. **Third priority:** Begin Phase 1.2 - Database Schema
+   - Create migrations for all tables (see FEATURES.md Phase 1.2)
+   - Start with core tables: users, products, product_images, categories
+   - Create model files with relationships
+   - Create factory and seeder files
+
+4. **Additional setup needed:**
+   - Install Stripe PHP SDK: `composer require stripe/stripe-php`
+   - Install frontend dependencies:
+     - `npm install react-router-dom axios @tanstack/react-query`
+     - `npm install -D @types/react-router-dom`
+   - Configure API routes file: `backend/routes/api.php`
+   - Set up CORS for localhost:5173 (Vite dev server)
+
+5. **Testing setup:**
+   - Backend: PHPUnit is already configured
+   - Frontend: Install testing libraries when ready for tests
+
+6. **Architecture decisions made:**
+   - Using Tailwind CSS exclusively for styling (no CSS modules or styled-components)
+   - Using React Query for API state management (to be installed)
+   - Using Laravel Sanctum for SPA auth (simpler than Passport for this use case)
+   - Using Stripe Checkout Sessions (simpler than Elements for initial launch)
+   - Using local file storage initially (can migrate to S3 later)
+
+7. **Important reminders:**
+   - Never commit .env file (only .env.example)
+   - Always run tests before committing
+   - Update FEATURES.md checkboxes as features are completed
+   - Keep this progress file updated after each session
+   - Make atomic commits with clear messages
+
+8. **Potential blockers to watch for:**
+   - Stripe webhook testing requires Stripe CLI or ngrok for local development
+   - Image uploads will need proper Laravel storage configuration
+   - CORS configuration must allow credentials for Sanctum cookies
+
+## Next Steps (Recommended Order)
+
+1. Install Laravel Sanctum and configure SPA authentication
+2. Start Docker MySQL container and verify connection
+3. Create database migrations for core tables
+4. Create Eloquent models with relationships
+5. Create database seeders (especially for admin user)
+6. Install Stripe PHP SDK
+7. Install frontend packages (react-router-dom, axios, react-query)
+8. Create basic API structure (routes, controllers)
+9. Set up frontend routing structure
+10. Build authentication flow (login page + API)
+
+---
+
+**Project Health:** ✅ Excellent - Clean initialization, ready for development
+**Blockers:** None
+**Technical Debt:** None yet
+**Documentation:** Complete for initial phase
