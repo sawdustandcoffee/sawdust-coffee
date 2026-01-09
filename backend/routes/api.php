@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -17,21 +18,32 @@ use Illuminate\Support\Facades\Route;
 // Public routes
 
 // Authentication routes
-Route::post('/login', function () {
-    return response()->json(['message' => 'Login endpoint']);
-});
-
-Route::post('/register', function () {
-    return response()->json(['message' => 'Register endpoint']);
-});
+Route::post('/login', [AuthController::class, 'login']);
 
 // Protected routes (require authentication)
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
+    // Auth
+    Route::get('/user', [AuthController::class, 'user']);
+    Route::post('/logout', [AuthController::class, 'logout']);
 
-    Route::post('/logout', function () {
-        return response()->json(['message' => 'Logout endpoint']);
+    // Products (Admin)
+    Route::prefix('admin')->group(function () {
+        Route::apiResource('products', \App\Http\Controllers\Api\ProductController::class);
+        Route::apiResource('categories', \App\Http\Controllers\Api\ProductCategoryController::class);
+        Route::apiResource('gallery', \App\Http\Controllers\Api\GalleryItemController::class);
+        Route::apiResource('orders', \App\Http\Controllers\Api\OrderController::class)->only(['index', 'show', 'update']);
+        Route::apiResource('quotes', \App\Http\Controllers\Api\QuoteRequestController::class);
+        Route::apiResource('content', \App\Http\Controllers\Api\SiteContentController::class);
     });
+});
+
+// Public API routes (no auth required)
+Route::prefix('public')->group(function () {
+    Route::get('/products', [\App\Http\Controllers\Api\ProductController::class, 'publicIndex']);
+    Route::get('/products/{slug}', [\App\Http\Controllers\Api\ProductController::class, 'publicShow']);
+    Route::get('/categories', [\App\Http\Controllers\Api\ProductCategoryController::class, 'publicIndex']);
+    Route::get('/gallery', [\App\Http\Controllers\Api\GalleryItemController::class, 'publicIndex']);
+    Route::get('/content', [\App\Http\Controllers\Api\SiteContentController::class, 'publicIndex']);
+    Route::post('/contact', [\App\Http\Controllers\Api\ContactFormController::class, 'store']);
+    Route::post('/quotes', [\App\Http\Controllers\Api\QuoteRequestController::class, 'store']);
 });
