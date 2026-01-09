@@ -1,14 +1,14 @@
 # Sawdust & Coffee Website - Progress Log
 
 ## Current Status
-Project initialization complete. Full-stack foundation is in place with Laravel 11 backend, React + TypeScript frontend, Docker MySQL setup, and comprehensive project documentation. The project is ready for feature development starting with Phase 1: Foundation & Infrastructure.
+Phase 1.1 (Project Setup) and Phase 1.2 (Database Schema) are complete. Laravel Sanctum is configured for SPA authentication, Stripe SDK is installed, all database migrations are created with proper schemas and relationships. Frontend packages (React Router, Axios, React Query) are installed. The project is ready to start building Eloquent models, seeders, and then move into authentication implementation (Phase 1.3).
 
 ## Last Session Summary
-- Date: 2026-01-09
-- Features completed: Project scaffold and initialization
+- Date: 2026-01-09 (Session 2)
+- Features completed: Laravel Sanctum setup, Stripe SDK installation, all database migrations, frontend package installation
 - Features in progress: None
-- Known issues: None
-- Next recommended action: Install Laravel Sanctum and configure CORS for SPA authentication
+- Known issues: Docker not available in this environment (user will need to start manually)
+- Next recommended action: Create Eloquent models with relationships, then create database seeders (especially admin user)
 
 ## Environment Notes
 - Database: MySQL 8.0 container configured in docker-compose.yml (not yet started)
@@ -53,69 +53,111 @@ Project initialization complete. Full-stack foundation is in place with Laravel 
 
 **Commits:**
 - ad5f1a6 - Initial project setup
+- 1a61d32 - docs: add initial progress tracking file
+
+---
+
+### Session 2 - 2026-01-09 (Backend Foundation & Database Schema)
+**Worked on:** Laravel Sanctum setup, Stripe integration, complete database schema, frontend packages
+
+**Completed:**
+- ✅ Installed Laravel Sanctum v4.2.2
+- ✅ Published Sanctum configuration and migrations
+- ✅ Configured Sanctum stateful domains (localhost:5173, localhost:3000)
+- ✅ Updated bootstrap/app.php with API routing and stateful API middleware
+- ✅ Created routes/api.php with authentication route placeholders
+- ✅ Installed Stripe PHP SDK v19.1.0
+- ✅ Created all database migrations with complete schemas:
+  - **Users:** Added is_admin field
+  - **Product Categories:** name, slug, description, sort_order, active
+  - **Products:** name, slug, descriptions, price, sale_price, inventory, SKU, featured, active, soft deletes
+  - **Product Category Pivot:** Many-to-many relationship
+  - **Product Images:** product_id, path, alt_text, sort_order, is_primary
+  - **Product Variants:** product_id, name, type, price_modifier, inventory
+  - **Gallery Items:** title, description, category, image_path, featured, sort_order
+  - **Orders:** Full customer info, Stripe session_id, payment_intent, status, totals
+  - **Order Items:** Snapshot of product/variant data at purchase time
+  - **Quote Requests:** Full contact form with reference files (JSON), status tracking
+  - **Site Content:** Key-value CMS system with type and group fields
+  - **Contact Form Submissions:** name, email, phone, message, status, admin_notes
+- ✅ Installed frontend packages:
+  - react-router-dom
+  - axios
+  - @tanstack/react-query
+- ✅ Updated FEATURES.md with completed items
+- ✅ Updated .env and .env.example with Sanctum and frontend URLs
+
+**Commits:**
+- 847d11a - feat(backend): install Sanctum, Stripe SDK and create database schema
 
 **Notes for next agent:**
-1. **First priority:** Install and configure Laravel Sanctum for SPA authentication
-   - Run: `composer require laravel/sanctum`
-   - Publish config: `php artisan vendor:publish --provider="Laravel\Sanctum\SanctumServiceProvider"`
-   - Configure CORS in `config/cors.php`
-   - Update `config/sanctum.php` for SPA authentication
-   - Add Sanctum middleware to `bootstrap/app.php`
+1. **First priority:** Create Eloquent models with relationships
+   - Product model (with categories, images, variants relationships)
+   - ProductCategory model
+   - ProductImage model
+   - ProductVariant model
+   - GalleryItem model
+   - Order model (with items, customer info)
+   - OrderItem model
+   - QuoteRequest model
+   - SiteContent model
+   - ContactFormSubmission model
+   - Add proper $fillable, $casts, and relationship methods
 
-2. **Second priority:** Start Docker containers and verify MySQL connection
-   - Run: `docker-compose up -d`
-   - Verify: `docker-compose ps`
-   - Test connection from Laravel
+2. **Second priority:** Create database seeders
+   - AdminUserSeeder (create initial admin user)
+   - ProductCategorySeeder (seed some initial categories)
+   - SiteContentSeeder (seed default content for hero, about, etc.)
+   - Run seeders after migrations
 
-3. **Third priority:** Begin Phase 1.2 - Database Schema
-   - Create migrations for all tables (see FEATURES.md Phase 1.2)
-   - Start with core tables: users, products, product_images, categories
-   - Create model files with relationships
-   - Create factory and seeder files
+3. **Third priority:** Start Docker and run migrations
+   - User needs to run: `docker-compose up -d` (Docker not available in this environment)
+   - Run: `php artisan migrate`
+   - Run: `php artisan db:seed`
 
-4. **Additional setup needed:**
-   - Install Stripe PHP SDK: `composer require stripe/stripe-php`
-   - Install frontend dependencies:
-     - `npm install react-router-dom axios @tanstack/react-query`
-     - `npm install -D @types/react-router-dom`
-   - Configure API routes file: `backend/routes/api.php`
-   - Set up CORS for localhost:5173 (Vite dev server)
+4. **Fourth priority:** Build authentication system (Phase 1.3)
+   - Create AuthController with login/logout/user methods
+   - Implement login logic with Sanctum
+   - Create AuthService for business logic
+   - Create login page in React
+   - Set up React Context for auth state
+   - Create protected route component
 
-5. **Testing setup:**
-   - Backend: PHPUnit is already configured
-   - Frontend: Install testing libraries when ready for tests
-
-6. **Architecture decisions made:**
+5. **Architecture decisions made:**
    - Using Tailwind CSS exclusively for styling (no CSS modules or styled-components)
-   - Using React Query for API state management (to be installed)
-   - Using Laravel Sanctum for SPA auth (simpler than Passport for this use case)
-   - Using Stripe Checkout Sessions (simpler than Elements for initial launch)
+   - Using React Query for API state management (installed)
+   - Using Laravel Sanctum for SPA auth (configured)
+   - Using Stripe Checkout Sessions (SDK installed)
    - Using local file storage initially (can migrate to S3 later)
+   - Product-Category is many-to-many relationship (pivot table created)
+   - Order items store product/variant snapshot at purchase time
 
-7. **Important reminders:**
+6. **Important reminders:**
+   - Docker must be started by user: `docker-compose up -d`
    - Never commit .env file (only .env.example)
    - Always run tests before committing
    - Update FEATURES.md checkboxes as features are completed
    - Keep this progress file updated after each session
    - Make atomic commits with clear messages
 
-8. **Potential blockers to watch for:**
+7. **Potential blockers to watch for:**
+   - MySQL must be running before migrations can run
    - Stripe webhook testing requires Stripe CLI or ngrok for local development
    - Image uploads will need proper Laravel storage configuration
-   - CORS configuration must allow credentials for Sanctum cookies
+   - CORS is configured but needs testing with actual frontend requests
 
 ## Next Steps (Recommended Order)
 
-1. Install Laravel Sanctum and configure SPA authentication
-2. Start Docker MySQL container and verify connection
-3. Create database migrations for core tables
-4. Create Eloquent models with relationships
-5. Create database seeders (especially for admin user)
-6. Install Stripe PHP SDK
-7. Install frontend packages (react-router-dom, axios, react-query)
-8. Create basic API structure (routes, controllers)
-9. Set up frontend routing structure
-10. Build authentication flow (login page + API)
+1. Create all Eloquent models with relationships
+2. Create database seeders (admin user, categories, default content)
+3. Start Docker MySQL container (user action required)
+4. Run migrations and seeders
+5. Create authentication API endpoints (AuthController)
+6. Create login page in React
+7. Set up React Router and auth context
+8. Test authentication flow end-to-end
+9. Create admin dashboard layout
+10. Build product CRUD functionality
 
 ---
 

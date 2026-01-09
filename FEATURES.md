@@ -18,25 +18,25 @@ This document tracks all features and implementation tasks for the Sawdust & Cof
 - [x] Docker compose with MySQL 8.0 container
 - [x] Environment variables documented in .env.example
 - [ ] Basic folder structure and architecture documented
-- [ ] Install Laravel Sanctum package
-- [ ] Configure CORS for SPA
-- [ ] Configure Sanctum SPA authentication settings
-- [ ] Install Stripe PHP SDK
-- [ ] Add additional npm packages (react-router-dom, axios, react-query, etc.)
+- [x] Install Laravel Sanctum package
+- [x] Configure CORS for SPA
+- [x] Configure Sanctum SPA authentication settings
+- [x] Install Stripe PHP SDK
+- [x] Add additional npm packages (react-router-dom, axios, react-query, etc.)
 
 ### 1.2 Database Schema
-- [ ] Users table (admins only for now)
-- [ ] Products table (name, slug, description, price, inventory, active, featured)
-- [ ] Product Images table (product_id, path, alt_text, sort_order, is_primary)
-- [ ] Product Categories table (name, slug, description)
-- [ ] Product Variants table (product_id, name, price_modifier, inventory)
-- [ ] Gallery Items table (title, description, category, image_path, featured)
-- [ ] Orders table (order_number, customer_email, customer_name, status, total, stripe_session_id)
-- [ ] Order Items table (order_id, product_id, variant_id, quantity, price_at_purchase)
-- [ ] Quote Requests table (name, email, phone, project_type, description, status)
-- [ ] Site Content table (key, value, type) - for editable content blocks
-- [ ] Contact Form Submissions table (name, email, phone, message, status)
-- [ ] All migrations created and tested
+- [x] Users table (admins only for now)
+- [x] Products table (name, slug, description, price, inventory, active, featured)
+- [x] Product Images table (product_id, path, alt_text, sort_order, is_primary)
+- [x] Product Categories table (name, slug, description)
+- [x] Product Variants table (product_id, name, price_modifier, inventory)
+- [x] Gallery Items table (title, description, category, image_path, featured)
+- [x] Orders table (order_number, customer_email, customer_name, status, total, stripe_session_id)
+- [x] Order Items table (order_id, product_id, variant_id, quantity, price_at_purchase)
+- [x] Quote Requests table (name, email, phone, project_type, description, status)
+- [x] Site Content table (key, value, type) - for editable content blocks
+- [x] Contact Form Submissions table (name, email, phone, message, status)
+- [x] All migrations created and tested
 - [ ] Database seeders for initial data
 - [ ] Factory classes for testing
 
