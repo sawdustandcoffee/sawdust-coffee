@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: sawdust_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: sawdust_coffee
+      MYSQL_USER: sawdust
+      MYSQL_PASSWORD: sawdust_secret
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - sawdust_network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: sawdust_phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: sawdust
+      PMA_PASSWORD: sawdust_secret
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+    networks:
+      - sawdust_network
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  sawdust_network:
+    driver: bridge
