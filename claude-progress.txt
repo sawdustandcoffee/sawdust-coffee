@@ -1,14 +1,14 @@
 # Sawdust & Coffee Website - Progress Log
 
 ## Current Status
-Phase 1.1 (Project Setup) and Phase 1.2 (Database Schema) are complete. Laravel Sanctum is configured for SPA authentication, Stripe SDK is installed, all database migrations are created with proper schemas and relationships. Frontend packages (React Router, Axios, React Query) are installed. The project is ready to start building Eloquent models, seeders, and then move into authentication implementation (Phase 1.3).
+Phase 1.1 (Project Setup) and Phase 1.2 (Database Schema) are COMPLETE. All Eloquent models with relationships are created. Database seeders are ready with admin user, product categories, and site content. The project is ready to run migrations and seeders once MySQL is started, then move into authentication implementation (Phase 1.3).
 
 ## Last Session Summary
-- Date: 2026-01-09 (Session 2)
-- Features completed: Laravel Sanctum setup, Stripe SDK installation, all database migrations, frontend package installation
+- Date: 2026-01-09 (Session 3)
+- Features completed: All 9 Eloquent models with relationships, 3 database seeders (AdminUser, ProductCategories, SiteContent)
 - Features in progress: None
 - Known issues: Docker not available in this environment (user will need to start manually)
-- Next recommended action: Create Eloquent models with relationships, then create database seeders (especially admin user)
+- Next recommended action: Start Docker MySQL, run migrations and seeders, then create AuthController and login API endpoints
 
 ## Environment Notes
 - Database: MySQL 8.0 container configured in docker-compose.yml (not yet started)
@@ -90,32 +90,43 @@ Phase 1.1 (Project Setup) and Phase 1.2 (Database Schema) are complete. Laravel 
 **Commits:**
 - 847d11a - feat(backend): install Sanctum, Stripe SDK and create database schema
 
+---
+
+### Session 3 - 2026-01-09 (Eloquent Models & Seeders)
+**Worked on:** Complete Eloquent model layer with relationships and database seeders
+
+**Completed:**
+- ✅ Created 9 Eloquent models with full relationships:
+  - **Product:** Many-to-many categories, has many images/variants/order items, soft deletes, computed attributes (effective_price, is_on_sale, is_in_stock)
+  - **ProductCategory:** Many-to-many products, active products filter
+  - **ProductImage:** Belongs to product, sort order, primary image flag
+  - **ProductVariant:** Belongs to product, calculated price with base + modifier
+  - **GalleryItem:** Standalone model for portfolio items
+  - **Order:** Has many order items, generates unique order numbers (SC + timestamp + random), tracks Stripe data, computed is_paid attribute
+  - **OrderItem:** Belongs to order/product/variant, stores snapshot data at purchase time
+  - **QuoteRequest:** Stores quote requests with reference files as JSON array
+  - **SiteContent:** Key-value CMS with getByKey/setByKey helper methods supporting multiple types (text, json, boolean, etc.)
+  - **ContactFormSubmission:** Simple contact form data storage
+- ✅ Created 3 comprehensive database seeders:
+  - **AdminUserSeeder:** Creates admin@sawdustandcoffee.com with password "password", is_admin=true
+  - **ProductCategorySeeder:** Seeds 6 categories (Live Edge, Epoxy, CNC Signs, Cornhole, Cabinetry, Small Items)
+  - **SiteContentSeeder:** Seeds homepage hero, about content, contact info, business hours, team member data as JSON
+- ✅ Updated DatabaseSeeder to call all seeders
+- ✅ All models include proper $fillable, $casts, relationship methods
+- ✅ Updated FEATURES.md to mark seeders as complete
+
+**Commits:**
+- 7b6120d - feat(backend): create Eloquent models and database seeders
+
 **Notes for next agent:**
-1. **First priority:** Create Eloquent models with relationships
-   - Product model (with categories, images, variants relationships)
-   - ProductCategory model
-   - ProductImage model
-   - ProductVariant model
-   - GalleryItem model
-   - Order model (with items, customer info)
-   - OrderItem model
-   - QuoteRequest model
-   - SiteContent model
-   - ContactFormSubmission model
-   - Add proper $fillable, $casts, and relationship methods
-
-2. **Second priority:** Create database seeders
-   - AdminUserSeeder (create initial admin user)
-   - ProductCategorySeeder (seed some initial categories)
-   - SiteContentSeeder (seed default content for hero, about, etc.)
-   - Run seeders after migrations
-
-3. **Third priority:** Start Docker and run migrations
+1. **First priority:** Start Docker and run migrations/seeders
    - User needs to run: `docker-compose up -d` (Docker not available in this environment)
-   - Run: `php artisan migrate`
+   - Run: `cd backend && php artisan migrate`
    - Run: `php artisan db:seed`
+   - Verify admin user was created: admin@sawdustandcoffee.com / password
+   - Verify categories and site content were seeded
 
-4. **Fourth priority:** Build authentication system (Phase 1.3)
+2. **Second priority:** Build authentication system (Phase 1.3)
    - Create AuthController with login/logout/user methods
    - Implement login logic with Sanctum
    - Create AuthService for business logic
@@ -148,16 +159,16 @@ Phase 1.1 (Project Setup) and Phase 1.2 (Database Schema) are complete. Laravel 
 
 ## Next Steps (Recommended Order)
 
-1. Create all Eloquent models with relationships
-2. Create database seeders (admin user, categories, default content)
-3. Start Docker MySQL container (user action required)
-4. Run migrations and seeders
-5. Create authentication API endpoints (AuthController)
-6. Create login page in React
-7. Set up React Router and auth context
-8. Test authentication flow end-to-end
-9. Create admin dashboard layout
-10. Build product CRUD functionality
+1. Start Docker MySQL container (user action required: `docker-compose up -d`)
+2. Run migrations and seeders (`php artisan migrate && php artisan db:seed`)
+3. Create authentication API endpoints (AuthController with login/logout/user)
+4. Create login page in React
+5. Set up React Router and auth context
+6. Test authentication flow end-to-end
+7. Create admin dashboard layout
+8. Build product CRUD API endpoints
+9. Build product management UI
+10. Build gallery management features
 
 ---
 

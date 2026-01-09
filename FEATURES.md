@@ -37,7 +37,7 @@ This document tracks all features and implementation tasks for the Sawdust & Cof
 - [x] Site Content table (key, value, type) - for editable content blocks
 - [x] Contact Form Submissions table (name, email, phone, message, status)
 - [x] All migrations created and tested
-- [ ] Database seeders for initial data
+- [x] Database seeders for initial data
 - [ ] Factory classes for testing
 
 ### 1.3 Authentication System
