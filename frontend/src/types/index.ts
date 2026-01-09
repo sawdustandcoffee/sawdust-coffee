@@ -34,6 +34,8 @@ export interface ProductCategory {
   description?: string;
   sort_order: number;
   active: boolean;
+  products_count?: number;
+  products?: Product[];
 }
 
 export interface ProductImage {
@@ -75,14 +77,21 @@ export interface Order {
   city?: string;
   state?: string;
   zip?: string;
-  status: string;
+  status: 'pending' | 'processing' | 'shipped' | 'completed' | 'cancelled';
+  payment_status: 'pending' | 'paid' | 'failed' | 'refunded';
+  stripe_session_id?: string;
+  stripe_payment_intent?: string;
+  tracking_number?: string;
+  admin_notes?: string;
   subtotal: string;
   tax: string;
   shipping: string;
   total: string;
   paid_at?: string;
   created_at: string;
+  updated_at: string;
   items?: OrderItem[];
+  is_paid?: boolean;
 }
 
 export interface OrderItem {
@@ -95,6 +104,8 @@ export interface OrderItem {
   quantity: number;
   price_at_purchase: string;
   subtotal: string;
+  product?: Product;
+  variant?: ProductVariant;
 }
 
 export interface QuoteRequest {
@@ -107,19 +118,36 @@ export interface QuoteRequest {
   budget_range?: string;
   timeline?: string;
   reference_files?: string[];
-  status: string;
+  status: 'new' | 'reviewed' | 'quoted' | 'accepted' | 'declined' | 'completed';
   admin_notes?: string;
+  quoted_price?: string;
   responded_at?: string;
   created_at: string;
+  updated_at: string;
 }
 
 export interface SiteContent {
   id: number;
   key: string;
   value: string;
-  type: string;
+  type: 'text' | 'html' | 'json' | 'boolean' | 'integer' | 'float';
   group?: string;
   description?: string;
+  decoded_value?: any;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface ContactFormSubmission {
+  id: number;
+  name: string;
+  email: string;
+  phone?: string;
+  message: string;
+  status: 'new' | 'read' | 'responded' | 'archived';
+  admin_notes?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface PaginatedResponse<T> {
