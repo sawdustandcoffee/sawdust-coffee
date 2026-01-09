@@ -26,7 +26,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    // Products (Admin)
+    // Admin routes
     Route::prefix('admin')->group(function () {
         Route::apiResource('products', \App\Http\Controllers\Api\ProductController::class);
         Route::apiResource('categories', \App\Http\Controllers\Api\ProductCategoryController::class);
@@ -34,6 +34,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('orders', \App\Http\Controllers\Api\OrderController::class)->only(['index', 'show', 'update']);
         Route::apiResource('quotes', \App\Http\Controllers\Api\QuoteRequestController::class);
         Route::apiResource('content', \App\Http\Controllers\Api\SiteContentController::class);
+        Route::apiResource('contact-submissions', \App\Http\Controllers\Api\ContactFormController::class)->except(['store']);
+
+        // Stats endpoints
+        Route::get('/stats/orders', [\App\Http\Controllers\Api\OrderController::class, 'stats']);
+        Route::get('/stats/quotes', [\App\Http\Controllers\Api\QuoteRequestController::class, 'stats']);
+        Route::get('/stats/contact', [\App\Http\Controllers\Api\ContactFormController::class, 'stats']);
+
+        // Additional routes
+        Route::get('/gallery/categories', [\App\Http\Controllers\Api\GalleryItemController::class, 'categories']);
+        Route::get('/content/group/{group}', [\App\Http\Controllers\Api\SiteContentController::class, 'publicGroup']);
     });
 });
 
