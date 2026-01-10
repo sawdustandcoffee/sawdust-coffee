@@ -9,6 +9,7 @@ import RelatedProducts from '../../components/RelatedProducts';
 import ProductBadge from '../../components/ProductBadge';
 import Breadcrumb, { BreadcrumbItem } from '../../components/Breadcrumb';
 import SocialShare from '../../components/SocialShare';
+import ImageLightbox from '../../components/ImageLightbox';
 import { useCart, SelectedOption } from '../../context/CartContext';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { useRecentlyViewed } from '../../context/RecentlyViewedContext';
@@ -40,6 +41,8 @@ export default function ProductDetail() {
   const [stockNotificationMessage, setStockNotificationMessage] = useState('');
   const [stockNotificationSuccess, setStockNotificationSuccess] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState<SelectedOption[]>([]);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxInitialIndex, setLightboxInitialIndex] = useState(0);
   const { addToCart } = useCart();
   const { user } = useCustomerAuth();
   const { addToRecentlyViewed } = useRecentlyViewed();
@@ -307,14 +310,38 @@ export default function ProductDetail() {
             {/* Images */}
             <div>
               {/* Main Image */}
-              <div className="aspect-square bg-gray-200 rounded-lg overflow-hidden mb-4">
+              <div
+                className="aspect-square bg-gray-200 rounded-lg overflow-hidden mb-4 cursor-zoom-in relative group"
+                onClick={() => {
+                  if (hasImages) {
+                    setLightboxInitialIndex(selectedImage);
+                    setLightboxOpen(true);
+                  }
+                }}
+              >
                 {hasImages ? (
-                  <img
-                    src={product.images![selectedImage].path}
-                    alt={product.images![selectedImage].alt_text || product.name}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
+                  <>
+                    <img
+                      src={product.images![selectedImage].path}
+                      alt={product.images![selectedImage].alt_text || product.name}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                    {/* Zoom Indicator */}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all">
+                      <svg
+                        className="w-16 h-16 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                        fill="none"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
+                      </svg>
+                    </div>
+                  </>
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
                     <span className="text-gray-400 text-xl">No Image Available</span>
@@ -1041,6 +1068,16 @@ export default function ProductDetail() {
           </div>
         </div>
       </div>
+
+      {/* Image Lightbox */}
+      {hasImages && (
+        <ImageLightbox
+          images={product.images!}
+          isOpen={lightboxOpen}
+          onClose={() => setLightboxOpen(false)}
+          initialIndex={lightboxInitialIndex}
+        />
+      )}
     </PublicLayout>
   );
 }
