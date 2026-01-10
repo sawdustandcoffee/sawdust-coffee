@@ -12,6 +12,8 @@ export default function Products() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState('');
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [bulkAction, setBulkAction] = useState('');
 
   useEffect(() => {
     fetchProducts();
@@ -65,6 +67,58 @@ export default function Products() {
     }
   };
 
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedIds(products.map((p) => p.id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const handleSelectOne = (productId: number, checked: boolean) => {
+    if (checked) {
+      setSelectedIds([...selectedIds, productId]);
+    } else {
+      setSelectedIds(selectedIds.filter((id) => id !== productId));
+    }
+  };
+
+  const handleBulkAction = async () => {
+    if (!bulkAction) {
+      alert('Please select an action');
+      return;
+    }
+
+    if (selectedIds.length === 0) {
+      alert('Please select at least one product');
+      return;
+    }
+
+    const actionLabels: Record<string, string> = {
+      delete: 'delete',
+      activate: 'activate',
+      deactivate: 'deactivate',
+      feature: 'mark as featured',
+      unfeature: 'unmark as featured',
+    };
+
+    if (!confirm(`Are you sure you want to ${actionLabels[bulkAction]} ${selectedIds.length} product(s)?`)) {
+      return;
+    }
+
+    try {
+      await api.post('/admin/products/bulk-action', {
+        action: bulkAction,
+        product_ids: selectedIds,
+      });
+      setSelectedIds([]);
+      setBulkAction('');
+      fetchProducts();
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Failed to perform bulk action');
+    }
+  };
+
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -76,7 +130,7 @@ export default function Products() {
         </div>
 
         <Card>
-          <div className="mb-4">
+          <div className="mb-4 space-y-4">
             <input
               type="text"
               placeholder="Search products..."
@@ -87,6 +141,36 @@ export default function Products() {
               }}
               className="w-full md:w-96 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coffee"
             />
+
+            {selectedIds.length > 0 && (
+              <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                <span className="text-sm font-medium text-gray-700">
+                  {selectedIds.length} product(s) selected
+                </span>
+                <select
+                  value={bulkAction}
+                  onChange={(e) => setBulkAction(e.target.value)}
+                  className="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-coffee"
+                >
+                  <option value="">Select action...</option>
+                  <option value="activate">Activate</option>
+                  <option value="deactivate">Deactivate</option>
+                  <option value="feature">Mark as Featured</option>
+                  <option value="unfeature">Unmark as Featured</option>
+                  <option value="delete">Delete</option>
+                </select>
+                <Button size="sm" onClick={handleBulkAction}>
+                  Apply
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => setSelectedIds([])}
+                >
+                  Clear
+                </Button>
+              </div>
+            )}
           </div>
 
           {loading ? (
@@ -105,6 +189,14 @@ export default function Products() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-gray-200">
+                      <th className="text-left py-3 px-4 w-12">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.length === products.length && products.length > 0}
+                          onChange={(e) => handleSelectAll(e.target.checked)}
+                          className="rounded text-coffee focus:ring-coffee"
+                        />
+                      </th>
                       <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
                         Product
                       </th>
@@ -125,6 +217,14 @@ export default function Products() {
                   <tbody>
                     {products.map((product) => (
                       <tr key={product.id} className="border-b border-gray-100 hover:bg-gray-50">
+                        <td className="py-3 px-4">
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.includes(product.id)}
+                            onChange={(e) => handleSelectOne(product.id, e.target.checked)}
+                            className="rounded text-coffee focus:ring-coffee"
+                          />
+                        </td>
                         <td className="py-3 px-4">
                           <div>
                             <div className="font-medium text-gray-900">

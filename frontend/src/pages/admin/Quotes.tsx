@@ -88,6 +88,25 @@ export default function Quotes() {
     }
   };
 
+  const handleExportCsv = async () => {
+    try {
+      const response = await api.get('/admin/quotes-export/csv', {
+        responseType: 'blob',
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `quote_requests_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Failed to export quote requests');
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     const variants: Record<string, 'default' | 'warning' | 'info' | 'success' | 'danger'> = {
       new: 'warning',
@@ -105,6 +124,9 @@ export default function Quotes() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold text-gray-900">Quote Requests</h1>
+          <Button variant="secondary" onClick={handleExportCsv}>
+            Export to CSV
+          </Button>
         </div>
 
         <Card>

@@ -36,6 +36,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::apiResource('products', \App\Http\Controllers\Api\ProductController::class);
 
+        // Product bulk actions
+        Route::post('/products/bulk-action', [\App\Http\Controllers\Api\ProductController::class, 'bulkAction']);
+
         // Product image management
         Route::post('/products/{id}/images', [\App\Http\Controllers\Api\ProductController::class, 'uploadImage']);
         Route::put('/products/{productId}/images/{imageId}', [\App\Http\Controllers\Api\ProductController::class, 'updateImage']);
@@ -45,9 +48,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('gallery', \App\Http\Controllers\Api\GalleryItemController::class);
         Route::apiResource('orders', \App\Http\Controllers\Api\OrderController::class)->only(['index', 'show', 'update']);
         Route::get('/orders-export/csv', [\App\Http\Controllers\Api\OrderController::class, 'exportCsv']);
+
         Route::apiResource('quotes', \App\Http\Controllers\Api\QuoteRequestController::class);
+        Route::get('/quotes-export/csv', [\App\Http\Controllers\Api\QuoteRequestController::class, 'exportCsv']);
+
         Route::apiResource('content', \App\Http\Controllers\Api\SiteContentController::class);
+
         Route::apiResource('contact-submissions', \App\Http\Controllers\Api\ContactFormController::class)->except(['store']);
+        Route::get('/contact-submissions-export/csv', [\App\Http\Controllers\Api\ContactFormController::class, 'exportCsv']);
 
         // Stats endpoints
         Route::get('/stats/orders', [\App\Http\Controllers\Api\OrderController::class, 'stats']);

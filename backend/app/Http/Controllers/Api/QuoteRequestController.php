@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Response;
 
 class QuoteRequestController extends Controller
 {
@@ -159,5 +160,93 @@ class QuoteRequestController extends Controller
         ];
 
         return response()->json($stats);
+    }
+
+    /**
+     * Export quote requests to CSV.
+     */
+    public function exportCsv(Request $request)
+    {
+        $query = QuoteRequest::query();
+
+        // Apply same filters as index
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('project_type', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        if ($status = $request->input('status')) {
+            $query->where('status', $status);
+        }
+
+        if ($projectType = $request->input('project_type')) {
+            $query->where('project_type', $projectType);
+        }
+
+        if ($startDate = $request->input('start_date')) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+        if ($endDate = $request->input('end_date')) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+
+        $sortBy = $request->input('sort_by', 'created_at');
+        $sortDir = $request->input('sort_dir', 'desc');
+        $query->orderBy($sortBy, $sortDir);
+
+        $quotes = $query->get();
+
+        // Generate CSV
+        $filename = 'quote_requests_' . now()->format('Y-m-d_His') . '.csv';
+        $handle = fopen('php://temp', 'r+');
+
+        // CSV Headers
+        fputcsv($handle, [
+            'ID',
+            'Date',
+            'Name',
+            'Email',
+            'Phone',
+            'Project Type',
+            'Description',
+            'Budget Range',
+            'Timeline',
+            'Status',
+            'Quoted Price',
+            'Admin Notes',
+            'Responded At',
+        ]);
+
+        // CSV Data
+        foreach ($quotes as $quote) {
+            fputcsv($handle, [
+                $quote->id,
+                $quote->created_at->format('Y-m-d H:i:s'),
+                $quote->name,
+                $quote->email,
+                $quote->phone ?? '',
+                $quote->project_type ?? '',
+                $quote->description,
+                $quote->budget_range ?? '',
+                $quote->timeline ?? '',
+                $quote->status,
+                $quote->quoted_price ? '$' . number_format($quote->quoted_price, 2) : '',
+                $quote->admin_notes ?? '',
+                $quote->responded_at ? $quote->responded_at->format('Y-m-d H:i:s') : '',
+            ]);
+        }
+
+        rewind($handle);
+        $csv = stream_get_contents($handle);
+        fclose($handle);
+
+        return Response::make($csv, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
     }
 }

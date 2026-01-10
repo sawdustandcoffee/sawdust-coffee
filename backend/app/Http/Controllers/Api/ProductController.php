@@ -303,4 +303,57 @@ class ProductController extends Controller
             'message' => 'Image deleted successfully',
         ]);
     }
+
+    /**
+     * Perform bulk actions on products.
+     */
+    public function bulkAction(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'action' => 'required|in:delete,activate,deactivate,feature,unfeature',
+            'product_ids' => 'required|array|min:1',
+            'product_ids.*' => 'exists:products,id',
+        ]);
+
+        $productIds = $validated['product_ids'];
+        $action = $validated['action'];
+        $count = 0;
+
+        switch ($action) {
+            case 'delete':
+                $count = Product::whereIn('id', $productIds)->delete();
+                $message = "$count product(s) deleted successfully";
+                break;
+
+            case 'activate':
+                $count = Product::whereIn('id', $productIds)->update(['active' => true]);
+                $message = "$count product(s) activated successfully";
+                break;
+
+            case 'deactivate':
+                $count = Product::whereIn('id', $productIds)->update(['active' => false]);
+                $message = "$count product(s) deactivated successfully";
+                break;
+
+            case 'feature':
+                $count = Product::whereIn('id', $productIds)->update(['featured' => true]);
+                $message = "$count product(s) marked as featured successfully";
+                break;
+
+            case 'unfeature':
+                $count = Product::whereIn('id', $productIds)->update(['featured' => false]);
+                $message = "$count product(s) unmarked as featured successfully";
+                break;
+
+            default:
+                return response()->json([
+                    'message' => 'Invalid action',
+                ], 400);
+        }
+
+        return response()->json([
+            'message' => $message,
+            'count' => $count,
+        ]);
+    }
 }
