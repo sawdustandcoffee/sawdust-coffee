@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import api from '../../lib/axios';
 import AdminLayout from '../../layouts/AdminLayout';
 import { Card, Spinner } from '../../components/ui';
+import RevenueChart from '../../components/admin/RevenueChart';
+import OrderStatusChart from '../../components/admin/OrderStatusChart';
 
 interface DashboardStats {
   products: {
@@ -143,6 +145,19 @@ export default function Dashboard() {
               </div>
               <div className="text-4xl">💬</div>
             </div>
+          </Card>
+        </div>
+
+        {/* Charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Revenue Trend (Last 12 Months)</h2>
+            <RevenueChart />
+          </Card>
+
+          <Card>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Order Status Distribution</h2>
+            <OrderStatusChart />
           </Card>
         </div>
 

@@ -12,6 +12,7 @@ import Orders from './pages/admin/Orders';
 import Quotes from './pages/admin/Quotes';
 import AdminContact from './pages/admin/Contact';
 import Content from './pages/admin/Content';
+import ActivityLog from './pages/admin/ActivityLog';
 
 // Public pages
 import Home from './pages/public/Home';
@@ -125,6 +126,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Content />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/activity"
+            element={
+              <ProtectedRoute>
+                <ActivityLog />
               </ProtectedRoute>
             }
           />
