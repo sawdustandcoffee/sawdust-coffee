@@ -26,6 +26,10 @@ export default function Gallery() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
+  const [isBulkUploadModalOpen, setIsBulkUploadModalOpen] = useState(false);
+  const [bulkFiles, setBulkFiles] = useState<File[]>([]);
+  const [bulkCategory, setBulkCategory] = useState('');
+  const [bulkUploading, setBulkUploading] = useState(false);
 
   useEffect(() => {
     fetchItems();
@@ -233,12 +237,80 @@ export default function Gallery() {
     return `${import.meta.env.VITE_API_URL}/storage/${path}`;
   };
 
+  const handleBulkFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+
+    // Validate files
+    const validFiles = files.filter(file => {
+      if (!file.type.startsWith('image/')) {
+        alert(`${file.name} is not an image file`);
+        return false;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        alert(`${file.name} is larger than 5MB`);
+        return false;
+      }
+      return true;
+    });
+
+    if (validFiles.length > 10) {
+      alert('You can upload maximum 10 images at once');
+      setBulkFiles(validFiles.slice(0, 10));
+    } else {
+      setBulkFiles(validFiles);
+    }
+  };
+
+  const handleBulkUpload = async () => {
+    if (bulkFiles.length === 0) return;
+
+    try {
+      setBulkUploading(true);
+      const formData = new FormData();
+
+      bulkFiles.forEach((file) => {
+        formData.append('images[]', file);
+      });
+
+      if (bulkCategory) {
+        formData.append('category', bulkCategory);
+      }
+
+      const response = await api.post('/admin/gallery/bulk-upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      alert(response.data.message);
+      setIsBulkUploadModalOpen(false);
+      setBulkFiles([]);
+      setBulkCategory('');
+      fetchItems();
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Failed to upload images');
+    } finally {
+      setBulkUploading(false);
+    }
+  };
+
+  const openBulkUploadModal = () => {
+    setBulkFiles([]);
+    setBulkCategory('');
+    setIsBulkUploadModalOpen(true);
+  };
+
   return (
     <AdminLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold text-gray-900">Gallery</h1>
-          <Button onClick={openCreateModal}>+ Add Image</Button>
+          <div className="flex gap-2">
+            <Button variant="secondary" onClick={openBulkUploadModal}>
+              Bulk Upload
+            </Button>
+            <Button onClick={openCreateModal}>+ Add Image</Button>
+          </div>
         </div>
 
         <Card>
@@ -485,6 +557,78 @@ export default function Gallery() {
             </Button>
           </div>
         </form>
+      </Modal>
+
+      {/* Bulk Upload Modal */}
+      <Modal
+        isOpen={isBulkUploadModalOpen}
+        onClose={() => setIsBulkUploadModalOpen(false)}
+        title="Bulk Upload Images"
+        size="md"
+      >
+        <div className="space-y-4">
+          <p className="text-gray-600">
+            Upload multiple images to the gallery at once. Maximum 10 images per upload.
+          </p>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Select Images
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleBulkFileSelect}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coffee"
+            />
+            <p className="text-xs text-gray-500 mt-2">
+              Supported: JPEG, PNG, WebP. Max size: 5MB each. Max 10 files.
+            </p>
+          </div>
+
+          {bulkFiles.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Selected Files ({bulkFiles.length})
+              </label>
+              <div className="max-h-40 overflow-y-auto border border-gray-200 rounded-lg p-2">
+                {bulkFiles.map((file, index) => (
+                  <div key={index} className="flex items-center justify-between py-1">
+                    <span className="text-sm text-gray-700 truncate">{file.name}</span>
+                    <span className="text-xs text-gray-500">
+                      {(file.size / 1024 / 1024).toFixed(2)} MB
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <Input
+            label="Category (Optional)"
+            value={bulkCategory}
+            onChange={(e) => setBulkCategory(e.target.value)}
+            placeholder="e.g., Live Edge, Epoxy, CNC Signs"
+            helperText="Apply this category to all uploaded images"
+          />
+
+          <div className="flex gap-3 pt-4">
+            <Button
+              onClick={handleBulkUpload}
+              disabled={bulkUploading || bulkFiles.length === 0}
+            >
+              {bulkUploading ? 'Uploading...' : `Upload ${bulkFiles.length} Image(s)`}
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setIsBulkUploadModalOpen(false)}
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
       </Modal>
     </AdminLayout>
   );

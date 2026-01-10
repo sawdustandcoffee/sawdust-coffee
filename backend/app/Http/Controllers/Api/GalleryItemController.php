@@ -212,4 +212,51 @@ class GalleryItemController extends Controller
             'item' => $item->fresh(),
         ]);
     }
+
+    /**
+     * Bulk upload gallery images.
+     */
+    public function bulkUpload(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'images' => 'required|array|min:1|max:10',
+            'images.*' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120', // 5MB max each
+            'category' => 'nullable|string|max:100',
+            'featured' => 'nullable|boolean',
+        ]);
+
+        $uploaded = [];
+        $errors = [];
+
+        foreach ($request->file('images') as $index => $file) {
+            try {
+                // Store the image
+                $path = $file->store('gallery', 'public');
+
+                // Create gallery item
+                $item = GalleryItem::create([
+                    'title' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
+                    'description' => null,
+                    'category' => $validated['category'] ?? null,
+                    'image_path' => $path,
+                    'featured' => $validated['featured'] ?? false,
+                    'sort_order' => 0,
+                ]);
+
+                $uploaded[] = $item;
+            } catch (\Exception $e) {
+                $errors[] = [
+                    'file' => $file->getClientOriginalName(),
+                    'error' => $e->getMessage(),
+                ];
+            }
+        }
+
+        return response()->json([
+            'message' => count($uploaded) . ' image(s) uploaded successfully',
+            'uploaded' => $uploaded,
+            'errors' => $errors,
+            'total' => count($uploaded),
+        ]);
+    }
 }

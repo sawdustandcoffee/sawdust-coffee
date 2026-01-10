@@ -238,6 +238,43 @@ class ProductController extends Controller
     }
 
     /**
+     * Adjust product inventory.
+     */
+    public function adjustInventory(Request $request, string $id): JsonResponse
+    {
+        $product = Product::findOrFail($id);
+
+        $validated = $request->validate([
+            'adjustment' => 'required|integer',
+            'notes' => 'nullable|string|max:500',
+        ]);
+
+        $oldInventory = $product->inventory;
+        $newInventory = max(0, $oldInventory + $validated['adjustment']);
+
+        $product->update(['inventory' => $newInventory]);
+
+        // Log the inventory change
+        \App\Models\ActivityLog::log(
+            'inventory_adjusted',
+            'Product',
+            $product->id,
+            "Inventory adjusted from {$oldInventory} to {$newInventory} (change: {$validated['adjustment']})",
+            [
+                'old_inventory' => $oldInventory,
+                'new_inventory' => $newInventory,
+                'adjustment' => $validated['adjustment'],
+                'notes' => $validated['notes'] ?? null,
+            ]
+        );
+
+        return response()->json([
+            'message' => 'Inventory updated successfully',
+            'product' => $product->fresh(),
+        ]);
+    }
+
+    /**
      * Upload an image for a product.
      */
     public function uploadImage(Request $request, string $id): JsonResponse

@@ -39,6 +39,9 @@ Route::middleware('auth:sanctum')->group(function () {
         // Product bulk actions
         Route::post('/products/bulk-action', [\App\Http\Controllers\Api\ProductController::class, 'bulkAction']);
 
+        // Product inventory management
+        Route::post('/products/{id}/adjust-inventory', [\App\Http\Controllers\Api\ProductController::class, 'adjustInventory']);
+
         // Product image management
         Route::post('/products/{id}/images', [\App\Http\Controllers\Api\ProductController::class, 'uploadImage']);
         Route::put('/products/{productId}/images/{imageId}', [\App\Http\Controllers\Api\ProductController::class, 'updateImage']);
@@ -48,6 +51,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('gallery', \App\Http\Controllers\Api\GalleryItemController::class);
         Route::post('/gallery/{id}/upload-image', [\App\Http\Controllers\Api\GalleryItemController::class, 'uploadImage']);
         Route::delete('/gallery/{id}/delete-image', [\App\Http\Controllers\Api\GalleryItemController::class, 'deleteImage']);
+        Route::post('/gallery/bulk-upload', [\App\Http\Controllers\Api\GalleryItemController::class, 'bulkUpload']);
         Route::apiResource('orders', \App\Http\Controllers\Api\OrderController::class)->only(['index', 'show', 'update']);
         Route::get('/orders-export/csv', [\App\Http\Controllers\Api\OrderController::class, 'exportCsv']);
 
