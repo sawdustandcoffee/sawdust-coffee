@@ -9,6 +9,8 @@ import Categories from './pages/admin/Categories';
 import Gallery from './pages/admin/Gallery';
 import Orders from './pages/admin/Orders';
 import Quotes from './pages/admin/Quotes';
+import Contact from './pages/admin/Contact';
+import Content from './pages/admin/Content';
 
 function App() {
   return (
@@ -80,6 +82,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <Quotes />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/contact"
+            element={
+              <ProtectedRoute>
+                <Contact />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/content"
+            element={
+              <ProtectedRoute>
+                <Content />
               </ProtectedRoute>
             }
           />
