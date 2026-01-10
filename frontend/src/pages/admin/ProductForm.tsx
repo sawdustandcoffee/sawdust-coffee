@@ -4,6 +4,7 @@ import api from '../../lib/axios';
 import { Product, ProductCategory } from '../../types';
 import { Button, Input, Textarea, Card } from '../../components/ui';
 import AdminLayout from '../../layouts/AdminLayout';
+import ImageUpload from '../../components/admin/ImageUpload';
 
 export default function ProductForm() {
   const { id } = useParams();
@@ -12,6 +13,7 @@ export default function ProductForm() {
 
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<ProductCategory[]>([]);
+  const [product, setProduct] = useState<Product | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
@@ -47,20 +49,21 @@ export default function ProductForm() {
     try {
       setLoading(true);
       const response = await api.get<{ product: Product }>(`/admin/products/${id}`);
-      const product = response.data.product || response.data;
+      const productData = response.data.product || response.data;
 
+      setProduct(productData);
       setFormData({
-        name: product.name,
-        slug: product.slug,
-        description: product.description || '',
-        long_description: product.long_description || '',
-        price: product.price,
-        sale_price: product.sale_price || '',
-        inventory: product.inventory.toString(),
-        sku: product.sku || '',
-        active: product.active,
-        featured: product.featured,
-        category_ids: product.categories?.map((c) => c.id) || [],
+        name: productData.name,
+        slug: productData.slug,
+        description: productData.description || '',
+        long_description: productData.long_description || '',
+        price: productData.price,
+        sale_price: productData.sale_price || '',
+        inventory: productData.inventory.toString(),
+        sku: productData.sku || '',
+        active: productData.active,
+        featured: productData.featured,
+        category_ids: productData.categories?.map((c) => c.id) || [],
       });
     } catch (err: any) {
       alert(err.response?.data?.message || 'Failed to load product');
@@ -262,6 +265,25 @@ export default function ProductForm() {
                 </span>
               </label>
             </div>
+
+            {/* Image Upload - Only show when editing */}
+            {isEdit && product && (
+              <div className="pt-6 border-t border-gray-200">
+                <ImageUpload
+                  productId={product.id}
+                  images={product.images || []}
+                  onImagesChange={fetchProduct}
+                />
+              </div>
+            )}
+
+            {!isEdit && (
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  <strong>Note:</strong> You can upload images after creating the product.
+                </p>
+              </div>
+            )}
 
             <div className="flex gap-3">
               <Button type="submit" disabled={loading}>

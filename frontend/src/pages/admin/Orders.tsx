@@ -77,6 +77,26 @@ export default function Orders() {
     }
   };
 
+  const handleExportCsv = async () => {
+    try {
+      const response = await api.get('/admin/orders-export/csv', {
+        responseType: 'blob',
+      });
+
+      // Create download link
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `orders_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Failed to export orders');
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     const variants: Record<string, 'default' | 'warning' | 'info' | 'success' | 'danger'> = {
       pending: 'warning',
@@ -103,6 +123,9 @@ export default function Orders() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold text-gray-900">Orders</h1>
+          <Button variant="secondary" onClick={handleExportCsv}>
+            Export to CSV
+          </Button>
         </div>
 
         <Card>

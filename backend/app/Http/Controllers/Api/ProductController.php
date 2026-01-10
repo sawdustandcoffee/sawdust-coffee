@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\ProductImage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ProductController extends Controller
@@ -205,5 +207,100 @@ class ProductController extends Controller
             ->firstOrFail();
 
         return response()->json($product);
+    }
+
+    /**
+     * Upload an image for a product.
+     */
+    public function uploadImage(Request $request, string $id): JsonResponse
+    {
+        $product = Product::findOrFail($id);
+
+        $validated = $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120', // 5MB max
+            'alt_text' => 'nullable|string|max:255',
+            'is_primary' => 'boolean',
+        ]);
+
+        // If this is set as primary, unset all other primary images
+        if ($request->boolean('is_primary')) {
+            ProductImage::where('product_id', $product->id)
+                ->update(['is_primary' => false]);
+        }
+
+        // Store the image
+        $path = $request->file('image')->store('products', 'public');
+
+        // Get the next sort order
+        $maxSortOrder = ProductImage::where('product_id', $product->id)
+            ->max('sort_order') ?? -1;
+
+        // Create the image record
+        $image = ProductImage::create([
+            'product_id' => $product->id,
+            'path' => $path,
+            'alt_text' => $validated['alt_text'] ?? $product->name,
+            'sort_order' => $maxSortOrder + 1,
+            'is_primary' => $request->boolean('is_primary'),
+        ]);
+
+        return response()->json([
+            'message' => 'Image uploaded successfully',
+            'image' => $image,
+        ], 201);
+    }
+
+    /**
+     * Update an image's metadata.
+     */
+    public function updateImage(Request $request, string $productId, string $imageId): JsonResponse
+    {
+        $product = Product::findOrFail($productId);
+        $image = ProductImage::where('product_id', $product->id)
+            ->where('id', $imageId)
+            ->firstOrFail();
+
+        $validated = $request->validate([
+            'alt_text' => 'nullable|string|max:255',
+            'sort_order' => 'nullable|integer|min:0',
+            'is_primary' => 'boolean',
+        ]);
+
+        // If setting as primary, unset all other primary images
+        if (isset($validated['is_primary']) && $validated['is_primary']) {
+            ProductImage::where('product_id', $product->id)
+                ->where('id', '!=', $image->id)
+                ->update(['is_primary' => false]);
+        }
+
+        $image->update($validated);
+
+        return response()->json([
+            'message' => 'Image updated successfully',
+            'image' => $image,
+        ]);
+    }
+
+    /**
+     * Delete a product image.
+     */
+    public function deleteImage(string $productId, string $imageId): JsonResponse
+    {
+        $product = Product::findOrFail($productId);
+        $image = ProductImage::where('product_id', $product->id)
+            ->where('id', $imageId)
+            ->firstOrFail();
+
+        // Delete the file from storage
+        if (Storage::disk('public')->exists($image->path)) {
+            Storage::disk('public')->delete($image->path);
+        }
+
+        // Delete the database record
+        $image->delete();
+
+        return response()->json([
+            'message' => 'Image deleted successfully',
+        ]);
     }
 }

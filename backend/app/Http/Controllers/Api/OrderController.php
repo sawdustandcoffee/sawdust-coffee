@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
 
 class OrderController extends Controller
 {
@@ -108,5 +109,107 @@ class OrderController extends Controller
         ];
 
         return response()->json($stats);
+    }
+
+    /**
+     * Export orders to CSV.
+     */
+    public function exportCsv(Request $request)
+    {
+        $query = Order::query()->with('items.product');
+
+        // Apply same filters as index
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('order_number', 'like', "%{$search}%")
+                    ->orWhere('customer_name', 'like', "%{$search}%")
+                    ->orWhere('customer_email', 'like', "%{$search}%");
+            });
+        }
+
+        if ($status = $request->input('status')) {
+            $query->where('status', $status);
+        }
+
+        if ($request->has('paid_only')) {
+            $query->where('payment_status', 'paid');
+        }
+
+        if ($startDate = $request->input('start_date')) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+        if ($endDate = $request->input('end_date')) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+
+        $sortBy = $request->input('sort_by', 'created_at');
+        $sortDir = $request->input('sort_dir', 'desc');
+        $query->orderBy($sortBy, $sortDir);
+
+        $orders = $query->get();
+
+        // Generate CSV
+        $filename = 'orders_' . now()->format('Y-m-d_His') . '.csv';
+        $handle = fopen('php://temp', 'r+');
+
+        // CSV Headers
+        fputcsv($handle, [
+            'Order Number',
+            'Date',
+            'Customer Name',
+            'Customer Email',
+            'Customer Phone',
+            'Status',
+            'Payment Status',
+            'Items',
+            'Subtotal',
+            'Tax',
+            'Shipping',
+            'Total',
+            'Shipping Address',
+            'City',
+            'State',
+            'ZIP',
+            'Tracking Number',
+            'Admin Notes',
+        ]);
+
+        // CSV Data
+        foreach ($orders as $order) {
+            $items = $order->items->map(function ($item) {
+                return $item->quantity . 'x ' . $item->product_name .
+                    ($item->variant_name ? ' (' . $item->variant_name . ')' : '');
+            })->implode('; ');
+
+            fputcsv($handle, [
+                $order->order_number,
+                $order->created_at->format('Y-m-d H:i:s'),
+                $order->customer_name,
+                $order->customer_email,
+                $order->customer_phone ?? '',
+                $order->status,
+                $order->payment_status,
+                $items,
+                '$' . number_format($order->subtotal, 2),
+                '$' . number_format($order->tax, 2),
+                '$' . number_format($order->shipping, 2),
+                '$' . number_format($order->total, 2),
+                $order->shipping_address ?? '',
+                $order->city ?? '',
+                $order->state ?? '',
+                $order->zip ?? '',
+                $order->tracking_number ?? '',
+                $order->admin_notes ?? '',
+            ]);
+        }
+
+        rewind($handle);
+        $csv = stream_get_contents($handle);
+        fclose($handle);
+
+        return Response::make($csv, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
     }
 }

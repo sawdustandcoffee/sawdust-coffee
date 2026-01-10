@@ -35,9 +35,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/dashboard/product-category-chart', [\App\Http\Controllers\Api\DashboardController::class, 'productCategoryChart']);
 
         Route::apiResource('products', \App\Http\Controllers\Api\ProductController::class);
+
+        // Product image management
+        Route::post('/products/{id}/images', [\App\Http\Controllers\Api\ProductController::class, 'uploadImage']);
+        Route::put('/products/{productId}/images/{imageId}', [\App\Http\Controllers\Api\ProductController::class, 'updateImage']);
+        Route::delete('/products/{productId}/images/{imageId}', [\App\Http\Controllers\Api\ProductController::class, 'deleteImage']);
+
         Route::apiResource('categories', \App\Http\Controllers\Api\ProductCategoryController::class);
         Route::apiResource('gallery', \App\Http\Controllers\Api\GalleryItemController::class);
         Route::apiResource('orders', \App\Http\Controllers\Api\OrderController::class)->only(['index', 'show', 'update']);
+        Route::get('/orders-export/csv', [\App\Http\Controllers\Api\OrderController::class, 'exportCsv']);
         Route::apiResource('quotes', \App\Http\Controllers\Api\QuoteRequestController::class);
         Route::apiResource('content', \App\Http\Controllers\Api\SiteContentController::class);
         Route::apiResource('contact-submissions', \App\Http\Controllers\Api\ContactFormController::class)->except(['store']);
