@@ -114,9 +114,9 @@ export default function CustomerLogin() {
               </div>
 
               <div className="text-sm">
-                <a href="#" className="font-medium text-coffee hover:text-coffee-dark">
+                <Link to="/customer/forgot-password" className="font-medium text-coffee hover:text-coffee-dark">
                   Forgot password?
-                </a>
+                </Link>
               </div>
             </div>
 

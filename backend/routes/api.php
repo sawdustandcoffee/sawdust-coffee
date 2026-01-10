@@ -96,6 +96,8 @@ Route::prefix('customer')->middleware('throttle:10,1')->group(function () {
     Route::post('/login', [\App\Http\Controllers\Api\CustomerAuthController::class, 'login']);
     Route::post('/logout', [\App\Http\Controllers\Api\CustomerAuthController::class, 'logout']);
     Route::get('/user', [\App\Http\Controllers\Api\CustomerAuthController::class, 'user']);
+    Route::post('/forgot-password', [\App\Http\Controllers\Api\CustomerAuthController::class, 'forgotPassword']);
+    Route::post('/reset-password', [\App\Http\Controllers\Api\CustomerAuthController::class, 'resetPassword']);
 
     // Protected customer routes
     Route::middleware('auth:sanctum')->group(function () {

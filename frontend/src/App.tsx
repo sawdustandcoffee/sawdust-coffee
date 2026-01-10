@@ -36,6 +36,8 @@ import NotFound from './pages/NotFound';
 // Customer pages
 import CustomerRegister from './pages/customer/Register';
 import CustomerLogin from './pages/customer/Login';
+import ForgotPassword from './pages/customer/ForgotPassword';
+import ResetPassword from './pages/customer/ResetPassword';
 import CustomerDashboard from './pages/customer/Dashboard';
 import OrderHistory from './pages/customer/OrderHistory';
 import OrderDetail from './pages/customer/OrderDetail';
@@ -66,6 +68,8 @@ function App() {
               {/* Customer Auth */}
               <Route path="/customer/register" element={<CustomerRegister />} />
               <Route path="/customer/login" element={<CustomerLogin />} />
+              <Route path="/customer/forgot-password" element={<ForgotPassword />} />
+              <Route path="/customer/reset-password" element={<ResetPassword />} />
               <Route
                 path="/customer/dashboard"
                 element={
