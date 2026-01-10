@@ -1,144 +1,128 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Confirmation</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .header {
-            background-color: #7C3E26;
-            color: white;
-            padding: 30px 20px;
-            text-align: center;
-        }
-        .content {
-            padding: 30px 20px;
-            background-color: #f9f9f9;
-        }
-        .order-details {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-        .item-row {
-            border-bottom: 1px solid #e5e7eb;
-            padding: 15px 0;
-        }
-        .item-row:last-child {
-            border-bottom: none;
-        }
-        .total-row {
-            font-size: 18px;
-            font-weight: bold;
-            padding-top: 15px;
-            border-top: 2px solid #7C3E26;
-        }
-        .footer {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 2px solid #8B4513;
-            text-align: center;
-            color: #666;
-        }
-        .button {
-            display: inline-block;
-            padding: 12px 30px;
-            background-color: #7C3E26;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            margin: 20px 0;
-        }
-    </style>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1 style="margin: 0;">Thank You for Your Order!</h1>
-            <p style="margin: 10px 0 0 0;">Sawdust & Coffee Woodworking</p>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+    <div style="background-color: #3C2F2F; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
+        <h1 style="color: #D4A574; margin: 0; font-size: 28px;">Sawdust & Coffee</h1>
+        <p style="color: #E5D5C3; margin: 10px 0 0 0;">Handcrafted Woodworking</p>
+    </div>
+
+    <div style="background-color: #ffffff; padding: 40px; border: 1px solid #ddd; border-top: none;">
+        <h2 style="color: #3C2F2F; margin-top: 0;">Order Confirmed!</h2>
+
+        <p style="font-size: 16px;">Hi {{ $order->customer_name }},</p>
+
+        <p style="font-size: 16px;">
+            Thank you for your order! We've received your order and will begin processing it shortly.
+        </p>
+
+        <div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #3C2F2F; margin-top: 0;">Order Details</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="padding: 8px 0; color: #666;">Order Number:</td>
+                    <td style="padding: 8px 0; text-align: right; font-weight: bold;">{{ $order->order_number }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 0; color: #666;">Order Date:</td>
+                    <td style="padding: 8px 0; text-align: right; font-weight: bold;">{{ $order->created_at->format('F j, Y') }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px 0; color: #666;">Status:</td>
+                    <td style="padding: 8px 0; text-align: right;">
+                        <span style="background-color: #FEF3C7; color: #92400E; padding: 4px 12px; border-radius: 12px; font-size: 14px; font-weight: 500;">
+                            {{ ucfirst($order->status) }}
+                        </span>
+                    </td>
+                </tr>
+            </table>
         </div>
 
-        <div class="content">
-            <p>Hi {{ $order->customer_name }},</p>
+        <h3 style="color: #3C2F2F;">Items Ordered</h3>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            @foreach($order->items as $item)
+            <tr style="border-bottom: 1px solid #eee;">
+                <td style="padding: 15px 0;">
+                    <strong>{{ $item->product_name }}</strong>
+                    @if($item->variant_name)
+                        <br><span style="color: #666; font-size: 14px;">{{ $item->variant_name }}</span>
+                    @endif
+                </td>
+                <td style="padding: 15px 0; text-align: center; color: #666;">x{{ $item->quantity }}</td>
+                <td style="padding: 15px 0; text-align: right; font-weight: bold;">${{ number_format($item->price * $item->quantity, 2) }}</td>
+            </tr>
+            @endforeach
+        </table>
 
-            <p>Thank you for your order! We've received your order and will begin processing it right away.</p>
+        <table style="width: 100%; margin-top: 20px;">
+            <tr>
+                <td style="padding: 8px 0; color: #666;">Subtotal:</td>
+                <td style="padding: 8px 0; text-align: right;">${{ number_format($order->subtotal, 2) }}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px 0; color: #666;">Tax:</td>
+                <td style="padding: 8px 0; text-align: right;">${{ number_format($order->tax, 2) }}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px 0; color: #666;">Shipping:</td>
+                <td style="padding: 8px 0; text-align: right;">${{ number_format($order->shipping, 2) }}</td>
+            </tr>
+            <tr style="border-top: 2px solid #3C2F2F;">
+                <td style="padding: 12px 0; font-size: 18px; font-weight: bold;">Total:</td>
+                <td style="padding: 12px 0; text-align: right; font-size: 18px; font-weight: bold; color: #6B4226;">${{ number_format($order->total, 2) }}</td>
+            </tr>
+        </table>
 
-            <div class="order-details">
-                <h2 style="color: #7C3E26; margin-top: 0;">Order #{{ $order->order_number }}</h2>
-                <p><strong>Order Date:</strong> {{ $order->created_at->format('F j, Y') }}</p>
-                <p><strong>Status:</strong> {{ ucfirst($order->status) }}</p>
+        @if($order->shipping_address)
+        <div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #3C2F2F; margin-top: 0;">Shipping Information</h3>
+            <p style="margin: 5px 0;">{{ $order->customer_name }}</p>
+            <p style="margin: 5px 0;">{{ $order->shipping_address }}</p>
+            <p style="margin: 5px 0;">{{ $order->city }}, {{ $order->state }} {{ $order->zip }}</p>
+            @if($order->customer_phone)
+                <p style="margin: 5px 0;">Phone: {{ $order->customer_phone }}</p>
+            @endif
+        </div>
+        @endif
 
-                <h3 style="color: #7C3E26;">Order Items:</h3>
-                @foreach($order->items as $item)
-                <div class="item-row">
-                    <div>
-                        <strong>{{ $item->product->name }}</strong>
-                        @if($item->variant)
-                            <span style="color: #666;">({{ $item->variant->name }})</span>
-                        @endif
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-top: 5px;">
-                        <span>Quantity: {{ $item->quantity }}</span>
-                        <span>${{ number_format($item->price_at_purchase * $item->quantity, 2) }}</span>
-                    </div>
-                </div>
-                @endforeach
-
-                <div class="total-row">
-                    <div style="display: flex; justify-content: space-between;">
-                        <span>Total:</span>
-                        <span>${{ number_format($order->total_amount, 2) }}</span>
-                    </div>
-                </div>
-
-                @if($order->shipping_address)
-                <div style="margin-top: 20px;">
-                    <h3 style="color: #7C3E26;">Shipping Address:</h3>
-                    <p style="margin: 5px 0;">
-                        {{ $order->shipping_address }}<br>
-                        {{ $order->shipping_city }}, {{ $order->shipping_state }} {{ $order->shipping_zip }}
-                    </p>
-                </div>
-                @endif
-            </div>
-
-            <h3 style="color: #7C3E26;">What's Next?</h3>
-            <ul>
-                <li>We'll send you another email when your order ships</li>
-                <li>Most custom orders are ready within 2-4 weeks</li>
-                <li>Questions? Call us at 774-836-4958 or reply to this email</li>
-            </ul>
-
-            <p>Thank you for supporting our family business!</p>
-
-            <p>
-                Paul, Jason & Patrick<br>
-                <strong>Sawdust & Coffee Woodworking</strong>
+        <div style="background-color: #EFF6FF; padding: 15px; border-left: 4px solid #3B82F6; margin: 20px 0;">
+            <p style="margin: 0; font-size: 14px;">
+                <strong>What's Next?</strong> We'll send you another email when your order ships with tracking information.
+                You can also track your order status anytime in your account dashboard.
             </p>
         </div>
 
-        <div class="footer">
-            <p>
-                <strong>Sawdust & Coffee Woodworking</strong><br>
-                Wareham, Massachusetts<br>
-                774-836-4958<br>
-                info@sawdustandcoffee.com
-            </p>
-            <p style="font-size: 12px; color: #999;">
-                This email was sent because you placed an order on our website.
-            </p>
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{{ config('app.frontend_url') }}/customer/orders/{{ $order->id }}"
+               style="display: inline-block; background-color: #6B4226; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+                View Order Details
+            </a>
         </div>
+
+        <p style="font-size: 16px;">
+            If you have any questions about your order, please don't hesitate to contact us at
+            <a href="mailto:info@sawdustandcoffee.com" style="color: #6B4226;">info@sawdustandcoffee.com</a>
+            or call <a href="tel:774-836-4958" style="color: #6B4226;">774-836-4958</a>.
+        </p>
+
+        <p style="font-size: 16px; margin-bottom: 0;">
+            Thank you for supporting our craft!<br>
+            <strong>The Sawdust & Coffee Team</strong>
+        </p>
+    </div>
+
+    <div style="background-color: #f5f5f5; padding: 20px; text-align: center; border-radius: 0 0 8px 8px; font-size: 12px; color: #666;">
+        <p style="margin: 5px 0;">Sawdust & Coffee Woodworking</p>
+        <p style="margin: 5px 0;">Wareham, Massachusetts | Make Cool Sh!t</p>
+        <p style="margin: 5px 0;">
+            <a href="{{ config('app.frontend_url') }}" style="color: #6B4226; text-decoration: none;">Visit Our Website</a> |
+            <a href="{{ config('app.frontend_url') }}/customer/dashboard" style="color: #6B4226; text-decoration: none;">My Account</a> |
+            <a href="{{ config('app.frontend_url') }}/contact" style="color: #6B4226; text-decoration: none;">Contact</a>
+        </p>
     </div>
 </body>
 </html>

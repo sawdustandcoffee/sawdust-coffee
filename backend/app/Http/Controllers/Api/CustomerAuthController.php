@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\CustomerWelcomeMail;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 
@@ -33,6 +35,14 @@ class CustomerAuthController extends Controller
 
         // Log the user in
         Auth::login($user);
+
+        // Send welcome email
+        try {
+            Mail::to($user->email)->send(new CustomerWelcomeMail($user));
+        } catch (\Exception $e) {
+            // Log error but don't fail registration
+            \Log::error('Failed to send welcome email: ' . $e->getMessage());
+        }
 
         return response()->json([
             'message' => 'Account created successfully',
