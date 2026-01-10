@@ -5,6 +5,7 @@ import api from '../../lib/axios';
 import { Product, ProductReview, PaginatedResponse } from '../../types';
 import { Button, Spinner, Badge } from '../../components/ui';
 import PublicLayout from '../../layouts/PublicLayout';
+import RelatedProducts from '../../components/RelatedProducts';
 import { useCart } from '../../context/CartContext';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 
@@ -827,6 +828,11 @@ export default function ProductDetail() {
                 ))}
               </div>
             )}
+          </div>
+
+          {/* Related Products */}
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <RelatedProducts productId={product.id} />
           </div>
         </div>
       </div>

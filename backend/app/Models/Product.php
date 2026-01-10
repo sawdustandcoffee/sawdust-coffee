@@ -97,6 +97,46 @@ class Product extends Model
     }
 
     /**
+     * Get the related products.
+     */
+    public function relatedProducts(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Product::class,
+            'product_relations',
+            'product_id',
+            'related_product_id'
+        )
+            ->withPivot('relation_type', 'sort_order')
+            ->withTimestamps()
+            ->orderBy('sort_order');
+    }
+
+    /**
+     * Get products that reference this product as related.
+     */
+    public function referencedBy(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Product::class,
+            'product_relations',
+            'related_product_id',
+            'product_id'
+        )
+            ->withPivot('relation_type', 'sort_order')
+            ->withTimestamps()
+            ->orderBy('sort_order');
+    }
+
+    /**
+     * Get related products by type.
+     */
+    public function getRelatedByType(string $type): \Illuminate\Database\Eloquent\Collection
+    {
+        return $this->relatedProducts()->wherePivot('relation_type', $type)->get();
+    }
+
+    /**
      * Get the effective price (sale price if available, otherwise regular price).
      */
     public function getEffectivePriceAttribute(): string

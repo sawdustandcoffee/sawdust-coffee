@@ -42,6 +42,11 @@ Route::middleware('auth:sanctum')->group(function () {
         // Product inventory management
         Route::post('/products/{id}/adjust-inventory', [\App\Http\Controllers\Api\ProductController::class, 'adjustInventory']);
 
+        // Product relations
+        Route::post('/products/{id}/related-products', [\App\Http\Controllers\Api\ProductController::class, 'addRelatedProducts']);
+        Route::delete('/products/{id}/related-products/{relatedProductId}', [\App\Http\Controllers\Api\ProductController::class, 'removeRelatedProduct']);
+        Route::put('/products/{id}/related-products/order', [\App\Http\Controllers\Api\ProductController::class, 'updateRelatedProductsOrder']);
+
         // Product image management
         Route::post('/products/{id}/images', [\App\Http\Controllers\Api\ProductController::class, 'uploadImage']);
         Route::put('/products/{productId}/images/{imageId}', [\App\Http\Controllers\Api\ProductController::class, 'updateImage']);
@@ -139,6 +144,7 @@ Route::prefix('public')->group(function () {
         Route::get('/products', [\App\Http\Controllers\Api\ProductController::class, 'publicIndex']);
         Route::get('/products/{slug}', [\App\Http\Controllers\Api\ProductController::class, 'publicShow']);
         Route::get('/products/{productId}/reviews', [\App\Http\Controllers\Api\ProductReviewController::class, 'index']);
+        Route::get('/products/{id}/related', [\App\Http\Controllers\Api\ProductController::class, 'relatedProducts']);
         Route::get('/categories', [\App\Http\Controllers\Api\ProductCategoryController::class, 'publicIndex']);
         Route::get('/gallery', [\App\Http\Controllers\Api\GalleryItemController::class, 'publicIndex']);
         Route::get('/content', [\App\Http\Controllers\Api\SiteContentController::class, 'publicIndex']);

@@ -483,4 +483,195 @@ class ProductController extends Controller
             ['notification_count' => $notifications->count()]
         );
     }
+
+    /**
+     * Get related products for a specific product.
+     * Includes manually set relations and automatic recommendations.
+     */
+    public function relatedProducts(string $id): JsonResponse
+    {
+        $product = Product::findOrFail($id);
+
+        // Get manually configured related products
+        $manualRelated = $product->relatedProducts()
+            ->where('active', true)
+            ->with(['images', 'categories'])
+            ->take(8)
+            ->get();
+
+        // If we have enough manual relations, return those
+        if ($manualRelated->count() >= 4) {
+            return response()->json($manualRelated);
+        }
+
+        // Otherwise, generate automatic recommendations
+        $recommendedIds = $manualRelated->pluck('id')->toArray();
+        $needed = 8 - $manualRelated->count();
+
+        $automatic = $this->getAutomaticRecommendations($product, $recommendedIds, $needed);
+
+        // Combine manual and automatic
+        $combined = $manualRelated->concat($automatic);
+
+        return response()->json($combined);
+    }
+
+    /**
+     * Generate automatic product recommendations.
+     */
+    protected function getAutomaticRecommendations(Product $product, array $excludeIds, int $limit): \Illuminate\Database\Eloquent\Collection
+    {
+        $excludeIds[] = $product->id; // Don't recommend the product itself
+
+        // Priority 1: Same categories
+        $categoryIds = $product->categories->pluck('id');
+        $sameCategoryProducts = Product::where('active', true)
+            ->where('inventory', '>', 0)
+            ->whereNotIn('id', $excludeIds)
+            ->whereHas('categories', function ($query) use ($categoryIds) {
+                $query->whereIn('product_categories.id', $categoryIds);
+            })
+            ->with(['images', 'categories'])
+            ->inRandomOrder()
+            ->limit($limit)
+            ->get();
+
+        if ($sameCategoryProducts->count() >= $limit) {
+            return $sameCategoryProducts;
+        }
+
+        // Priority 2: Similar price range (+/- 30%)
+        $excludeIds = array_merge($excludeIds, $sameCategoryProducts->pluck('id')->toArray());
+        $priceMin = $product->price * 0.7;
+        $priceMax = $product->price * 1.3;
+        $remaining = $limit - $sameCategoryProducts->count();
+
+        $similarPriceProducts = Product::where('active', true)
+            ->where('inventory', '>', 0)
+            ->whereNotIn('id', $excludeIds)
+            ->whereBetween('price', [$priceMin, $priceMax])
+            ->with(['images', 'categories'])
+            ->inRandomOrder()
+            ->limit($remaining)
+            ->get();
+
+        $combined = $sameCategoryProducts->concat($similarPriceProducts);
+
+        if ($combined->count() >= $limit) {
+            return $combined;
+        }
+
+        // Priority 3: Featured products
+        $excludeIds = array_merge($excludeIds, $similarPriceProducts->pluck('id')->toArray());
+        $remaining = $limit - $combined->count();
+
+        $featuredProducts = Product::where('active', true)
+            ->where('inventory', '>', 0)
+            ->where('featured', true)
+            ->whereNotIn('id', $excludeIds)
+            ->with(['images', 'categories'])
+            ->inRandomOrder()
+            ->limit($remaining)
+            ->get();
+
+        return $combined->concat($featuredProducts);
+    }
+
+    /**
+     * Admin: Add related products to a product.
+     */
+    public function addRelatedProducts(Request $request, string $id): JsonResponse
+    {
+        $product = Product::findOrFail($id);
+
+        $validated = $request->validate([
+            'related_product_ids' => 'required|array|min:1',
+            'related_product_ids.*' => 'exists:products,id',
+            'relation_type' => 'in:related,upsell,cross_sell,alternative',
+        ]);
+
+        $relationType = $validated['relation_type'] ?? 'related';
+        $sortOrder = 0;
+
+        foreach ($validated['related_product_ids'] as $relatedProductId) {
+            // Don't allow self-relation
+            if ($relatedProductId == $product->id) {
+                continue;
+            }
+
+            // Check if relation already exists
+            $exists = $product->relatedProducts()
+                ->where('related_product_id', $relatedProductId)
+                ->exists();
+
+            if (!$exists) {
+                $product->relatedProducts()->attach($relatedProductId, [
+                    'relation_type' => $relationType,
+                    'sort_order' => $sortOrder++,
+                ]);
+            }
+        }
+
+        // Log activity
+        ActivityLog::log(
+            'related_products_added',
+            'Product',
+            $product->id,
+            "Added related products to: {$product->name}",
+            ['related_product_ids' => $validated['related_product_ids']]
+        );
+
+        return response()->json([
+            'message' => 'Related products added successfully',
+            'product' => $product->load('relatedProducts.images'),
+        ]);
+    }
+
+    /**
+     * Admin: Remove a related product.
+     */
+    public function removeRelatedProduct(string $id, string $relatedProductId): JsonResponse
+    {
+        $product = Product::findOrFail($id);
+
+        $product->relatedProducts()->detach($relatedProductId);
+
+        // Log activity
+        ActivityLog::log(
+            'related_product_removed',
+            'Product',
+            $product->id,
+            "Removed related product from: {$product->name}",
+            ['related_product_id' => $relatedProductId]
+        );
+
+        return response()->json([
+            'message' => 'Related product removed successfully',
+        ]);
+    }
+
+    /**
+     * Admin: Update sort order of related products.
+     */
+    public function updateRelatedProductsOrder(Request $request, string $id): JsonResponse
+    {
+        $product = Product::findOrFail($id);
+
+        $validated = $request->validate([
+            'related_products' => 'required|array',
+            'related_products.*.id' => 'required|exists:products,id',
+            'related_products.*.sort_order' => 'required|integer',
+        ]);
+
+        foreach ($validated['related_products'] as $relatedProduct) {
+            $product->relatedProducts()->updateExistingPivot(
+                $relatedProduct['id'],
+                ['sort_order' => $relatedProduct['sort_order']]
+            );
+        }
+
+        return response()->json([
+            'message' => 'Sort order updated successfully',
+        ]);
+    }
 }
