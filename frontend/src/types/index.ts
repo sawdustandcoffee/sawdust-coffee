@@ -196,6 +196,19 @@ export interface DiscountCode {
   updated_at: string;
 }
 
+export interface NewsletterSubscriber {
+  id: number;
+  email: string;
+  name?: string;
+  is_confirmed: boolean;
+  confirmed_at?: string;
+  is_active: boolean;
+  unsubscribed_at?: string;
+  source: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ApiError {
   message: string;
   errors?: Record<string, string[]>;

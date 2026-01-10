@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
 import CartDrawer from '../components/CartDrawer';
+import api from '../lib/axios';
 
 interface PublicLayoutProps {
   children: React.ReactNode;
@@ -14,6 +15,10 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterLoading, setNewsletterLoading] = useState(false);
+  const [newsletterMessage, setNewsletterMessage] = useState('');
+  const [newsletterSuccess, setNewsletterSuccess] = useState(false);
   const { getItemCount } = useCart();
   const { user, logout } = useCustomerAuth();
 
@@ -21,6 +26,31 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
     await logout();
     setIsUserMenuOpen(false);
     navigate('/');
+  };
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setNewsletterMessage('');
+    setNewsletterSuccess(false);
+
+    if (!newsletterEmail) return;
+
+    try {
+      setNewsletterLoading(true);
+      const response = await api.post('/public/newsletter/subscribe', {
+        email: newsletterEmail,
+      });
+      setNewsletterMessage(response.data.message);
+      setNewsletterSuccess(true);
+      setNewsletterEmail('');
+    } catch (err: any) {
+      setNewsletterMessage(
+        err.response?.data?.message || 'Failed to subscribe. Please try again.'
+      );
+      setNewsletterSuccess(false);
+    } finally {
+      setNewsletterLoading(false);
+    }
   };
 
   const navItems = [
@@ -314,34 +344,12 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
               <h3 className="text-xl font-bold mb-4 text-sawdust">
                 Sawdust & Coffee
               </h3>
-              <p className="text-wood-200">
+              <p className="text-wood-200 mb-4">
                 Handcrafted woodworking from Wareham, Massachusetts. Making cool
                 stuff, one piece at a time.
               </p>
-            </div>
-
-            {/* Quick Links */}
-            <div>
-              <h3 className="text-xl font-bold mb-4 text-sawdust">Quick Links</h3>
-              <ul className="space-y-2">
-                {navItems.map((item) => (
-                  <li key={item.path}>
-                    <Link
-                      to={item.path}
-                      className="text-wood-200 hover:text-sawdust transition"
-                    >
-                      {item.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Contact */}
-            <div>
-              <h3 className="text-xl font-bold mb-4 text-sawdust">Contact</h3>
-              <ul className="space-y-2 text-wood-200">
-                <li>📍 Wareham, Massachusetts</li>
+              <ul className="space-y-2 text-wood-200 text-sm">
+                <li>📍 Wareham, MA</li>
                 <li>
                   📞{' '}
                   <a
@@ -361,6 +369,57 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
                   </a>
                 </li>
               </ul>
+            </div>
+
+            {/* Quick Links */}
+            <div>
+              <h3 className="text-xl font-bold mb-4 text-sawdust">Quick Links</h3>
+              <ul className="space-y-2">
+                {navItems.map((item) => (
+                  <li key={item.path}>
+                    <Link
+                      to={item.path}
+                      className="text-wood-200 hover:text-sawdust transition"
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Newsletter */}
+            <div>
+              <h3 className="text-xl font-bold mb-4 text-sawdust">Newsletter</h3>
+              <p className="text-wood-200 mb-4 text-sm">
+                Subscribe to get updates about new products and special offers.
+              </p>
+              <form onSubmit={handleNewsletterSubmit} className="space-y-3">
+                <input
+                  type="email"
+                  value={newsletterEmail}
+                  onChange={(e) => setNewsletterEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  required
+                  className="w-full px-4 py-2 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-sawdust"
+                />
+                <button
+                  type="submit"
+                  disabled={newsletterLoading}
+                  className="w-full px-4 py-2 bg-sawdust text-wood-900 font-semibold rounded-lg hover:bg-sawdust-light transition disabled:opacity-50"
+                >
+                  {newsletterLoading ? 'Subscribing...' : 'Subscribe'}
+                </button>
+              </form>
+              {newsletterMessage && (
+                <p
+                  className={`mt-3 text-sm ${
+                    newsletterSuccess ? 'text-green-400' : 'text-red-400'
+                  }`}
+                >
+                  {newsletterMessage}
+                </p>
+              )}
             </div>
           </div>
 

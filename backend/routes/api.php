@@ -73,6 +73,11 @@ Route::middleware('auth:sanctum')->group(function () {
         // Discount codes
         Route::apiResource('discount-codes', \App\Http\Controllers\Api\DiscountCodeController::class);
 
+        // Newsletter subscribers
+        Route::get('/newsletter-subscribers', [\App\Http\Controllers\Api\NewsletterSubscriberController::class, 'index']);
+        Route::delete('/newsletter-subscribers/{id}', [\App\Http\Controllers\Api\NewsletterSubscriberController::class, 'destroy']);
+        Route::get('/newsletter-subscribers-export/csv', [\App\Http\Controllers\Api\NewsletterSubscriberController::class, 'exportCsv']);
+
         // Stats endpoints
         Route::get('/stats/orders', [\App\Http\Controllers\Api\OrderController::class, 'stats']);
         Route::get('/stats/quotes', [\App\Http\Controllers\Api\QuoteRequestController::class, 'stats']);
@@ -134,7 +139,12 @@ Route::prefix('public')->group(function () {
         Route::post('/quotes', [\App\Http\Controllers\Api\QuoteRequestController::class, 'store']);
         Route::post('/checkout', [\App\Http\Controllers\StripeCheckoutController::class, 'createCheckoutSession']);
         Route::post('/validate-discount', [\App\Http\Controllers\Api\DiscountCodeController::class, 'validate']);
+        Route::post('/newsletter/subscribe', [\App\Http\Controllers\Api\NewsletterSubscriberController::class, 'subscribe']);
     });
+
+    // Newsletter confirmation and unsubscribe (no rate limit needed, token-based)
+    Route::get('/newsletter/confirm/{token}', [\App\Http\Controllers\Api\NewsletterSubscriberController::class, 'confirm']);
+    Route::get('/newsletter/unsubscribe/{token}', [\App\Http\Controllers\Api\NewsletterSubscriberController::class, 'unsubscribe']);
 });
 
 // Stripe webhook (no CSRF protection needed)

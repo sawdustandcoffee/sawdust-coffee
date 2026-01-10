@@ -21,6 +21,7 @@ import Analytics from './pages/admin/Analytics';
 import Settings from './pages/admin/Settings';
 import Reviews from './pages/admin/Reviews';
 import DiscountCodes from './pages/admin/DiscountCodes';
+import NewsletterSubscribers from './pages/admin/NewsletterSubscribers';
 
 // Public pages
 import Home from './pages/public/Home';
@@ -33,6 +34,8 @@ import Contact from './pages/public/Contact';
 import Cart from './pages/public/Cart';
 import Checkout from './pages/public/Checkout';
 import OrderSuccess from './pages/public/OrderSuccess';
+import NewsletterConfirm from './pages/public/NewsletterConfirm';
+import NewsletterUnsubscribe from './pages/public/NewsletterUnsubscribe';
 import NotFound from './pages/NotFound';
 
 // Customer pages
@@ -63,6 +66,8 @@ function App() {
               <Route path="/cart" element={<Cart />} />
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/order/success" element={<OrderSuccess />} />
+              <Route path="/newsletter/confirm/:token" element={<NewsletterConfirm />} />
+              <Route path="/newsletter/unsubscribe/:token" element={<NewsletterUnsubscribe />} />
 
               {/* Admin Auth */}
               <Route path="/login" element={<LoginPage />} />
@@ -239,6 +244,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <DiscountCodes />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/newsletter-subscribers"
+            element={
+              <ProtectedRoute>
+                <NewsletterSubscribers />
               </ProtectedRoute>
             }
           />
