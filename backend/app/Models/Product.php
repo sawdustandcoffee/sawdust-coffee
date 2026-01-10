@@ -21,6 +21,8 @@ class Product extends Model
         'active',
         'featured',
         'badges',
+        'specifications',
+        'care_instructions',
         'sku',
         'sale_price',
     ];
@@ -32,6 +34,7 @@ class Product extends Model
         'active' => 'boolean',
         'featured' => 'boolean',
         'badges' => 'array',
+        'specifications' => 'array',
     ];
 
     /**

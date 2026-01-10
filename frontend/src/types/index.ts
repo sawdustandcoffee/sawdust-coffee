@@ -17,6 +17,8 @@ export interface Product {
   active: boolean;
   featured: boolean;
   badges?: string[];
+  specifications?: Record<string, string>;
+  care_instructions?: string;
   sku?: string;
   created_at: string;
   updated_at: string;

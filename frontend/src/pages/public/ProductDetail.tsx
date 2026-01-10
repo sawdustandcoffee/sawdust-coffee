@@ -11,6 +11,7 @@ import Breadcrumb, { BreadcrumbItem } from '../../components/Breadcrumb';
 import SocialShare from '../../components/SocialShare';
 import ImageLightbox from '../../components/ImageLightbox';
 import ProductQuestions from '../../components/ProductQuestions';
+import ProductSpecifications from '../../components/ProductSpecifications';
 import { useCart, SelectedOption } from '../../context/CartContext';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { useRecentlyViewed } from '../../context/RecentlyViewedContext';
@@ -844,6 +845,12 @@ export default function ProductDetail() {
               <Button variant="secondary">← Back to Shop</Button>
             </Link>
           </div>
+
+          {/* Product Specifications & Care Instructions */}
+          <ProductSpecifications
+            specifications={product.specifications}
+            careInstructions={product.care_instructions}
+          />
 
           {/* Reviews Section */}
           <div className="mt-12 bg-white rounded-lg shadow-lg p-8">
