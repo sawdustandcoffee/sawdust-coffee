@@ -59,6 +59,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('contact-submissions', \App\Http\Controllers\Api\ContactFormController::class)->except(['store']);
         Route::get('/contact-submissions-export/csv', [\App\Http\Controllers\Api\ContactFormController::class, 'exportCsv']);
 
+        Route::apiResource('users', \App\Http\Controllers\Api\UserController::class);
+
         // Stats endpoints
         Route::get('/stats/orders', [\App\Http\Controllers\Api\OrderController::class, 'stats']);
         Route::get('/stats/quotes', [\App\Http\Controllers\Api\QuoteRequestController::class, 'stats']);

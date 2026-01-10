@@ -26,6 +26,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { path: '/admin/quotes', label: 'Quote Requests', icon: '💬' },
     { path: '/admin/contact', label: 'Contact Messages', icon: '✉️' },
     { path: '/admin/content', label: 'Site Content', icon: '📝' },
+    { path: '/admin/users', label: 'Users', icon: '👥' },
     { path: '/admin/activity', label: 'Activity Log', icon: '📋' },
   ];
 

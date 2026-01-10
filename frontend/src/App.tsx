@@ -13,6 +13,7 @@ import Quotes from './pages/admin/Quotes';
 import AdminContact from './pages/admin/Contact';
 import Content from './pages/admin/Content';
 import ActivityLog from './pages/admin/ActivityLog';
+import Users from './pages/admin/Users';
 
 // Public pages
 import Home from './pages/public/Home';
@@ -134,6 +135,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <ActivityLog />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedRoute>
+                <Users />
               </ProtectedRoute>
             }
           />
