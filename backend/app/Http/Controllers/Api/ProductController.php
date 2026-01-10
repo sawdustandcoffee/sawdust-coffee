@@ -217,6 +217,39 @@ class ProductController extends Controller
             });
         }
 
+        // Price range filter
+        if ($request->has('price_min')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('price', '>=', $request->price_min)
+                    ->orWhere(function ($subQ) use ($request) {
+                        $subQ->whereNotNull('sale_price')
+                             ->where('sale_price', '>=', $request->price_min);
+                    });
+            });
+        }
+
+        if ($request->has('price_max')) {
+            $query->where(function ($q) use ($request) {
+                $q->where(function ($subQ) use ($request) {
+                    $subQ->whereNull('sale_price')
+                         ->where('price', '<=', $request->price_max);
+                })->orWhere(function ($subQ) use ($request) {
+                    $subQ->whereNotNull('sale_price')
+                         ->where('sale_price', '<=', $request->price_max);
+                });
+            });
+        }
+
+        // In stock only filter
+        if ($request->boolean('in_stock')) {
+            $query->where('inventory', '>', 0);
+        }
+
+        // On sale only filter
+        if ($request->boolean('on_sale')) {
+            $query->whereNotNull('sale_price');
+        }
+
         // Sort
         $sortBy = $request->get('sort', 'created_at');
         $sortOrder = match ($sortBy) {

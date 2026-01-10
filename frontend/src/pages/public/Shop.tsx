@@ -25,6 +25,10 @@ export default function Shop() {
   const [togglingWishlist, setTogglingWishlist] = useState<number | null>(null);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+  const [priceMin, setPriceMin] = useState('');
+  const [priceMax, setPriceMax] = useState('');
+  const [inStockOnly, setInStockOnly] = useState(false);
+  const [onSaleOnly, setOnSaleOnly] = useState(false);
   const { addToCart } = useCart();
   const { user } = useCustomerAuth();
   const { addToComparison, isInComparison } = useComparison();
@@ -36,7 +40,7 @@ export default function Shop() {
 
   useEffect(() => {
     fetchProducts();
-  }, [page, selectedCategory, sortBy, searchQuery]);
+  }, [page, selectedCategory, sortBy, searchQuery, priceMin, priceMax, inStockOnly, onSaleOnly]);
 
   useEffect(() => {
     if (user) {
@@ -74,6 +78,22 @@ export default function Shop() {
         url += '&sort_by=price&sort_dir=desc';
       } else if (sortBy === 'newest') {
         url += '&sort_by=created_at&sort_dir=desc';
+      }
+
+      if (priceMin) {
+        url += `&price_min=${priceMin}`;
+      }
+
+      if (priceMax) {
+        url += `&price_max=${priceMax}`;
+      }
+
+      if (inStockOnly) {
+        url += '&in_stock=1';
+      }
+
+      if (onSaleOnly) {
+        url += '&on_sale=1';
       }
 
       const response = await api.get<PaginatedResponse<Product>>(url);
@@ -252,6 +272,102 @@ export default function Shop() {
                   <option value="price_desc">Price: High to Low</option>
                 </select>
               </div>
+            </div>
+
+            {/* Advanced Filters */}
+            <div className="border-t pt-6 mt-6">
+              <h3 className="text-sm font-semibold text-gray-700 mb-4">Advanced Filters</h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Price Range */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Price Range
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      placeholder="Min"
+                      value={priceMin}
+                      onChange={(e) => {
+                        setPriceMin(e.target.value);
+                        setPage(1);
+                      }}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-coffee"
+                      min="0"
+                      step="1"
+                    />
+                    <span className="text-gray-500">-</span>
+                    <input
+                      type="number"
+                      placeholder="Max"
+                      value={priceMax}
+                      onChange={(e) => {
+                        setPriceMax(e.target.value);
+                        setPage(1);
+                      }}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-coffee"
+                      min="0"
+                      step="1"
+                    />
+                  </div>
+                </div>
+
+                {/* In Stock Only */}
+                <div className="flex items-center">
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={inStockOnly}
+                      onChange={(e) => {
+                        setInStockOnly(e.target.checked);
+                        setPage(1);
+                      }}
+                      className="mr-2 w-4 h-4 text-coffee border-gray-300 rounded focus:ring-coffee"
+                    />
+                    <span className="text-sm font-medium text-gray-700">
+                      In Stock Only
+                    </span>
+                  </label>
+                </div>
+
+                {/* On Sale Only */}
+                <div className="flex items-center">
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={onSaleOnly}
+                      onChange={(e) => {
+                        setOnSaleOnly(e.target.checked);
+                        setPage(1);
+                      }}
+                      className="mr-2 w-4 h-4 text-coffee border-gray-300 rounded focus:ring-coffee"
+                    />
+                    <span className="text-sm font-medium text-gray-700">
+                      On Sale Only
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Clear Filters Button */}
+              {(priceMin || priceMax || inStockOnly || onSaleOnly) && (
+                <div className="mt-4">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => {
+                      setPriceMin('');
+                      setPriceMax('');
+                      setInStockOnly(false);
+                      setOnSaleOnly(false);
+                      setPage(1);
+                    }}
+                  >
+                    Clear Advanced Filters
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
 
