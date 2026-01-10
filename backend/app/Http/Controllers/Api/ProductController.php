@@ -21,7 +21,7 @@ class ProductController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Product::with(['categories', 'images', 'variants']);
+        $query = Product::with(['categories', 'images', 'variants', 'options.values']);
 
         // Search
         if ($request->has('search')) {
@@ -111,7 +111,7 @@ class ProductController extends Controller
      */
     public function show(string $id): JsonResponse
     {
-        $product = Product::with(['categories', 'images', 'variants'])->findOrFail($id);
+        $product = Product::with(['categories', 'images', 'variants', 'options.values'])->findOrFail($id);
 
         return response()->json($product);
     }
@@ -238,7 +238,7 @@ class ProductController extends Controller
      */
     public function publicShow(string $slug): JsonResponse
     {
-        $product = Product::with(['categories', 'images', 'activeVariants'])
+        $product = Product::with(['categories', 'images', 'activeVariants', 'options.values'])
             ->where('slug', $slug)
             ->where('active', true)
             ->firstOrFail();

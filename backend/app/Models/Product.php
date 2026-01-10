@@ -57,6 +57,14 @@ class Product extends Model
     }
 
     /**
+     * Get the options for the product.
+     */
+    public function options(): HasMany
+    {
+        return $this->hasMany(ProductOption::class)->orderBy('sort_order');
+    }
+
+    /**
      * Get the variants for the product.
      */
     public function variants(): HasMany

@@ -6,7 +6,7 @@ import { Product, ProductReview, PaginatedResponse } from '../../types';
 import { Button, Spinner, Badge } from '../../components/ui';
 import PublicLayout from '../../layouts/PublicLayout';
 import RelatedProducts from '../../components/RelatedProducts';
-import { useCart } from '../../context/CartContext';
+import { useCart, SelectedOption } from '../../context/CartContext';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { useRecentlyViewed } from '../../context/RecentlyViewedContext';
 import { useComparison } from '../../context/ComparisonContext';
@@ -36,6 +36,7 @@ export default function ProductDetail() {
   const [stockNotificationSubmitting, setStockNotificationSubmitting] = useState(false);
   const [stockNotificationMessage, setStockNotificationMessage] = useState('');
   const [stockNotificationSuccess, setStockNotificationSuccess] = useState(false);
+  const [selectedOptions, setSelectedOptions] = useState<SelectedOption[]>([]);
   const { addToCart } = useCart();
   const { user } = useCustomerAuth();
   const { addToRecentlyViewed } = useRecentlyViewed();
@@ -108,7 +109,7 @@ export default function ProductDetail() {
 
   const handleAddToCart = () => {
     if (product) {
-      addToCart(product, quantity);
+      addToCart(product, quantity, undefined, selectedOptions.length > 0 ? selectedOptions : undefined);
       setAddedToCart(true);
       setTimeout(() => setAddedToCart(false), 2000);
     }
@@ -420,6 +421,140 @@ export default function ProductDetail() {
               {product.sku && (
                 <div className="mb-6 text-sm text-gray-600">
                   SKU: {product.sku}
+                </div>
+              )}
+
+              {/* Product Options */}
+              {product.options && product.options.length > 0 && (
+                <div className="mb-6 border-t pt-6">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                    Customize Your Selection
+                  </h2>
+                  {product.options.map((option) => (
+                    <div key={option.id} className="mb-4">
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        {option.name} {option.required && <span className="text-red-500">*</span>}
+                      </label>
+
+                      {option.type === 'select' && option.values && (
+                        <select
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coffee"
+                          value={selectedOptions.find((o) => o.optionId === option.id)?.value || ''}
+                          onChange={(e) => {
+                            const value = option.values!.find((v) => v.value === e.target.value);
+                            if (value) {
+                              setSelectedOptions((prev) => {
+                                const filtered = prev.filter((o) => o.optionId !== option.id);
+                                return [
+                                  ...filtered,
+                                  {
+                                    optionId: option.id,
+                                    optionName: option.name,
+                                    valueId: value.id,
+                                    value: value.value,
+                                    priceModifier: parseFloat(value.price_modifier),
+                                  },
+                                ];
+                              });
+                            }
+                          }}
+                        >
+                          <option value="">Select {option.name}...</option>
+                          {option.values.map((value) => (
+                            <option key={value.id} value={value.value}>
+                              {value.value}
+                              {parseFloat(value.price_modifier) !== 0 &&
+                                ` (${parseFloat(value.price_modifier) > 0 ? '+' : ''}$${parseFloat(value.price_modifier).toFixed(2)})`}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+
+                      {option.type === 'radio' && option.values && (
+                        <div className="space-y-2">
+                          {option.values.map((value) => (
+                            <label key={value.id} className="flex items-center cursor-pointer">
+                              <input
+                                type="radio"
+                                name={`option-${option.id}`}
+                                value={value.value}
+                                checked={selectedOptions.find((o) => o.optionId === option.id)?.valueId === value.id}
+                                onChange={() => {
+                                  setSelectedOptions((prev) => {
+                                    const filtered = prev.filter((o) => o.optionId !== option.id);
+                                    return [
+                                      ...filtered,
+                                      {
+                                        optionId: option.id,
+                                        optionName: option.name,
+                                        valueId: value.id,
+                                        value: value.value,
+                                        priceModifier: parseFloat(value.price_modifier),
+                                      },
+                                    ];
+                                  });
+                                }}
+                                className="mr-2"
+                              />
+                              <span>
+                                {value.value}
+                                {parseFloat(value.price_modifier) !== 0 &&
+                                  ` (+$${parseFloat(value.price_modifier).toFixed(2)})`}
+                              </span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
+
+                      {option.type === 'text' && (
+                        <input
+                          type="text"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coffee"
+                          placeholder={`Enter ${option.name.toLowerCase()}...`}
+                          value={selectedOptions.find((o) => o.optionId === option.id)?.value || ''}
+                          onChange={(e) => {
+                            setSelectedOptions((prev) => {
+                              const filtered = prev.filter((o) => o.optionId !== option.id);
+                              if (!e.target.value) return filtered;
+                              return [
+                                ...filtered,
+                                {
+                                  optionId: option.id,
+                                  optionName: option.name,
+                                  value: e.target.value,
+                                  priceModifier: 0,
+                                },
+                              ];
+                            });
+                          }}
+                        />
+                      )}
+
+                      {option.type === 'textarea' && (
+                        <textarea
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coffee"
+                          rows={4}
+                          placeholder={`Enter ${option.name.toLowerCase()}...`}
+                          value={selectedOptions.find((o) => o.optionId === option.id)?.value || ''}
+                          onChange={(e) => {
+                            setSelectedOptions((prev) => {
+                              const filtered = prev.filter((o) => o.optionId !== option.id);
+                              if (!e.target.value) return filtered;
+                              return [
+                                ...filtered,
+                                {
+                                  optionId: option.id,
+                                  optionName: option.name,
+                                  value: e.target.value,
+                                  priceModifier: 0,
+                                },
+                              ];
+                            });
+                          }}
+                        />
+                      )}
+                    </div>
+                  ))}
                 </div>
               )}
 

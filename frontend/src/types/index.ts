@@ -22,6 +22,7 @@ export interface Product {
   categories?: ProductCategory[];
   images?: ProductImage[];
   variants?: ProductVariant[];
+  options?: ProductOption[];
   effective_price?: string;
   is_on_sale?: boolean;
   is_in_stock?: boolean;
@@ -55,6 +56,24 @@ export interface ProductVariant {
   price_modifier: string;
   inventory?: number;
   active: boolean;
+}
+
+export interface ProductOption {
+  id: number;
+  product_id: number;
+  name: string;
+  type: 'select' | 'radio' | 'text' | 'textarea' | 'checkbox';
+  required: boolean;
+  sort_order: number;
+  values?: ProductOptionValue[];
+}
+
+export interface ProductOptionValue {
+  id: number;
+  product_option_id: number;
+  value: string;
+  price_modifier: string;
+  sort_order: number;
 }
 
 export interface ProductReview {
