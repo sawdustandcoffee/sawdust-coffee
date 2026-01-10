@@ -56,4 +56,5 @@ Route::prefix('public')->group(function () {
     Route::get('/content', [\App\Http\Controllers\Api\SiteContentController::class, 'publicIndex']);
     Route::post('/contact', [\App\Http\Controllers\Api\ContactFormController::class, 'store']);
     Route::post('/quotes', [\App\Http\Controllers\Api\QuoteRequestController::class, 'store']);
+    Route::post('/checkout', [\App\Http\Controllers\StripeCheckoutController::class, 'createCheckoutSession']);
 });

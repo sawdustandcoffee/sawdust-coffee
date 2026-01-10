@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
+import CartDrawer from '../components/CartDrawer';
 
 interface PublicLayoutProps {
   children: React.ReactNode;
@@ -8,6 +10,8 @@ interface PublicLayoutProps {
 export default function PublicLayout({ children }: PublicLayoutProps) {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const { getItemCount } = useCart();
 
   const navItems = [
     { path: '/', label: 'Home' },
@@ -41,23 +45,73 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-8">
-              {navItems.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`text-lg transition ${
-                    isActive(item.path)
-                      ? 'text-sawdust font-semibold border-b-2 border-sawdust'
-                      : 'text-white hover:text-sawdust'
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
+            <div className="hidden md:flex items-center space-x-8">
+              <nav className="flex items-center space-x-8">
+                {navItems.map((item) => (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={`text-lg transition ${
+                      isActive(item.path)
+                        ? 'text-sawdust font-semibold border-b-2 border-sawdust'
+                        : 'text-white hover:text-sawdust'
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </nav>
 
-            {/* Mobile Menu Button */}
+              {/* Cart Icon */}
+              <button
+                onClick={() => setIsCartOpen(true)}
+                className="relative text-white hover:text-sawdust transition"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                {getItemCount() > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-coffee text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                    {getItemCount()}
+                  </span>
+                )}
+              </button>
+            </div>
+
+            {/* Mobile Menu and Cart */}
+            <div className="md:hidden flex items-center space-x-4">
+              {/* Cart Icon Mobile */}
+              <button
+                onClick={() => setIsCartOpen(true)}
+                className="relative text-white hover:text-sawdust transition"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                {getItemCount() > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-coffee text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                    {getItemCount()}
+                  </span>
+                )}
+              </button>
+
+              {/* Mobile Menu Button */}
             <button
               className="md:hidden text-white focus:outline-none"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -172,6 +226,9 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
           </div>
         </div>
       </footer>
+
+      {/* Cart Drawer */}
+      <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </div>
   );
 }

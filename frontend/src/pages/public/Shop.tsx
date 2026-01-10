@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import api from '../../lib/axios';
 import { Product, ProductCategory, PaginatedResponse } from '../../types';
 import { Button, Spinner } from '../../components/ui';
 import PublicLayout from '../../layouts/PublicLayout';
+import { useCart } from '../../context/CartContext';
 
 export default function Shop() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -13,6 +14,8 @@ export default function Shop() {
   const [totalPages, setTotalPages] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [sortBy, setSortBy] = useState('featured');
+  const { addToCart } = useCart();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchCategories();
@@ -136,13 +139,12 @@ export default function Shop() {
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {products.map((product) => (
-                  <Link
+                  <div
                     key={product.id}
-                    to={`/shop/${product.slug}`}
-                    className="group"
+                    className="group bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition"
                   >
-                    <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
-                      {/* Image */}
+                    {/* Image - Clickable */}
+                    <Link to={`/shop/${product.slug}`} className="block">
                       <div className="aspect-square bg-gray-200 relative">
                         {product.images && product.images[0] ? (
                           <img
@@ -166,36 +168,56 @@ export default function Shop() {
                           </div>
                         )}
                       </div>
+                    </Link>
 
-                      {/* Info */}
-                      <div className="p-4">
+                    {/* Info */}
+                    <div className="p-4">
+                      <Link to={`/shop/${product.slug}`}>
                         <h3 className="text-lg font-semibold text-gray-900 mb-1 group-hover:text-coffee transition line-clamp-1">
                           {product.name}
                         </h3>
-                        {product.description && (
-                          <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                            {product.description}
-                          </p>
-                        )}
-                        <div className="flex items-center justify-between">
-                          {product.sale_price ? (
-                            <div className="flex items-center gap-2">
-                              <span className="text-xl font-bold text-green-600">
-                                ${parseFloat(product.sale_price).toFixed(2)}
-                              </span>
-                              <span className="text-sm text-gray-500 line-through">
-                                ${parseFloat(product.price).toFixed(2)}
-                              </span>
-                            </div>
-                          ) : (
-                            <span className="text-xl font-bold text-coffee">
+                      </Link>
+                      {product.description && (
+                        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                          {product.description}
+                        </p>
+                      )}
+                      <div className="flex items-center justify-between mb-3">
+                        {product.sale_price ? (
+                          <div className="flex items-center gap-2">
+                            <span className="text-xl font-bold text-green-600">
+                              ${parseFloat(product.sale_price).toFixed(2)}
+                            </span>
+                            <span className="text-sm text-gray-500 line-through">
                               ${parseFloat(product.price).toFixed(2)}
                             </span>
-                          )}
-                        </div>
+                          </div>
+                        ) : (
+                          <span className="text-xl font-bold text-coffee">
+                            ${parseFloat(product.price).toFixed(2)}
+                          </span>
+                        )}
                       </div>
+
+                      {/* Add to Cart Button */}
+                      {product.inventory > 0 ? (
+                        <Button
+                          size="sm"
+                          className="w-full"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            addToCart(product, 1);
+                          }}
+                        >
+                          Add to Cart
+                        </Button>
+                      ) : (
+                        <Button size="sm" className="w-full" disabled>
+                          Out of Stock
+                        </Button>
+                      )}
                     </div>
-                  </Link>
+                  </div>
                 ))}
               </div>
 

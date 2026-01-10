@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { CartProvider } from './context/CartContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
 import AdminDashboard from './pages/AdminDashboard';
@@ -20,11 +21,15 @@ import Gallery from './pages/public/Gallery';
 import About from './pages/public/About';
 import Services from './pages/public/Services';
 import Contact from './pages/public/Contact';
+import Cart from './pages/public/Cart';
+import Checkout from './pages/public/Checkout';
+import OrderSuccess from './pages/public/OrderSuccess';
 
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <CartProvider>
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
@@ -34,6 +39,9 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/services" element={<Services />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/order/success" element={<OrderSuccess />} />
 
           {/* Auth */}
           <Route path="/login" element={<LoginPage />} />
@@ -120,6 +128,7 @@ function App() {
             }
           />
         </Routes>
+        </CartProvider>
       </AuthProvider>
     </BrowserRouter>
   );

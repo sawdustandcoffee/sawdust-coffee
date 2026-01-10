@@ -4,6 +4,7 @@ import api from '../../lib/axios';
 import { Product } from '../../types';
 import { Button, Spinner, Badge } from '../../components/ui';
 import PublicLayout from '../../layouts/PublicLayout';
+import { useCart } from '../../context/CartContext';
 
 export default function ProductDetail() {
   const { slug } = useParams();
@@ -11,6 +12,9 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [error, setError] = useState('');
+  const [quantity, setQuantity] = useState(1);
+  const [addedToCart, setAddedToCart] = useState(false);
+  const { addToCart } = useCart();
 
   useEffect(() => {
     if (slug) {
@@ -28,6 +32,14 @@ export default function ProductDetail() {
       setError(err.response?.data?.message || 'Product not found');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAddToCart = () => {
+    if (product) {
+      addToCart(product, quantity);
+      setAddedToCart(true);
+      setTimeout(() => setAddedToCart(false), 2000);
     }
   };
 
@@ -196,13 +208,87 @@ export default function ProductDetail() {
                 </div>
               )}
 
-              {/* CTA */}
+              {/* Add to Cart */}
               <div className="border-t pt-6">
-                <p className="text-gray-700 mb-4">
-                  Interested in this piece? Contact us for availability and custom options.
+                {product.inventory > 0 ? (
+                  <>
+                    {/* Quantity Selector */}
+                    <div className="mb-6">
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Quantity
+                      </label>
+                      <div className="flex items-center gap-4">
+                        <button
+                          onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                          className="w-10 h-10 flex items-center justify-center bg-gray-200 rounded hover:bg-gray-300 transition text-lg font-semibold"
+                        >
+                          -
+                        </button>
+                        <span className="text-xl font-semibold w-12 text-center">
+                          {quantity}
+                        </span>
+                        <button
+                          onClick={() =>
+                            setQuantity(Math.min(product.inventory, quantity + 1))
+                          }
+                          className="w-10 h-10 flex items-center justify-center bg-gray-200 rounded hover:bg-gray-300 transition text-lg font-semibold"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Add to Cart Button */}
+                    <Button
+                      size="lg"
+                      className="w-full mb-4"
+                      onClick={handleAddToCart}
+                    >
+                      {addedToCart ? (
+                        <>
+                          <svg
+                            className="w-5 h-5 inline mr-2"
+                            fill="none"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path d="M5 13l4 4L19 7" />
+                          </svg>
+                          Added to Cart!
+                        </>
+                      ) : (
+                        <>
+                          <svg
+                            className="w-5 h-5 inline mr-2"
+                            fill="none"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                          </svg>
+                          Add to Cart
+                        </>
+                      )}
+                    </Button>
+                  </>
+                ) : (
+                  <div className="mb-4">
+                    <p className="text-gray-700 mb-4">This item is currently out of stock.</p>
+                  </div>
+                )}
+
+                {/* Contact CTA */}
+                <p className="text-gray-600 text-sm mb-2">
+                  Need customization or have questions?
                 </p>
                 <Link to="/contact">
-                  <Button size="lg" className="w-full">
+                  <Button variant="secondary" size="lg" className="w-full">
                     Contact Us About This Product
                   </Button>
                 </Link>
