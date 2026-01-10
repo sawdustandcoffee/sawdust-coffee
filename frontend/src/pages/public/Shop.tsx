@@ -5,6 +5,7 @@ import { Product, ProductCategory, PaginatedResponse } from '../../types';
 import { Button, Spinner } from '../../components/ui';
 import PublicLayout from '../../layouts/PublicLayout';
 import { useCart } from '../../context/CartContext';
+import SEO from '../../components/SEO';
 
 export default function Shop() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -73,6 +74,11 @@ export default function Shop() {
 
   return (
     <PublicLayout>
+      <SEO
+        title="Shop"
+        description="Shop handcrafted woodworking products from Sawdust & Coffee. Browse custom furniture, live edge tables, CNC signs, laser engraving, and more from Wareham, MA."
+        keywords="buy woodworking, custom furniture for sale, live edge tables, CNC signs, handmade furniture, Massachusetts woodworking shop"
+      />
       <div className="bg-gray-50 min-h-screen py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
@@ -151,6 +157,7 @@ export default function Shop() {
                             src={product.images[0].path}
                             alt={product.images[0].alt_text || product.name}
                             className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                            loading="lazy"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">

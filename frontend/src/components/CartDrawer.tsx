@@ -85,6 +85,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                       src={imageUrl}
                       alt={item.product.name}
                       className="w-20 h-20 object-cover rounded"
+                      loading="lazy"
                     />
 
                     {/* Product Info */}

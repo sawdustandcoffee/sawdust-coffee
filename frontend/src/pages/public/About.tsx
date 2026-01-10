@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Button } from '../../components/ui';
 import PublicLayout from '../../layouts/PublicLayout';
+import SEO from '../../components/SEO';
 
 export default function About() {
   const team = [
@@ -23,6 +24,11 @@ export default function About() {
 
   return (
     <PublicLayout>
+      <SEO
+        title="About Us"
+        description="Meet the team at Sawdust & Coffee Woodworking. Family-owned business from Wareham, MA specializing in custom woodworking. Learn about Paul, Jason, and Patrick Neri."
+        keywords="about Sawdust Coffee, woodworking team, Wareham Massachusetts, family woodworking business, custom craftsmen"
+      />
       <div className="bg-white">
         {/* Hero Section */}
         <section className="bg-gradient-to-br from-wood-700 to-wood-900 text-white py-20">

@@ -114,6 +114,7 @@ export default function Home() {
                             src={product.images[0].path}
                             alt={product.images[0].alt_text || product.name}
                             className="w-full h-full object-cover group-hover:scale-105 transition"
+                            loading="lazy"
                           />
                         ) : (
                           <span className="text-gray-400">No Image</span>
@@ -189,6 +190,7 @@ export default function Home() {
                       src={item.image_path}
                       alt={item.title}
                       className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
+                      loading="lazy"
                     />
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition">

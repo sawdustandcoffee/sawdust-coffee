@@ -2,6 +2,7 @@ import { useState } from 'react';
 import api from '../../lib/axios';
 import { Button, Input, Textarea, Card } from '../../components/ui';
 import PublicLayout from '../../layouts/PublicLayout';
+import SEO from '../../components/SEO';
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -45,6 +46,11 @@ export default function Contact() {
 
   return (
     <PublicLayout>
+      <SEO
+        title="Contact Us"
+        description="Contact Sawdust & Coffee Woodworking in Wareham, MA. Call 774-836-4958 or email info@sawdustandcoffee.com. Request a custom quote for your woodworking project."
+        keywords="contact woodworking, Wareham MA woodworking, request quote, custom furniture quote, 774-836-4958"
+      />
       <div className="bg-gray-50">
         {/* Hero Section */}
         <section className="bg-gradient-to-br from-wood-700 to-wood-900 text-white py-20">

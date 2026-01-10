@@ -98,6 +98,7 @@ export default function ProductDetail() {
                     src={product.images![selectedImage].path}
                     alt={product.images![selectedImage].alt_text || product.name}
                     className="w-full h-full object-cover"
+                    loading="lazy"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
@@ -123,6 +124,7 @@ export default function ProductDetail() {
                         src={image.path}
                         alt={image.alt_text || product.name}
                         className="w-full h-full object-cover"
+                        loading="lazy"
                       />
                     </button>
                   ))}

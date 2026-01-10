@@ -19,7 +19,9 @@ A full-stack e-commerce website for Sawdust & Coffee Woodworking, a family-owned
 - Tailwind CSS (styling)
 - React Router (navigation)
 - Axios (API calls)
-- React Query (API state management)
+- React Context API (Auth & Cart state management)
+- react-helmet-async (SEO meta tags)
+- ErrorBoundary (error handling)
 
 ### Backend
 - Laravel 11
@@ -145,9 +147,13 @@ sawdust-coffee/
    - Get your test API keys from the Stripe dashboard
    - Add them to `backend/.env`:
      ```
-     STRIPE_KEY=pk_test_your_publishable_key
-     STRIPE_SECRET=sk_test_your_secret_key
+     STRIPE_PUBLISHABLE_KEY=pk_test_your_publishable_key
+     STRIPE_SECRET_KEY=sk_test_your_secret_key
      STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
+     ```
+   - Also add the publishable key to `frontend/.env`:
+     ```
+     VITE_STRIPE_PUBLISHABLE_KEY=pk_test_your_publishable_key
      ```
 
 ### Running Tests
@@ -253,9 +259,10 @@ See `backend/.env.example` for all required environment variables.
 **Critical Variables:**
 - `APP_KEY` - Laravel application key
 - `DB_*` - Database credentials
-- `STRIPE_KEY` - Stripe publishable key
-- `STRIPE_SECRET` - Stripe secret key
+- `STRIPE_PUBLISHABLE_KEY` - Stripe publishable key
+- `STRIPE_SECRET_KEY` - Stripe secret key
 - `STRIPE_WEBHOOK_SECRET` - Stripe webhook signing secret
+- `VITE_STRIPE_PUBLISHABLE_KEY` - Stripe publishable key (frontend)
 
 ## Deployment
 
@@ -333,6 +340,43 @@ stripe listen --forward-to localhost:8000/api/stripe/webhook
 - Custom hooks for reusable logic
 - Tailwind for all styling (no inline styles, no CSS files)
 - Keep components small and focused
+
+## Production Optimizations
+
+The application includes several production-ready optimizations:
+
+### SEO Optimization
+- **react-helmet-async** - Dynamic meta tags for all pages
+- **robots.txt** - Search engine crawling directives
+- **Open Graph & Twitter Cards** - Social media sharing optimization
+- **Semantic HTML** - Proper heading hierarchy and structure
+- **Custom 404 page** - User-friendly error handling
+
+### Performance
+- **Lazy loading images** - All product, gallery, and cart images load lazily
+- **Code splitting** - React Router automatic code splitting
+- **Optimized build** - Vite production builds with minification
+- **Laravel caching** - Config, route, and view caching in production
+
+### Security
+- **Security Headers Middleware** - Comprehensive HTTP security headers:
+  - `X-Content-Type-Options: nosniff` - Prevent MIME type sniffing
+  - `X-Frame-Options: SAMEORIGIN` - Clickjacking protection
+  - `X-XSS-Protection` - XSS protection for legacy browsers
+  - `Referrer-Policy` - Control referrer information
+  - `Strict-Transport-Security` - HSTS (HTTPS enforcement)
+  - `Content-Security-Policy` - CSP with Stripe integration support
+  - `Permissions-Policy` - Feature policy restrictions
+- **Rate Limiting** - API throttling (60 req/min reads, 10 req/min writes)
+- **CSRF Protection** - Laravel Sanctum CSRF tokens
+- **SQL Injection Protection** - Eloquent ORM parameterized queries
+- **XSS Protection** - React automatic escaping
+
+### Error Handling
+- **ErrorBoundary** - Catches React errors gracefully
+- **Custom 404 page** - Branded not found experience
+- **Production error hiding** - Detailed errors only in development
+- **API error responses** - Consistent JSON error format
 
 ## Features
 

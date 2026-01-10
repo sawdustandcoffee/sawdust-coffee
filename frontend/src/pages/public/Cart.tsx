@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { Button } from '../../components/ui';
 import PublicLayout from '../../layouts/PublicLayout';
+import SEO from '../../components/SEO';
 
 export default function Cart() {
   const { items, removeFromCart, updateQuantity, getSubtotal, clearCart } = useCart();
@@ -37,6 +38,10 @@ export default function Cart() {
 
   return (
     <PublicLayout>
+      <SEO
+        title="Shopping Cart"
+        description="Review your shopping cart and proceed to checkout for custom woodworking products from Sawdust & Coffee."
+      />
       <div className="bg-gray-50 min-h-screen py-8">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
@@ -74,6 +79,7 @@ export default function Cart() {
                             src={imageUrl}
                             alt={item.product.name}
                             className="w-32 h-32 object-cover rounded-lg hover:opacity-75 transition"
+                            loading="lazy"
                           />
                         </Link>
 

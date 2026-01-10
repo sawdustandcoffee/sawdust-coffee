@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Button } from '../../components/ui';
 import PublicLayout from '../../layouts/PublicLayout';
+import SEO from '../../components/SEO';
 
 export default function Services() {
   const services = [
@@ -62,6 +63,11 @@ export default function Services() {
 
   return (
     <PublicLayout>
+      <SEO
+        title="Services"
+        description="Professional woodworking services: slab flattening, CNC signs, laser engraving, live edge furniture, epoxy designs, cornhole boards, custom cabinetry, 3D printing, and screen printing."
+        keywords="slab flattening, CNC signs, laser engraving, live edge furniture, epoxy tables, custom cabinetry, cornhole boards, woodworking services"
+      />
       <div className="bg-white">
         {/* Hero Section */}
         <section className="bg-gradient-to-br from-wood-700 to-wood-900 text-white py-20">

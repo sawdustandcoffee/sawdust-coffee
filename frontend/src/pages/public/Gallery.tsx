@@ -3,6 +3,7 @@ import api from '../../lib/axios';
 import { GalleryItem, PaginatedResponse } from '../../types';
 import { Button, Spinner, Modal } from '../../components/ui';
 import PublicLayout from '../../layouts/PublicLayout';
+import SEO from '../../components/SEO';
 
 export default function Gallery() {
   const [items, setItems] = useState<GalleryItem[]>([]);
@@ -62,6 +63,11 @@ export default function Gallery() {
 
   return (
     <PublicLayout>
+      <SEO
+        title="Gallery"
+        description="View our portfolio of custom woodworking projects. See examples of live edge furniture, CNC signs, epoxy designs, and more from Sawdust & Coffee Woodworking."
+        keywords="woodworking gallery, custom furniture examples, live edge portfolio, CNC sign examples, woodworking projects"
+      />
       <div className="bg-gray-50 min-h-screen py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
@@ -126,6 +132,7 @@ export default function Gallery() {
                         src={item.image_path}
                         alt={item.title}
                         className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
+                        loading="lazy"
                       />
                     </div>
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition">
@@ -187,6 +194,7 @@ export default function Gallery() {
               src={selectedItem.image_path}
               alt={selectedItem.title}
               className="w-full rounded-lg"
+              loading="lazy"
             />
             {selectedItem.description && (
               <p className="mt-4 text-gray-700">{selectedItem.description}</p>
