@@ -46,6 +46,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::apiResource('categories', \App\Http\Controllers\Api\ProductCategoryController::class);
         Route::apiResource('gallery', \App\Http\Controllers\Api\GalleryItemController::class);
+        Route::post('/gallery/{id}/upload-image', [\App\Http\Controllers\Api\GalleryItemController::class, 'uploadImage']);
+        Route::delete('/gallery/{id}/delete-image', [\App\Http\Controllers\Api\GalleryItemController::class, 'deleteImage']);
         Route::apiResource('orders', \App\Http\Controllers\Api\OrderController::class)->only(['index', 'show', 'update']);
         Route::get('/orders-export/csv', [\App\Http\Controllers\Api\OrderController::class, 'exportCsv']);
 

@@ -55,7 +55,7 @@ class GalleryItemController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'category' => 'nullable|string|max:100',
-            'image_path' => 'required|string|max:500',
+            'image_path' => 'nullable|string|max:500',
             'featured' => 'nullable|boolean',
             'sort_order' => 'nullable|integer|min:0',
         ]);
@@ -89,7 +89,7 @@ class GalleryItemController extends Controller
             'title' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
             'category' => 'nullable|string|max:100',
-            'image_path' => 'sometimes|required|string|max:500',
+            'image_path' => 'nullable|string|max:500',
             'featured' => 'nullable|boolean',
             'sort_order' => 'nullable|integer|min:0',
         ]);
@@ -156,5 +156,60 @@ class GalleryItemController extends Controller
             ->pluck('category');
 
         return response()->json($categories);
+    }
+
+    /**
+     * Upload an image for a gallery item.
+     */
+    public function uploadImage(Request $request, string $id): JsonResponse
+    {
+        $item = GalleryItem::findOrFail($id);
+
+        $validated = $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120', // 5MB max
+        ]);
+
+        // Delete old image if it exists
+        if ($item->image_path && \Storage::disk('public')->exists($item->image_path)) {
+            \Storage::disk('public')->delete($item->image_path);
+        }
+
+        // Store the new image
+        $path = $request->file('image')->store('gallery', 'public');
+
+        // Update the gallery item
+        $item->update(['image_path' => $path]);
+
+        return response()->json([
+            'message' => 'Image uploaded successfully',
+            'item' => $item->fresh(),
+        ]);
+    }
+
+    /**
+     * Delete the image for a gallery item.
+     */
+    public function deleteImage(string $id): JsonResponse
+    {
+        $item = GalleryItem::findOrFail($id);
+
+        if (!$item->image_path) {
+            return response()->json([
+                'message' => 'No image to delete',
+            ], 400);
+        }
+
+        // Delete the image file
+        if (\Storage::disk('public')->exists($item->image_path)) {
+            \Storage::disk('public')->delete($item->image_path);
+        }
+
+        // Clear the image path
+        $item->update(['image_path' => null]);
+
+        return response()->json([
+            'message' => 'Image deleted successfully',
+            'item' => $item->fresh(),
+        ]);
     }
 }

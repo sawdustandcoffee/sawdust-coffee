@@ -22,6 +22,10 @@ export default function Gallery() {
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>('');
 
   useEffect(() => {
     fetchItems();
@@ -54,6 +58,8 @@ export default function Gallery() {
       sort_order: '0',
     });
     setFormErrors({});
+    setSelectedFile(null);
+    setPreviewUrl('');
     setIsModalOpen(true);
   };
 
@@ -68,24 +74,122 @@ export default function Gallery() {
       sort_order: item.sort_order.toString(),
     });
     setFormErrors({});
+    setSelectedFile(null);
+    setPreviewUrl(item.image_path || '');
     setIsModalOpen(true);
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image must be smaller than 5MB');
+      return;
+    }
+
+    setSelectedFile(file);
+
+    // Create preview URL
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreviewUrl(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleUploadImage = async (itemId: number) => {
+    if (!selectedFile) return;
+
+    try {
+      setUploading(true);
+      setUploadProgress(0);
+
+      const formData = new FormData();
+      formData.append('image', selectedFile);
+
+      await api.post(`/admin/gallery/${itemId}/upload-image`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        onUploadProgress: (progressEvent) => {
+          const progress = progressEvent.total
+            ? Math.round((progressEvent.loaded * 100) / progressEvent.total)
+            : 0;
+          setUploadProgress(progress);
+        },
+      });
+
+      setSelectedFile(null);
+      return true;
+    } catch (err: any) {
+      console.error('Upload error:', err);
+      alert(err.response?.data?.message || 'Failed to upload image');
+      return false;
+    } finally {
+      setUploading(false);
+      setUploadProgress(0);
+    }
+  };
+
+  const handleDeleteImage = async (itemId: number) => {
+    if (!confirm('Are you sure you want to delete this image?')) return;
+
+    try {
+      await api.delete(`/admin/gallery/${itemId}/delete-image`);
+      setPreviewUrl('');
+      setFormData({ ...formData, image_path: '' });
+      fetchItems();
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Failed to delete image');
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormErrors({});
 
+    // Validate that we have an image (either existing or new)
+    if (!editingItem && !selectedFile) {
+      setFormErrors({ image_path: ['Please select an image to upload'] });
+      return;
+    }
+
     try {
       setSaving(true);
       const payload = {
         ...formData,
         sort_order: parseInt(formData.sort_order) || 0,
+        // For new items without upload, use placeholder
+        image_path: formData.image_path || 'placeholder',
       };
+
+      let itemId: number;
 
       if (editingItem) {
         await api.put(`/admin/gallery/${editingItem.id}`, payload);
+        itemId = editingItem.id;
       } else {
-        await api.post('/admin/gallery', payload);
+        const response = await api.post('/admin/gallery', payload);
+        itemId = response.data.item.id;
+      }
+
+      // Upload the image if a file was selected
+      if (selectedFile) {
+        const uploadSuccess = await handleUploadImage(itemId);
+        if (!uploadSuccess) {
+          // If upload failed, still close modal but show items
+          setIsModalOpen(false);
+          fetchItems();
+          return;
+        }
       }
 
       setIsModalOpen(false);
@@ -123,6 +227,12 @@ export default function Gallery() {
     }
   };
 
+  const getImageUrl = (path: string) => {
+    if (!path || path === 'placeholder') return '';
+    if (path.startsWith('http')) return path;
+    return `${import.meta.env.VITE_API_URL}/storage/${path}`;
+  };
+
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -151,9 +261,9 @@ export default function Gallery() {
                     className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition"
                   >
                     <div className="aspect-video bg-gray-100 flex items-center justify-center">
-                      {item.image_path ? (
+                      {item.image_path && item.image_path !== 'placeholder' ? (
                         <img
-                          src={item.image_path}
+                          src={getImageUrl(item.image_path)}
                           alt={item.title}
                           className="w-full h-full object-cover"
                           onError={(e) => {
@@ -249,15 +359,81 @@ export default function Gallery() {
             error={formErrors.title?.[0]}
           />
 
-          <Input
-            label="Image Path/URL"
-            name="image_path"
-            value={formData.image_path}
-            onChange={(e) => setFormData({ ...formData, image_path: e.target.value })}
-            required
-            helperText="Full URL or path to the image"
-            error={formErrors.image_path?.[0]}
-          />
+          {/* Image Upload Section */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Image {!editingItem && <span className="text-red-600">*</span>}
+            </label>
+
+            {/* Preview */}
+            {previewUrl && (
+              <div className="mb-3 relative border-2 border-gray-200 rounded-lg overflow-hidden">
+                <div className="aspect-video bg-gray-100">
+                  <img
+                    src={previewUrl}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                {editingItem && formData.image_path && (
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteImage(editingItem.id)}
+                    className="absolute top-2 right-2 px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
+                  >
+                    Delete Image
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Upload Button */}
+            <label className="cursor-pointer">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-coffee text-white rounded-lg hover:bg-coffee/90 transition">
+                {uploading ? (
+                  <>
+                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        fill="none"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      />
+                    </svg>
+                    <span>Uploading... {uploadProgress}%</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span>{previewUrl ? 'Change Image' : 'Select Image'}</span>
+                  </>
+                )}
+              </div>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileSelect}
+                disabled={uploading}
+                className="hidden"
+              />
+            </label>
+            <p className="text-xs text-gray-500 mt-2">
+              Supported: JPEG, PNG, WebP. Max size: 5MB
+            </p>
+            {formErrors.image_path && (
+              <p className="text-sm text-red-600 mt-1">{formErrors.image_path[0]}</p>
+            )}
+          </div>
 
           <Input
             label="Category"
