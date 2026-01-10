@@ -70,6 +70,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/reviews/{id}', [\App\Http\Controllers\Api\ProductReviewController::class, 'update']);
         Route::delete('/reviews/{id}', [\App\Http\Controllers\Api\ProductReviewController::class, 'destroy']);
 
+        // Discount codes
+        Route::apiResource('discount-codes', \App\Http\Controllers\Api\DiscountCodeController::class);
+
         // Stats endpoints
         Route::get('/stats/orders', [\App\Http\Controllers\Api\OrderController::class, 'stats']);
         Route::get('/stats/quotes', [\App\Http\Controllers\Api\QuoteRequestController::class, 'stats']);
@@ -130,6 +133,7 @@ Route::prefix('public')->group(function () {
         Route::post('/contact', [\App\Http\Controllers\Api\ContactFormController::class, 'store']);
         Route::post('/quotes', [\App\Http\Controllers\Api\QuoteRequestController::class, 'store']);
         Route::post('/checkout', [\App\Http\Controllers\StripeCheckoutController::class, 'createCheckoutSession']);
+        Route::post('/validate-discount', [\App\Http\Controllers\Api\DiscountCodeController::class, 'validate']);
     });
 });
 

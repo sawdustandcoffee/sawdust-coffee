@@ -20,6 +20,7 @@ import EmailPreview from './pages/admin/EmailPreview';
 import Analytics from './pages/admin/Analytics';
 import Settings from './pages/admin/Settings';
 import Reviews from './pages/admin/Reviews';
+import DiscountCodes from './pages/admin/DiscountCodes';
 
 // Public pages
 import Home from './pages/public/Home';
@@ -230,6 +231,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Reviews />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/discount-codes"
+            element={
+              <ProtectedRoute>
+                <DiscountCodes />
               </ProtectedRoute>
             }
           />

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Mail\AdminOrderNotificationMail;
 use App\Mail\OrderConfirmationMail;
+use App\Models\DiscountCode;
+use App\Models\DiscountCodeUse;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
@@ -88,6 +90,11 @@ class StripeWebhookController extends Controller
             $shipping = $stripeSession->total_details->amount_shipping / 100;
             $total = $stripeSession->amount_total / 100;
 
+            // Extract discount information from metadata
+            $discountAmount = isset($metadata->discount_amount) ? (float)$metadata->discount_amount : 0;
+            $discountCodeStr = $metadata->discount_code ?? null;
+            $discountCodeId = isset($metadata->discount_code_id) ? (int)$metadata->discount_code_id : null;
+
             // Create order
             $order = Order::create([
                 'order_number' => Order::generateOrderNumber(),
@@ -99,6 +106,8 @@ class StripeWebhookController extends Controller
                 'state' => $metadata->shipping_state ?? '',
                 'zip' => $metadata->shipping_zip ?? '',
                 'subtotal' => $subtotal,
+                'discount' => $discountAmount,
+                'discount_code' => $discountCodeStr,
                 'tax' => $tax,
                 'shipping' => $shipping,
                 'total' => $total,
@@ -110,6 +119,11 @@ class StripeWebhookController extends Controller
 
             // Create order items from line items
             foreach ($stripeSession->line_items->data as $lineItem) {
+                // Skip discount line items
+                if (strpos($lineItem->description, 'Discount:') === 0) {
+                    continue;
+                }
+
                 // Extract product name and variant from line item description
                 $productName = $lineItem->description;
 
@@ -127,6 +141,37 @@ class StripeWebhookController extends Controller
                         'quantity' => $lineItem->quantity,
                         'price_at_purchase' => $lineItem->amount_total / $lineItem->quantity / 100,
                         'subtotal' => $lineItem->amount_total / 100,
+                    ]);
+                }
+            }
+
+            // Record discount code usage if applicable
+            if ($discountCodeId && $discountAmount > 0) {
+                try {
+                    $discountCode = DiscountCode::find($discountCodeId);
+                    if ($discountCode) {
+                        // Create usage record
+                        DiscountCodeUse::create([
+                            'discount_code_id' => $discountCodeId,
+                            'order_id' => $order->id,
+                            'user_email' => $order->customer_email,
+                            'discount_amount' => $discountAmount,
+                            'used_at' => now(),
+                        ]);
+
+                        // Increment usage count
+                        $discountCode->incrementUsage();
+
+                        Log::info('Discount code usage recorded', [
+                            'discount_code' => $discountCode->code,
+                            'order_id' => $order->id,
+                            'discount_amount' => $discountAmount,
+                        ]);
+                    }
+                } catch (\Exception $discountError) {
+                    Log::error('Failed to record discount code usage', [
+                        'order_id' => $order->id,
+                        'error' => $discountError->getMessage(),
                     ]);
                 }
             }

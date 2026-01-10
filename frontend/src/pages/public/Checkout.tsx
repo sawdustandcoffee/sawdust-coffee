@@ -19,6 +19,13 @@ export default function Checkout() {
     shipping_zip: '',
     customer_phone: '',
   });
+  const [discountCode, setDiscountCode] = useState('');
+  const [appliedDiscount, setAppliedDiscount] = useState<{
+    code: string;
+    discount_amount: number;
+  } | null>(null);
+  const [discountError, setDiscountError] = useState('');
+  const [validatingDiscount, setValidatingDiscount] = useState(false);
 
   // Redirect if cart is empty
   if (items.length === 0) {
@@ -50,6 +57,54 @@ export default function Checkout() {
     });
   };
 
+  const handleApplyDiscount = async () => {
+    if (!discountCode.trim()) {
+      setDiscountError('Please enter a discount code');
+      return;
+    }
+
+    if (!formData.customer_email) {
+      setDiscountError('Please enter your email first');
+      return;
+    }
+
+    setDiscountError('');
+    setValidatingDiscount(true);
+
+    try {
+      const response = await api.post('/public/validate-discount', {
+        code: discountCode,
+        subtotal: getSubtotal(),
+        email: formData.customer_email,
+      });
+
+      if (response.data.valid) {
+        setAppliedDiscount({
+          code: response.data.discount_code.code,
+          discount_amount: response.data.discount_code.discount_amount,
+        });
+        setDiscountError('');
+      }
+    } catch (err: any) {
+      setAppliedDiscount(null);
+      setDiscountError(err.response?.data?.message || 'Invalid discount code');
+    } finally {
+      setValidatingDiscount(false);
+    }
+  };
+
+  const handleRemoveDiscount = () => {
+    setAppliedDiscount(null);
+    setDiscountCode('');
+    setDiscountError('');
+  };
+
+  const getTotal = () => {
+    const subtotal = getSubtotal();
+    const discount = appliedDiscount?.discount_amount || 0;
+    return Math.max(0, subtotal - discount);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
@@ -67,6 +122,7 @@ export default function Checkout() {
       const response = await api.post('/public/checkout', {
         ...formData,
         items: cartItems,
+        discount_code: appliedDiscount?.code || null,
       });
 
       // Redirect to Stripe Checkout
@@ -257,11 +313,79 @@ export default function Checkout() {
                   })}
                 </div>
 
+                {/* Discount Code */}
+                <div className="border-t pt-4 mb-6">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                    Discount Code
+                  </h3>
+                  {!appliedDiscount ? (
+                    <div>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={discountCode}
+                          onChange={(e) => setDiscountCode(e.target.value.toUpperCase())}
+                          placeholder="Enter code"
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coffee text-sm"
+                        />
+                        <Button
+                          size="sm"
+                          onClick={handleApplyDiscount}
+                          disabled={validatingDiscount}
+                        >
+                          {validatingDiscount ? 'Checking...' : 'Apply'}
+                        </Button>
+                      </div>
+                      {discountError && (
+                        <p className="text-red-500 text-xs mt-2">{discountError}</p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-3">
+                      <div className="flex items-center gap-2">
+                        <svg
+                          className="w-5 h-5 text-green-600"
+                          fill="none"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path d="M5 13l4 4L19 7" />
+                        </svg>
+                        <div>
+                          <p className="text-sm font-semibold text-green-800">
+                            {appliedDiscount.code}
+                          </p>
+                          <p className="text-xs text-green-600">
+                            -${appliedDiscount.discount_amount.toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={handleRemoveDiscount}
+                        className="text-green-600 hover:text-green-800 text-sm font-medium"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )}
+                </div>
+
                 <div className="border-t pt-4 space-y-2 mb-6">
                   <div className="flex justify-between text-gray-700">
                     <span>Subtotal:</span>
                     <span className="font-semibold">${getSubtotal().toFixed(2)}</span>
                   </div>
+                  {appliedDiscount && (
+                    <div className="flex justify-between text-green-600">
+                      <span>Discount:</span>
+                      <span className="font-semibold">
+                        -${appliedDiscount.discount_amount.toFixed(2)}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-gray-700">
                     <span>Shipping:</span>
                     <span className="text-sm">Calculated by Stripe</span>
@@ -278,9 +402,14 @@ export default function Checkout() {
                       Estimated Total:
                     </span>
                     <span className="text-2xl font-bold text-coffee">
-                      ${getSubtotal().toFixed(2)}
+                      ${getTotal().toFixed(2)}
                     </span>
                   </div>
+                  {appliedDiscount && (
+                    <p className="text-sm text-gray-600 text-right mt-1">
+                      (Before shipping & tax)
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Order extends Model
 {
@@ -18,6 +19,8 @@ class Order extends Model
         'zip',
         'status',
         'subtotal',
+        'discount',
+        'discount_code',
         'tax',
         'shipping',
         'total',
@@ -28,6 +31,7 @@ class Order extends Model
 
     protected $casts = [
         'subtotal' => 'decimal:2',
+        'discount' => 'decimal:2',
         'tax' => 'decimal:2',
         'shipping' => 'decimal:2',
         'total' => 'decimal:2',
@@ -40,6 +44,14 @@ class Order extends Model
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    /**
+     * Get the discount code usage for this order.
+     */
+    public function discountCodeUse(): HasOne
+    {
+        return $this->hasOne(DiscountCodeUse::class);
     }
 
     /**

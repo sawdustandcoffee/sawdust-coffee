@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Models\DiscountCode;
 use Illuminate\Http\Request;
 use Stripe\Stripe;
 use Stripe\Checkout\Session;
@@ -24,6 +25,7 @@ class StripeCheckoutController extends Controller
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.variant_id' => 'nullable|exists:product_variants,id',
             'items.*.quantity' => 'required|integer|min:1',
+            'discount_code' => 'nullable|string',
         ]);
 
         // Set Stripe API key
@@ -31,6 +33,7 @@ class StripeCheckoutController extends Controller
 
         // Build line items for Stripe
         $lineItems = [];
+        $subtotal = 0;
         $metadata = [
             'customer_name' => $validated['customer_name'],
             'customer_email' => $validated['customer_email'],
@@ -74,6 +77,45 @@ class StripeCheckoutController extends Controller
                 ],
                 'quantity' => $item['quantity'],
             ];
+
+            // Track subtotal
+            $subtotal += $price * $item['quantity'];
+        }
+
+        // Handle discount code if provided
+        $discountAmount = 0;
+        $discountCode = null;
+        if (!empty($validated['discount_code'])) {
+            $code = strtoupper($validated['discount_code']);
+            $discountCode = DiscountCode::where('code', $code)->first();
+
+            if ($discountCode) {
+                $validation = $discountCode->validate($subtotal, $validated['customer_email']);
+
+                if ($validation['valid']) {
+                    $discountAmount = $discountCode->calculateDiscount($subtotal);
+
+                    // Add discount as metadata
+                    $metadata['discount_code'] = $discountCode->code;
+                    $metadata['discount_amount'] = $discountAmount;
+                    $metadata['discount_code_id'] = $discountCode->id;
+
+                    // Add discount as a line item (negative amount)
+                    $lineItems[] = [
+                        'price_data' => [
+                            'currency' => 'usd',
+                            'product_data' => [
+                                'name' => "Discount: {$discountCode->code}",
+                                'description' => $discountCode->type === 'percentage'
+                                    ? "{$discountCode->value}% off"
+                                    : "$" . number_format($discountCode->value, 2) . " off",
+                            ],
+                            'unit_amount' => -1 * (int)($discountAmount * 100), // Negative amount for discount
+                        ],
+                        'quantity' => 1,
+                    ];
+                }
+            }
         }
 
         try {

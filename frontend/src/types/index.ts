@@ -103,6 +103,8 @@ export interface Order {
   tracking_number?: string;
   admin_notes?: string;
   subtotal: string;
+  discount: string;
+  discount_code?: string;
   tax: string;
   shipping: string;
   total: string;
@@ -175,6 +177,23 @@ export interface PaginatedResponse<T> {
   last_page: number;
   per_page: number;
   total: number;
+}
+
+export interface DiscountCode {
+  id: number;
+  code: string;
+  type: 'percentage' | 'fixed';
+  value: string;
+  min_order_amount?: string;
+  max_uses?: number;
+  used_count: number;
+  max_uses_per_user?: number;
+  start_date?: string;
+  end_date?: string;
+  active: boolean;
+  description?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface ApiError {

@@ -23,6 +23,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { path: '/admin/products', label: 'Products', icon: '📦' },
     { path: '/admin/categories', label: 'Categories', icon: '🏷️' },
     { path: '/admin/reviews', label: 'Product Reviews', icon: '⭐' },
+    { path: '/admin/discount-codes', label: 'Discount Codes', icon: '🎟️' },
     { path: '/admin/gallery', label: 'Gallery', icon: '🖼️' },
     { path: '/admin/orders', label: 'Orders', icon: '🛒' },
     { path: '/admin/quotes', label: 'Quote Requests', icon: '💬' },
