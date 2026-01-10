@@ -15,6 +15,8 @@ export default function Shop() {
   const [totalPages, setTotalPages] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [sortBy, setSortBy] = useState('featured');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchInput, setSearchInput] = useState('');
   const { addToCart } = useCart();
   const navigate = useNavigate();
 
@@ -24,7 +26,7 @@ export default function Shop() {
 
   useEffect(() => {
     fetchProducts();
-  }, [page, selectedCategory, sortBy]);
+  }, [page, selectedCategory, sortBy, searchQuery]);
 
   const fetchCategories = async () => {
     try {
@@ -42,6 +44,10 @@ export default function Shop() {
 
       if (selectedCategory) {
         url += `&category=${selectedCategory}`;
+      }
+
+      if (searchQuery) {
+        url += `&search=${encodeURIComponent(searchQuery)}`;
       }
 
       if (sortBy === 'price_asc') {
@@ -72,6 +78,18 @@ export default function Shop() {
     setPage(1);
   };
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSearchQuery(searchInput);
+    setPage(1);
+  };
+
+  const handleClearSearch = () => {
+    setSearchInput('');
+    setSearchQuery('');
+    setPage(1);
+  };
+
   return (
     <PublicLayout>
       <SEO
@@ -89,8 +107,48 @@ export default function Shop() {
             </p>
           </div>
 
-          {/* Filters */}
+          {/* Search and Filters */}
           <div className="bg-white rounded-lg shadow p-6 mb-8">
+            {/* Search Bar */}
+            <form onSubmit={handleSearch} className="mb-6">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Search Products
+              </label>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <input
+                    type="text"
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
+                    placeholder="Search by name or description..."
+                    className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coffee"
+                  />
+                  <svg
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                <Button type="submit">Search</Button>
+                {searchQuery && (
+                  <Button type="button" variant="secondary" onClick={handleClearSearch}>
+                    Clear
+                  </Button>
+                )}
+              </div>
+              {searchQuery && (
+                <p className="text-sm text-gray-600 mt-2">
+                  Showing results for: <strong>"{searchQuery}"</strong>
+                </p>
+              )}
+            </form>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Category Filter */}
               <div>
