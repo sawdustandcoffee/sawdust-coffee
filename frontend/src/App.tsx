@@ -15,6 +15,7 @@ import Content from './pages/admin/Content';
 import ActivityLog from './pages/admin/ActivityLog';
 import Users from './pages/admin/Users';
 import EmailPreview from './pages/admin/EmailPreview';
+import Analytics from './pages/admin/Analytics';
 
 // Public pages
 import Home from './pages/public/Home';
@@ -152,6 +153,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <EmailPreview />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/analytics"
+            element={
+              <ProtectedRoute>
+                <Analytics />
               </ProtectedRoute>
             }
           />

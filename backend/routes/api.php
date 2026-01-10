@@ -78,6 +78,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/email-templates/{template}/preview', [\App\Http\Controllers\Api\EmailPreviewController::class, 'preview']);
         Route::post('/email-templates/{template}/send-test', [\App\Http\Controllers\Api\EmailPreviewController::class, 'sendTest']);
 
+        // Analytics
+        Route::get('/analytics/sales', [\App\Http\Controllers\Api\AnalyticsController::class, 'sales']);
+        Route::get('/analytics/products', [\App\Http\Controllers\Api\AnalyticsController::class, 'products']);
+        Route::get('/analytics/engagement', [\App\Http\Controllers\Api\AnalyticsController::class, 'engagement']);
+        Route::get('/analytics/summary', [\App\Http\Controllers\Api\AnalyticsController::class, 'summary']);
+
         // Additional routes
         Route::get('/gallery/categories', [\App\Http\Controllers\Api\GalleryItemController::class, 'categories']);
         Route::get('/content/group/{group}', [\App\Http\Controllers\Api\SiteContentController::class, 'publicGroup']);
