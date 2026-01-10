@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\BackInStockMail;
 use App\Models\ActivityLog;
 use App\Models\Product;
 use App\Models\ProductImage;
+use App\Models\StockNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -119,6 +122,7 @@ class ProductController extends Controller
     public function update(Request $request, string $id): JsonResponse
     {
         $product = Product::findOrFail($id);
+        $oldInventory = $product->inventory;
 
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
@@ -140,6 +144,11 @@ class ProductController extends Controller
         // Sync categories
         if (isset($validated['category_ids'])) {
             $product->categories()->sync($validated['category_ids']);
+        }
+
+        // Check if inventory went from 0 to > 0 and send notifications
+        if (isset($validated['inventory']) && $oldInventory == 0 && $validated['inventory'] > 0) {
+            $this->sendStockNotifications($product);
         }
 
         // Log activity
@@ -253,6 +262,11 @@ class ProductController extends Controller
         $newInventory = max(0, $oldInventory + $validated['adjustment']);
 
         $product->update(['inventory' => $newInventory]);
+
+        // Check if inventory went from 0 to > 0 and send notifications
+        if ($oldInventory == 0 && $newInventory > 0) {
+            $this->sendStockNotifications($product);
+        }
 
         // Log the inventory change
         \App\Models\ActivityLog::log(
@@ -429,5 +443,44 @@ class ProductController extends Controller
             'message' => $message,
             'count' => $count,
         ]);
+    }
+
+    /**
+     * Send back-in-stock notifications for a product.
+     */
+    protected function sendStockNotifications(Product $product): void
+    {
+        // Get all pending notifications for this product
+        $notifications = StockNotification::where('product_id', $product->id)
+            ->pending()
+            ->get();
+
+        if ($notifications->isEmpty()) {
+            return;
+        }
+
+        // Send email to each subscriber
+        foreach ($notifications as $notification) {
+            try {
+                Mail::to($notification->email)->send(new BackInStockMail($product, $notification->email));
+                $notification->markAsNotified();
+            } catch (\Exception $e) {
+                // Log error but don't fail the inventory update
+                \Log::error("Failed to send back-in-stock notification", [
+                    'product_id' => $product->id,
+                    'email' => $notification->email,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        // Log activity
+        ActivityLog::log(
+            'stock_notifications_sent',
+            'Product',
+            $product->id,
+            "Sent back-in-stock notifications for: {$product->name}",
+            ['notification_count' => $notifications->count()]
+        );
     }
 }

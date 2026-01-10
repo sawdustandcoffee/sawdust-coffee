@@ -22,6 +22,7 @@ import Settings from './pages/admin/Settings';
 import Reviews from './pages/admin/Reviews';
 import DiscountCodes from './pages/admin/DiscountCodes';
 import NewsletterSubscribers from './pages/admin/NewsletterSubscribers';
+import StockNotifications from './pages/admin/StockNotifications';
 
 // Public pages
 import Home from './pages/public/Home';
@@ -261,6 +262,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <NewsletterSubscribers />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/stock-notifications"
+            element={
+              <ProtectedRoute>
+                <StockNotifications />
               </ProtectedRoute>
             }
           />

@@ -78,6 +78,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/newsletter-subscribers/{id}', [\App\Http\Controllers\Api\NewsletterSubscriberController::class, 'destroy']);
         Route::get('/newsletter-subscribers-export/csv', [\App\Http\Controllers\Api\NewsletterSubscriberController::class, 'exportCsv']);
 
+        // Stock notifications
+        Route::get('/stock-notifications', [\App\Http\Controllers\Api\StockNotificationController::class, 'index']);
+        Route::delete('/stock-notifications/{id}', [\App\Http\Controllers\Api\StockNotificationController::class, 'destroy']);
+        Route::get('/stock-notifications/stats', [\App\Http\Controllers\Api\StockNotificationController::class, 'stats']);
+
         // Stats endpoints
         Route::get('/stats/orders', [\App\Http\Controllers\Api\OrderController::class, 'stats']);
         Route::get('/stats/quotes', [\App\Http\Controllers\Api\QuoteRequestController::class, 'stats']);
@@ -146,6 +151,11 @@ Route::prefix('public')->group(function () {
         Route::post('/checkout', [\App\Http\Controllers\StripeCheckoutController::class, 'createCheckoutSession']);
         Route::post('/validate-discount', [\App\Http\Controllers\Api\DiscountCodeController::class, 'validate']);
         Route::post('/newsletter/subscribe', [\App\Http\Controllers\Api\NewsletterSubscriberController::class, 'subscribe']);
+
+        // Stock notifications
+        Route::post('/stock-notifications/subscribe', [\App\Http\Controllers\Api\StockNotificationController::class, 'subscribe']);
+        Route::post('/stock-notifications/unsubscribe/{productId}', [\App\Http\Controllers\Api\StockNotificationController::class, 'unsubscribe']);
+        Route::post('/stock-notifications/check/{productId}', [\App\Http\Controllers\Api\StockNotificationController::class, 'check']);
     });
 
     // Newsletter confirmation and unsubscribe (no rate limit needed, token-based)

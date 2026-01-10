@@ -218,6 +218,16 @@ export interface WishlistItem {
   product?: Product;
 }
 
+export interface StockNotification {
+  id: number;
+  product_id: number;
+  email: string;
+  notified_at?: string;
+  created_at: string;
+  updated_at: string;
+  product?: Product;
+}
+
 export interface ApiError {
   message: string;
   errors?: Record<string, string[]>;
