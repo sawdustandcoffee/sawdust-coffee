@@ -3,6 +3,7 @@ import { useComparison } from '../../context/ComparisonContext';
 import { useCart } from '../../context/CartContext';
 import PublicLayout from '../../layouts/PublicLayout';
 import { Button } from '../../components/ui';
+import Breadcrumb from '../../components/Breadcrumb';
 import SEO from '../../components/SEO';
 
 export default function ProductComparison() {
@@ -64,6 +65,14 @@ export default function ProductComparison() {
       />
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Breadcrumb */}
+          <Breadcrumb
+            items={[
+              { label: 'Shop', path: '/shop' },
+              { label: 'Compare' },
+            ]}
+          />
+
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center justify-between">

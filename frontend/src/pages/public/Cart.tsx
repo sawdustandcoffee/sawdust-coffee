@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { Button } from '../../components/ui';
+import Breadcrumb from '../../components/Breadcrumb';
 import PublicLayout from '../../layouts/PublicLayout';
 import SEO from '../../components/SEO';
 
@@ -44,6 +45,9 @@ export default function Cart() {
       />
       <div className="bg-gray-50 min-h-screen py-8">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Breadcrumb */}
+          <Breadcrumb items={[{ label: 'Cart' }]} />
+
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-coffee-dark mb-2">Shopping Cart</h1>

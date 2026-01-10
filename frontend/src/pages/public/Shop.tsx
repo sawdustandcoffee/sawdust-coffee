@@ -5,6 +5,7 @@ import { Product, ProductCategory, PaginatedResponse } from '../../types';
 import { Button, Spinner } from '../../components/ui';
 import PublicLayout from '../../layouts/PublicLayout';
 import RecentlyViewed from '../../components/RecentlyViewed';
+import Breadcrumb, { BreadcrumbItem } from '../../components/Breadcrumb';
 import { useCart } from '../../context/CartContext';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { useComparison } from '../../context/ComparisonContext';
@@ -187,6 +188,18 @@ export default function Shop() {
       />
       <div className="bg-gray-50 min-h-screen py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Breadcrumb */}
+          <Breadcrumb
+            items={[
+              { label: 'Shop' },
+              ...(selectedCategory && categories.length > 0
+                ? [{
+                    label: categories.find((c) => c.id.toString() === selectedCategory)?.name || 'Category',
+                  }]
+                : []),
+            ]}
+          />
+
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-coffee-dark mb-2">Shop</h1>

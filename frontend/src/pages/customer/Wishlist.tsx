@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import api from '../../lib/axios';
 import { WishlistItem } from '../../types';
 import { Button, Spinner } from '../../components/ui';
+import Breadcrumb from '../../components/Breadcrumb';
 import CustomerLayout from '../../layouts/CustomerLayout';
 import { useCart } from '../../context/CartContext';
 
@@ -67,6 +68,14 @@ export default function Wishlist() {
       <Helmet>
         <title>My Wishlist - Sawdust & Coffee</title>
       </Helmet>
+
+      {/* Breadcrumb */}
+      <Breadcrumb
+        items={[
+          { label: 'Account', path: '/customer/dashboard' },
+          { label: 'Wishlist' },
+        ]}
+      />
 
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900">My Wishlist</h1>

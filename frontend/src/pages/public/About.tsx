@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Button } from '../../components/ui';
+import Breadcrumb from '../../components/Breadcrumb';
 import PublicLayout from '../../layouts/PublicLayout';
 import SEO from '../../components/SEO';
 
@@ -39,6 +40,11 @@ export default function About() {
             </p>
           </div>
         </section>
+
+        {/* Breadcrumb */}
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+          <Breadcrumb items={[{ label: 'About' }]} />
+        </div>
 
         {/* Story Section */}
         <section className="py-16">

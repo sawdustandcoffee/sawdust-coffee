@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import api from '../../lib/axios';
 import { GalleryItem, PaginatedResponse } from '../../types';
 import { Button, Spinner, Modal } from '../../components/ui';
+import Breadcrumb from '../../components/Breadcrumb';
 import PublicLayout from '../../layouts/PublicLayout';
 import SEO from '../../components/SEO';
 
@@ -70,6 +71,14 @@ export default function Gallery() {
       />
       <div className="bg-gray-50 min-h-screen py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Breadcrumb */}
+          <Breadcrumb
+            items={[
+              { label: 'Gallery' },
+              ...(selectedCategory ? [{ label: selectedCategory }] : []),
+            ]}
+          />
+
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-coffee-dark mb-2">Gallery</h1>

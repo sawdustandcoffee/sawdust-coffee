@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import Breadcrumb from '../../components/Breadcrumb';
 import CustomerLayout from '../../layouts/CustomerLayout';
 import api from '../../lib/axios';
 
@@ -70,6 +71,14 @@ export default function OrderHistory() {
   return (
     <CustomerLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Breadcrumb */}
+        <Breadcrumb
+          items={[
+            { label: 'Account', path: '/customer/dashboard' },
+            { label: 'Orders' },
+          ]}
+        />
+
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-coffee-dark">Order History</h1>
           <p className="mt-1 text-gray-600">

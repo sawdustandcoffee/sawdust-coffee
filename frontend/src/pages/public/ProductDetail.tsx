@@ -7,6 +7,7 @@ import { Button, Spinner, Badge } from '../../components/ui';
 import PublicLayout from '../../layouts/PublicLayout';
 import RelatedProducts from '../../components/RelatedProducts';
 import ProductBadge from '../../components/ProductBadge';
+import Breadcrumb, { BreadcrumbItem } from '../../components/Breadcrumb';
 import { useCart, SelectedOption } from '../../context/CartContext';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { useRecentlyViewed } from '../../context/RecentlyViewedContext';
@@ -291,17 +292,15 @@ export default function ProductDetail() {
       <div className="bg-gray-50 min-h-screen py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Breadcrumb */}
-          <nav className="mb-8 text-sm">
-            <Link to="/" className="text-coffee hover:underline">
-              Home
-            </Link>
-            <span className="mx-2 text-gray-400">/</span>
-            <Link to="/shop" className="text-coffee hover:underline">
-              Shop
-            </Link>
-            <span className="mx-2 text-gray-400">/</span>
-            <span className="text-gray-600">{product.name}</span>
-          </nav>
+          <Breadcrumb
+            items={[
+              { label: 'Shop', path: '/shop' },
+              ...(product.categories && product.categories.length > 0
+                ? [{ label: product.categories[0].name, path: `/shop?category=${product.categories[0].id}` }]
+                : []),
+              { label: product.name },
+            ]}
+          />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 bg-white rounded-lg shadow-lg p-8">
             {/* Images */}
