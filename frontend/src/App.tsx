@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CustomerAuthProvider } from './context/CustomerAuthContext';
 import { CartProvider } from './context/CartContext';
+import { RecentlyViewedProvider } from './context/RecentlyViewedContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import CustomerProtectedRoute from './components/CustomerProtectedRoute';
 import LoginPage from './pages/LoginPage';
@@ -56,7 +57,8 @@ function App() {
       <AuthProvider>
         <CustomerAuthProvider>
           <CartProvider>
-            <Routes>
+            <RecentlyViewedProvider>
+              <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Home />} />
               <Route path="/shop" element={<Shop />} />
@@ -276,7 +278,8 @@ function App() {
 
               {/* 404 Catch-all */}
               <Route path="*" element={<NotFound />} />
-            </Routes>
+              </Routes>
+            </RecentlyViewedProvider>
           </CartProvider>
         </CustomerAuthProvider>
       </AuthProvider>

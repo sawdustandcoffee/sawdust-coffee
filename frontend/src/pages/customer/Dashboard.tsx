@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import CustomerLayout from '../../layouts/CustomerLayout';
+import RecentlyViewed from '../../components/RecentlyViewed';
 import api from '../../lib/axios';
 
 interface Order {
@@ -194,6 +195,11 @@ export default function CustomerDashboard() {
                 ))}
               </div>
             )}
+          </div>
+
+          {/* Recently Viewed Products */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <RecentlyViewed limit={6} orientation="vertical" />
           </div>
         </div>
       </div>

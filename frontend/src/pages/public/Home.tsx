@@ -5,6 +5,7 @@ import api from '../../lib/axios';
 import { Product, GalleryItem } from '../../types';
 import { Button, Spinner } from '../../components/ui';
 import PublicLayout from '../../layouts/PublicLayout';
+import RecentlyViewed from '../../components/RecentlyViewed';
 import SEO from '../../components/SEO';
 
 export default function Home() {
@@ -321,6 +322,13 @@ export default function Home() {
               <Button size="lg">View All Services</Button>
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* Recently Viewed Products */}
+      <section className="py-12 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <RecentlyViewed limit={8} />
         </div>
       </section>
 

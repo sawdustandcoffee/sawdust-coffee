@@ -4,6 +4,7 @@ import api from '../../lib/axios';
 import { Product, ProductCategory, PaginatedResponse } from '../../types';
 import { Button, Spinner } from '../../components/ui';
 import PublicLayout from '../../layouts/PublicLayout';
+import RecentlyViewed from '../../components/RecentlyViewed';
 import { useCart } from '../../context/CartContext';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import SEO from '../../components/SEO';
@@ -393,6 +394,11 @@ export default function Shop() {
               )}
             </>
           )}
+
+          {/* Recently Viewed */}
+          <div className="mt-12">
+            <RecentlyViewed limit={8} />
+          </div>
         </div>
       </div>
     </PublicLayout>

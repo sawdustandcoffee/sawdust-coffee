@@ -8,6 +8,7 @@ import PublicLayout from '../../layouts/PublicLayout';
 import RelatedProducts from '../../components/RelatedProducts';
 import { useCart } from '../../context/CartContext';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
+import { useRecentlyViewed } from '../../context/RecentlyViewedContext';
 
 export default function ProductDetail() {
   const { slug } = useParams();
@@ -36,6 +37,7 @@ export default function ProductDetail() {
   const [stockNotificationSuccess, setStockNotificationSuccess] = useState(false);
   const { addToCart } = useCart();
   const { user } = useCustomerAuth();
+  const { addToRecentlyViewed } = useRecentlyViewed();
 
   useEffect(() => {
     if (slug) {
@@ -72,6 +74,9 @@ export default function ProductDetail() {
       const response = await api.get(`/public/products/${slug}`);
       setProduct(response.data);
       setError('');
+
+      // Add to recently viewed
+      addToRecentlyViewed(response.data);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Product not found');
     } finally {
