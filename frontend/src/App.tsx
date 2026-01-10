@@ -6,18 +6,36 @@ import AdminDashboard from './pages/AdminDashboard';
 import Products from './pages/admin/Products';
 import ProductForm from './pages/admin/ProductForm';
 import Categories from './pages/admin/Categories';
-import Gallery from './pages/admin/Gallery';
+import AdminGallery from './pages/admin/Gallery';
 import Orders from './pages/admin/Orders';
 import Quotes from './pages/admin/Quotes';
-import Contact from './pages/admin/Contact';
+import AdminContact from './pages/admin/Contact';
 import Content from './pages/admin/Content';
+
+// Public pages
+import Home from './pages/public/Home';
+import Shop from './pages/public/Shop';
+import ProductDetail from './pages/public/ProductDetail';
+import Gallery from './pages/public/Gallery';
+import About from './pages/public/About';
+import Services from './pages/public/Services';
+import Contact from './pages/public/Contact';
 
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <Routes>
-          <Route path="/" element={<Navigate to="/admin" replace />} />
+          {/* Public Routes */}
+          <Route path="/" element={<Home />} />
+          <Route path="/shop" element={<Shop />} />
+          <Route path="/shop/:slug" element={<ProductDetail />} />
+          <Route path="/gallery" element={<Gallery />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/contact" element={<Contact />} />
+
+          {/* Auth */}
           <Route path="/login" element={<LoginPage />} />
 
           {/* Admin Routes */}
@@ -65,7 +83,7 @@ function App() {
             path="/admin/gallery"
             element={
               <ProtectedRoute>
-                <Gallery />
+                <AdminGallery />
               </ProtectedRoute>
             }
           />
@@ -89,7 +107,7 @@ function App() {
             path="/admin/contact"
             element={
               <ProtectedRoute>
-                <Contact />
+                <AdminContact />
               </ProtectedRoute>
             }
           />
