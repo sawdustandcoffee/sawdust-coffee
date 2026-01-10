@@ -4,6 +4,7 @@ import api from '../../lib/axios';
 import { Product, GalleryItem } from '../../types';
 import { Button, Spinner } from '../../components/ui';
 import PublicLayout from '../../layouts/PublicLayout';
+import SEO from '../../components/SEO';
 
 export default function Home() {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
@@ -32,6 +33,11 @@ export default function Home() {
 
   return (
     <PublicLayout>
+      <SEO
+        title="Home"
+        description="Handcrafted custom woodworking from Wareham, Massachusetts. Specializing in live edge furniture, CNC signs, laser engraving, epoxy designs, and more. Make Cool Sh!t with us!"
+        keywords="custom furniture, live edge tables, CNC signs, laser engraving, woodworking Massachusetts, Cape Cod woodworking, epoxy resin furniture"
+      />
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-wood-700 to-wood-900 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

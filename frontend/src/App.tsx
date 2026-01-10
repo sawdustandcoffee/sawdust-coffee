@@ -24,6 +24,7 @@ import Contact from './pages/public/Contact';
 import Cart from './pages/public/Cart';
 import Checkout from './pages/public/Checkout';
 import OrderSuccess from './pages/public/OrderSuccess';
+import NotFound from './pages/NotFound';
 
 function App() {
   return (
@@ -127,6 +128,9 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          {/* 404 Catch-all */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
         </CartProvider>
       </AuthProvider>

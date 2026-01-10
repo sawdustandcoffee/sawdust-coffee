@@ -49,14 +49,21 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // Public API routes (no auth required)
 Route::prefix('public')->group(function () {
-    Route::get('/products', [\App\Http\Controllers\Api\ProductController::class, 'publicIndex']);
-    Route::get('/products/{slug}', [\App\Http\Controllers\Api\ProductController::class, 'publicShow']);
-    Route::get('/categories', [\App\Http\Controllers\Api\ProductCategoryController::class, 'publicIndex']);
-    Route::get('/gallery', [\App\Http\Controllers\Api\GalleryItemController::class, 'publicIndex']);
-    Route::get('/content', [\App\Http\Controllers\Api\SiteContentController::class, 'publicIndex']);
-    Route::post('/contact', [\App\Http\Controllers\Api\ContactFormController::class, 'store']);
-    Route::post('/quotes', [\App\Http\Controllers\Api\QuoteRequestController::class, 'store']);
-    Route::post('/checkout', [\App\Http\Controllers\StripeCheckoutController::class, 'createCheckoutSession']);
+    // Read operations - higher rate limit
+    Route::middleware('throttle:60,1')->group(function () {
+        Route::get('/products', [\App\Http\Controllers\Api\ProductController::class, 'publicIndex']);
+        Route::get('/products/{slug}', [\App\Http\Controllers\Api\ProductController::class, 'publicShow']);
+        Route::get('/categories', [\App\Http\Controllers\Api\ProductCategoryController::class, 'publicIndex']);
+        Route::get('/gallery', [\App\Http\Controllers\Api\GalleryItemController::class, 'publicIndex']);
+        Route::get('/content', [\App\Http\Controllers\Api\SiteContentController::class, 'publicIndex']);
+    });
+
+    // Write operations - stricter rate limit
+    Route::middleware('throttle:10,1')->group(function () {
+        Route::post('/contact', [\App\Http\Controllers\Api\ContactFormController::class, 'store']);
+        Route::post('/quotes', [\App\Http\Controllers\Api\QuoteRequestController::class, 'store']);
+        Route::post('/checkout', [\App\Http\Controllers\StripeCheckoutController::class, 'createCheckoutSession']);
+    });
 });
 
 // Stripe webhook (no CSRF protection needed)
