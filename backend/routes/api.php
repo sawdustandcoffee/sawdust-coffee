@@ -65,6 +65,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::apiResource('users', \App\Http\Controllers\Api\UserController::class);
 
+        // Product reviews
+        Route::get('/reviews', [\App\Http\Controllers\Api\ProductReviewController::class, 'adminIndex']);
+        Route::put('/reviews/{id}', [\App\Http\Controllers\Api\ProductReviewController::class, 'update']);
+        Route::delete('/reviews/{id}', [\App\Http\Controllers\Api\ProductReviewController::class, 'destroy']);
+
         // Stats endpoints
         Route::get('/stats/orders', [\App\Http\Controllers\Api\OrderController::class, 'stats']);
         Route::get('/stats/quotes', [\App\Http\Controllers\Api\QuoteRequestController::class, 'stats']);
@@ -104,6 +109,7 @@ Route::prefix('customer')->middleware('throttle:10,1')->group(function () {
         Route::put('/profile', [\App\Http\Controllers\Api\CustomerAuthController::class, 'updateProfile']);
         Route::get('/orders', [\App\Http\Controllers\Api\OrderController::class, 'customerOrders']);
         Route::get('/orders/{id}', [\App\Http\Controllers\Api\OrderController::class, 'customerOrderDetail']);
+        Route::post('/products/{productId}/reviews', [\App\Http\Controllers\Api\ProductReviewController::class, 'store']);
     });
 });
 
@@ -113,6 +119,7 @@ Route::prefix('public')->group(function () {
     Route::middleware('throttle:60,1')->group(function () {
         Route::get('/products', [\App\Http\Controllers\Api\ProductController::class, 'publicIndex']);
         Route::get('/products/{slug}', [\App\Http\Controllers\Api\ProductController::class, 'publicShow']);
+        Route::get('/products/{productId}/reviews', [\App\Http\Controllers\Api\ProductReviewController::class, 'index']);
         Route::get('/categories', [\App\Http\Controllers\Api\ProductCategoryController::class, 'publicIndex']);
         Route::get('/gallery', [\App\Http\Controllers\Api\GalleryItemController::class, 'publicIndex']);
         Route::get('/content', [\App\Http\Controllers\Api\SiteContentController::class, 'publicIndex']);

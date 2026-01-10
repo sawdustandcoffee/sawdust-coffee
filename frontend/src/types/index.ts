@@ -57,6 +57,25 @@ export interface ProductVariant {
   active: boolean;
 }
 
+export interface ProductReview {
+  id: number;
+  product_id: number;
+  user_id?: number;
+  reviewer_name: string;
+  reviewer_email: string;
+  rating: number;
+  review_text?: string;
+  is_verified_purchase: boolean;
+  is_approved: boolean;
+  approved_at?: string;
+  created_at: string;
+  updated_at: string;
+  user?: {
+    id: number;
+    name: string;
+  };
+}
+
 export interface GalleryItem {
   id: number;
   title: string;

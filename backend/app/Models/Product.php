@@ -81,6 +81,22 @@ class Product extends Model
     }
 
     /**
+     * Get the reviews for the product.
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(ProductReview::class);
+    }
+
+    /**
+     * Get the approved reviews for the product.
+     */
+    public function approvedReviews(): HasMany
+    {
+        return $this->hasMany(ProductReview::class)->where('is_approved', true);
+    }
+
+    /**
      * Get the effective price (sale price if available, otherwise regular price).
      */
     public function getEffectivePriceAttribute(): string
@@ -102,5 +118,21 @@ class Product extends Model
     public function getIsInStockAttribute(): bool
     {
         return $this->inventory > 0;
+    }
+
+    /**
+     * Get the average rating for the product.
+     */
+    public function getAverageRatingAttribute(): float
+    {
+        return (float) $this->approvedReviews()->avg('rating') ?? 0;
+    }
+
+    /**
+     * Get the review count for the product.
+     */
+    public function getReviewCountAttribute(): int
+    {
+        return $this->approvedReviews()->count();
     }
 }
