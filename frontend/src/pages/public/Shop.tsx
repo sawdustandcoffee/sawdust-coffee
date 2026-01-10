@@ -8,6 +8,7 @@ import RecentlyViewed from '../../components/RecentlyViewed';
 import { useCart } from '../../context/CartContext';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { useComparison } from '../../context/ComparisonContext';
+import QuickViewModal from '../../components/QuickViewModal';
 import SEO from '../../components/SEO';
 
 export default function Shop() {
@@ -22,6 +23,8 @@ export default function Shop() {
   const [searchInput, setSearchInput] = useState('');
   const [wishlistProductIds, setWishlistProductIds] = useState<Set<number>>(new Set());
   const [togglingWishlist, setTogglingWishlist] = useState<number | null>(null);
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
   const { addToCart } = useCart();
   const { user } = useCustomerAuth();
   const { addToComparison, isInComparison } = useComparison();
@@ -140,6 +143,17 @@ export default function Shop() {
       console.error('Failed to update wishlist', err);
     } finally {
       setTogglingWishlist(null);
+    }
+  };
+
+  const handleQuickView = async (product: Product) => {
+    // Fetch full product details with options
+    try {
+      const response = await api.get(`/public/products/${product.slug}`);
+      setQuickViewProduct(response.data);
+      setIsQuickViewOpen(true);
+    } catch (err) {
+      console.error('Failed to load product details', err);
     }
   };
 
@@ -376,6 +390,19 @@ export default function Shop() {
                         )}
                       </div>
 
+                      {/* Quick View Button */}
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="w-full mb-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleQuickView(product);
+                        }}
+                      >
+                        Quick View
+                      </Button>
+
                       {/* Add to Cart Button */}
                       {product.inventory > 0 ? (
                         <Button
@@ -429,6 +456,16 @@ export default function Shop() {
           </div>
         </div>
       </div>
+
+      {/* Quick View Modal */}
+      <QuickViewModal
+        product={quickViewProduct}
+        isOpen={isQuickViewOpen}
+        onClose={() => {
+          setIsQuickViewOpen(false);
+          setQuickViewProduct(null);
+        }}
+      />
     </PublicLayout>
   );
 }
