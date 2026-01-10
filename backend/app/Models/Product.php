@@ -185,4 +185,22 @@ class Product extends Model
     {
         return $this->approvedReviews()->count();
     }
+
+    /**
+     * Get the questions for the product.
+     */
+    public function questions(): HasMany
+    {
+        return $this->hasMany(ProductQuestion::class);
+    }
+
+    /**
+     * Get published questions for the product.
+     */
+    public function publishedQuestions(): HasMany
+    {
+        return $this->hasMany(ProductQuestion::class)
+            ->where('is_published', true)
+            ->orderBy('created_at', 'desc');
+    }
 }

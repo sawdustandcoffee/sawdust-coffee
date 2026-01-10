@@ -10,6 +10,7 @@ import ProductBadge from '../../components/ProductBadge';
 import Breadcrumb, { BreadcrumbItem } from '../../components/Breadcrumb';
 import SocialShare from '../../components/SocialShare';
 import ImageLightbox from '../../components/ImageLightbox';
+import ProductQuestions from '../../components/ProductQuestions';
 import { useCart, SelectedOption } from '../../context/CartContext';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { useRecentlyViewed } from '../../context/RecentlyViewedContext';
@@ -1060,6 +1061,11 @@ export default function ProductDetail() {
                 ))}
               </div>
             )}
+          </div>
+
+          {/* Questions & Answers */}
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <ProductQuestions productId={product.id} />
           </div>
 
           {/* Related Products */}

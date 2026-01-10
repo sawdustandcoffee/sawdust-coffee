@@ -75,6 +75,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/reviews/{id}', [\App\Http\Controllers\Api\ProductReviewController::class, 'update']);
         Route::delete('/reviews/{id}', [\App\Http\Controllers\Api\ProductReviewController::class, 'destroy']);
 
+        // Product questions (Q&A)
+        Route::get('/product-questions', [\App\Http\Controllers\Admin\ProductQuestionController::class, 'index']);
+        Route::get('/product-questions/{id}', [\App\Http\Controllers\Admin\ProductQuestionController::class, 'show']);
+        Route::put('/product-questions/{id}/answer', [\App\Http\Controllers\Admin\ProductQuestionController::class, 'answer']);
+        Route::put('/product-questions/{id}/toggle-publish', [\App\Http\Controllers\Admin\ProductQuestionController::class, 'togglePublish']);
+        Route::delete('/product-questions/{id}', [\App\Http\Controllers\Admin\ProductQuestionController::class, 'destroy']);
+
         // Discount codes
         Route::apiResource('discount-codes', \App\Http\Controllers\Api\DiscountCodeController::class);
 
@@ -144,6 +151,7 @@ Route::prefix('public')->group(function () {
         Route::get('/products', [\App\Http\Controllers\Api\ProductController::class, 'publicIndex']);
         Route::get('/products/{slug}', [\App\Http\Controllers\Api\ProductController::class, 'publicShow']);
         Route::get('/products/{productId}/reviews', [\App\Http\Controllers\Api\ProductReviewController::class, 'index']);
+        Route::get('/products/{productId}/questions', [\App\Http\Controllers\Api\ProductQuestionController::class, 'index']);
         Route::get('/products/{id}/related', [\App\Http\Controllers\Api\ProductController::class, 'relatedProducts']);
         Route::get('/categories', [\App\Http\Controllers\Api\ProductCategoryController::class, 'publicIndex']);
         Route::get('/gallery', [\App\Http\Controllers\Api\GalleryItemController::class, 'publicIndex']);
@@ -157,6 +165,10 @@ Route::prefix('public')->group(function () {
         Route::post('/checkout', [\App\Http\Controllers\StripeCheckoutController::class, 'createCheckoutSession']);
         Route::post('/validate-discount', [\App\Http\Controllers\Api\DiscountCodeController::class, 'validate']);
         Route::post('/newsletter/subscribe', [\App\Http\Controllers\Api\NewsletterSubscriberController::class, 'subscribe']);
+
+        // Product questions
+        Route::post('/products/{productId}/questions', [\App\Http\Controllers\Api\ProductQuestionController::class, 'store']);
+        Route::post('/questions/{questionId}/helpful', [\App\Http\Controllers\Api\ProductQuestionController::class, 'markHelpful']);
 
         // Stock notifications
         Route::post('/stock-notifications/subscribe', [\App\Http\Controllers\Api\StockNotificationController::class, 'subscribe']);
