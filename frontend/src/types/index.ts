@@ -209,6 +209,15 @@ export interface NewsletterSubscriber {
   updated_at: string;
 }
 
+export interface WishlistItem {
+  id: number;
+  user_id: number;
+  product_id: number;
+  created_at: string;
+  updated_at: string;
+  product?: Product;
+}
+
 export interface ApiError {
   message: string;
   errors?: Record<string, string[]>;

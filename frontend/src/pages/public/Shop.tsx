@@ -5,6 +5,7 @@ import { Product, ProductCategory, PaginatedResponse } from '../../types';
 import { Button, Spinner } from '../../components/ui';
 import PublicLayout from '../../layouts/PublicLayout';
 import { useCart } from '../../context/CartContext';
+import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import SEO from '../../components/SEO';
 
 export default function Shop() {
@@ -17,7 +18,10 @@ export default function Shop() {
   const [sortBy, setSortBy] = useState('featured');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchInput, setSearchInput] = useState('');
+  const [wishlistProductIds, setWishlistProductIds] = useState<Set<number>>(new Set());
+  const [togglingWishlist, setTogglingWishlist] = useState<number | null>(null);
   const { addToCart } = useCart();
+  const { user } = useCustomerAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,6 +31,14 @@ export default function Shop() {
   useEffect(() => {
     fetchProducts();
   }, [page, selectedCategory, sortBy, searchQuery]);
+
+  useEffect(() => {
+    if (user) {
+      fetchWishlist();
+    } else {
+      setWishlistProductIds(new Set());
+    }
+  }, [user]);
 
   const fetchCategories = async () => {
     try {
@@ -88,6 +100,44 @@ export default function Shop() {
     setSearchInput('');
     setSearchQuery('');
     setPage(1);
+  };
+
+  const fetchWishlist = async () => {
+    try {
+      const response = await api.get('/customer/wishlist');
+      const productIds = new Set(response.data.map((item: any) => item.product_id));
+      setWishlistProductIds(productIds);
+    } catch (err) {
+      console.error('Failed to load wishlist', err);
+    }
+  };
+
+  const toggleWishlist = async (productId: number) => {
+    if (!user) {
+      navigate('/customer/login');
+      return;
+    }
+
+    try {
+      setTogglingWishlist(productId);
+      const isInWishlist = wishlistProductIds.has(productId);
+
+      if (isInWishlist) {
+        await api.delete(`/customer/wishlist/${productId}`);
+        setWishlistProductIds((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(productId);
+          return newSet;
+        });
+      } else {
+        await api.post('/customer/wishlist', { product_id: productId });
+        setWishlistProductIds((prev) => new Set(prev).add(productId));
+      }
+    } catch (err) {
+      console.error('Failed to update wishlist', err);
+    } finally {
+      setTogglingWishlist(null);
+    }
   };
 
   return (
@@ -222,13 +272,46 @@ export default function Shop() {
                             <span className="text-gray-400">No Image</span>
                           </div>
                         )}
+                        {/* Wishlist Button */}
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            toggleWishlist(product.id);
+                          }}
+                          disabled={togglingWishlist === product.id}
+                          className="absolute top-2 left-2 p-2 bg-white rounded-full shadow-lg hover:scale-110 transition disabled:opacity-50 z-10"
+                          title={wishlistProductIds.has(product.id) ? 'Remove from wishlist' : 'Add to wishlist'}
+                        >
+                          {wishlistProductIds.has(product.id) ? (
+                            <svg
+                              className="w-5 h-5 text-red-500"
+                              fill="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                            </svg>
+                          ) : (
+                            <svg
+                              className="w-5 h-5 text-gray-400"
+                              fill="none"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                          )}
+                        </button>
                         {product.sale_price && (
                           <div className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
                             Sale
                           </div>
                         )}
                         {product.inventory === 0 && (
-                          <div className="absolute top-2 left-2 bg-gray-800 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                          <div className="absolute bottom-2 left-2 bg-gray-800 text-white px-3 py-1 rounded-full text-sm font-semibold">
                             Sold Out
                           </div>
                         )}

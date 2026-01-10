@@ -20,6 +20,7 @@ export default function CustomerLayout({ children }: CustomerLayoutProps) {
   const navItems = [
     { path: '/customer/dashboard', label: 'Dashboard', icon: '📊' },
     { path: '/customer/orders', label: 'Orders', icon: '📦' },
+    { path: '/customer/wishlist', label: 'Wishlist', icon: '❤️' },
     { path: '/customer/settings', label: 'Settings', icon: '⚙️' },
   ];
 

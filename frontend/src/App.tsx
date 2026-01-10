@@ -47,6 +47,7 @@ import CustomerDashboard from './pages/customer/Dashboard';
 import OrderHistory from './pages/customer/OrderHistory';
 import OrderDetail from './pages/customer/OrderDetail';
 import AccountSettings from './pages/customer/AccountSettings';
+import Wishlist from './pages/customer/Wishlist';
 
 function App() {
   return (
@@ -106,6 +107,14 @@ function App() {
                 element={
                   <CustomerProtectedRoute>
                     <AccountSettings />
+                  </CustomerProtectedRoute>
+                }
+              />
+              <Route
+                path="/customer/wishlist"
+                element={
+                  <CustomerProtectedRoute>
+                    <Wishlist />
                   </CustomerProtectedRoute>
                 }
               />

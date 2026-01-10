@@ -118,6 +118,12 @@ Route::prefix('customer')->middleware('throttle:10,1')->group(function () {
         Route::get('/orders', [\App\Http\Controllers\Api\OrderController::class, 'customerOrders']);
         Route::get('/orders/{id}', [\App\Http\Controllers\Api\OrderController::class, 'customerOrderDetail']);
         Route::post('/products/{productId}/reviews', [\App\Http\Controllers\Api\ProductReviewController::class, 'store']);
+
+        // Wishlist
+        Route::get('/wishlist', [\App\Http\Controllers\Api\WishlistController::class, 'index']);
+        Route::post('/wishlist', [\App\Http\Controllers\Api\WishlistController::class, 'store']);
+        Route::delete('/wishlist/{productId}', [\App\Http\Controllers\Api\WishlistController::class, 'destroy']);
+        Route::get('/wishlist/check/{productId}', [\App\Http\Controllers\Api\WishlistController::class, 'check']);
     });
 });
 

@@ -26,6 +26,8 @@ export default function ProductDetail() {
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
   const [reviewError, setReviewError] = useState('');
   const [reviewSuccess, setReviewSuccess] = useState('');
+  const [inWishlist, setInWishlist] = useState(false);
+  const [togglingWishlist, setTogglingWishlist] = useState(false);
   const { addToCart } = useCart();
   const { user } = useCustomerAuth();
 
@@ -38,8 +40,11 @@ export default function ProductDetail() {
   useEffect(() => {
     if (product) {
       fetchReviews();
+      if (user) {
+        checkWishlist();
+      }
     }
-  }, [product]);
+  }, [product, user]);
 
   const fetchProduct = async () => {
     try {
@@ -109,6 +114,37 @@ export default function ProductDetail() {
       );
     } finally {
       setReviewSubmitting(false);
+    }
+  };
+
+  const checkWishlist = async () => {
+    if (!product || !user) return;
+
+    try {
+      const response = await api.get(`/customer/wishlist/check/${product.id}`);
+      setInWishlist(response.data.in_wishlist);
+    } catch (err) {
+      console.error('Failed to check wishlist', err);
+    }
+  };
+
+  const toggleWishlist = async () => {
+    if (!product) return;
+
+    try {
+      setTogglingWishlist(true);
+
+      if (inWishlist) {
+        await api.delete(`/customer/wishlist/${product.id}`);
+        setInWishlist(false);
+      } else {
+        await api.post('/customer/wishlist', { product_id: product.id });
+        setInWishlist(true);
+      }
+    } catch (err) {
+      console.error('Failed to update wishlist', err);
+    } finally {
+      setTogglingWishlist(false);
     }
   };
 
@@ -393,6 +429,45 @@ export default function ProductDetail() {
                   <div className="mb-4">
                     <p className="text-gray-700 mb-4">This item is currently out of stock.</p>
                   </div>
+                )}
+
+                {/* Wishlist Button */}
+                {user && (
+                  <Button
+                    size="lg"
+                    variant="secondary"
+                    className="w-full mb-4"
+                    onClick={toggleWishlist}
+                    disabled={togglingWishlist}
+                  >
+                    {inWishlist ? (
+                      <>
+                        <svg
+                          className="w-5 h-5 inline mr-2"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                        </svg>
+                        Remove from Wishlist
+                      </>
+                    ) : (
+                      <>
+                        <svg
+                          className="w-5 h-5 inline mr-2"
+                          fill="none"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                        Add to Wishlist
+                      </>
+                    )}
+                  </Button>
                 )}
 
                 {/* Contact CTA */}
