@@ -58,3 +58,6 @@ Route::prefix('public')->group(function () {
     Route::post('/quotes', [\App\Http\Controllers\Api\QuoteRequestController::class, 'store']);
     Route::post('/checkout', [\App\Http\Controllers\StripeCheckoutController::class, 'createCheckoutSession']);
 });
+
+// Stripe webhook (no CSRF protection needed)
+Route::post('/webhooks/stripe', [\App\Http\Controllers\StripeWebhookController::class, 'handleWebhook']);
