@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
 import CartDrawer from '../components/CartDrawer';
+import ComparisonDrawer from '../components/ComparisonDrawer';
 import api from '../lib/axios';
 
 interface PublicLayoutProps {
@@ -434,6 +435,9 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
 
       {/* Cart Drawer */}
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+
+      {/* Comparison Drawer */}
+      <ComparisonDrawer />
     </div>
   );
 }

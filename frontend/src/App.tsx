@@ -3,6 +3,7 @@ import { AuthProvider } from './context/AuthContext';
 import { CustomerAuthProvider } from './context/CustomerAuthContext';
 import { CartProvider } from './context/CartContext';
 import { RecentlyViewedProvider } from './context/RecentlyViewedContext';
+import { ComparisonProvider } from './context/ComparisonContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import CustomerProtectedRoute from './components/CustomerProtectedRoute';
 import LoginPage from './pages/LoginPage';
@@ -29,6 +30,7 @@ import StockNotifications from './pages/admin/StockNotifications';
 import Home from './pages/public/Home';
 import Shop from './pages/public/Shop';
 import ProductDetail from './pages/public/ProductDetail';
+import ProductComparison from './pages/public/ProductComparison';
 import Gallery from './pages/public/Gallery';
 import About from './pages/public/About';
 import Services from './pages/public/Services';
@@ -58,11 +60,13 @@ function App() {
         <CustomerAuthProvider>
           <CartProvider>
             <RecentlyViewedProvider>
-              <Routes>
+              <ComparisonProvider>
+                <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Home />} />
               <Route path="/shop" element={<Shop />} />
               <Route path="/shop/:slug" element={<ProductDetail />} />
+              <Route path="/compare" element={<ProductComparison />} />
               <Route path="/gallery" element={<Gallery />} />
               <Route path="/about" element={<About />} />
               <Route path="/services" element={<Services />} />
@@ -278,7 +282,8 @@ function App() {
 
               {/* 404 Catch-all */}
               <Route path="*" element={<NotFound />} />
-              </Routes>
+                </Routes>
+              </ComparisonProvider>
             </RecentlyViewedProvider>
           </CartProvider>
         </CustomerAuthProvider>

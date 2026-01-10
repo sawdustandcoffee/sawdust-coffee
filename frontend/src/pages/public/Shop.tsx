@@ -7,6 +7,7 @@ import PublicLayout from '../../layouts/PublicLayout';
 import RecentlyViewed from '../../components/RecentlyViewed';
 import { useCart } from '../../context/CartContext';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
+import { useComparison } from '../../context/ComparisonContext';
 import SEO from '../../components/SEO';
 
 export default function Shop() {
@@ -23,6 +24,7 @@ export default function Shop() {
   const [togglingWishlist, setTogglingWishlist] = useState<number | null>(null);
   const { addToCart } = useCart();
   const { user } = useCustomerAuth();
+  const { addToComparison, isInComparison } = useComparison();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -305,6 +307,32 @@ export default function Shop() {
                               <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                             </svg>
                           )}
+                        </button>
+                        {/* Comparison Button */}
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            addToComparison(product);
+                          }}
+                          className={`absolute top-14 left-2 p-2 bg-white rounded-full shadow-lg hover:scale-110 transition z-10 ${
+                            isInComparison(product.id) ? 'ring-2 ring-coffee' : ''
+                          }`}
+                          title={isInComparison(product.id) ? 'In comparison' : 'Add to comparison'}
+                        >
+                          <svg
+                            className={`w-5 h-5 ${
+                              isInComparison(product.id) ? 'text-coffee' : 'text-gray-400'
+                            }`}
+                            fill="none"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                          </svg>
                         </button>
                         {product.sale_price && (
                           <div className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
