@@ -90,6 +90,21 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 });
 
+// Customer authentication routes
+Route::prefix('customer')->middleware('throttle:10,1')->group(function () {
+    Route::post('/register', [\App\Http\Controllers\Api\CustomerAuthController::class, 'register']);
+    Route::post('/login', [\App\Http\Controllers\Api\CustomerAuthController::class, 'login']);
+    Route::post('/logout', [\App\Http\Controllers\Api\CustomerAuthController::class, 'logout']);
+    Route::get('/user', [\App\Http\Controllers\Api\CustomerAuthController::class, 'user']);
+
+    // Protected customer routes
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::put('/profile', [\App\Http\Controllers\Api\CustomerAuthController::class, 'updateProfile']);
+        Route::get('/orders', [\App\Http\Controllers\Api\OrderController::class, 'customerOrders']);
+        Route::get('/orders/{id}', [\App\Http\Controllers\Api\OrderController::class, 'customerOrderDetail']);
+    });
+});
+
 // Public API routes (no auth required)
 Route::prefix('public')->group(function () {
     // Read operations - higher rate limit

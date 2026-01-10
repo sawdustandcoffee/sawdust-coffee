@@ -1,7 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { CustomerAuthProvider } from './context/CustomerAuthContext';
 import { CartProvider } from './context/CartContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import CustomerProtectedRoute from './components/CustomerProtectedRoute';
 import LoginPage from './pages/LoginPage';
 import AdminDashboard from './pages/AdminDashboard';
 import Products from './pages/admin/Products';
@@ -31,26 +33,71 @@ import Checkout from './pages/public/Checkout';
 import OrderSuccess from './pages/public/OrderSuccess';
 import NotFound from './pages/NotFound';
 
+// Customer pages
+import CustomerRegister from './pages/customer/Register';
+import CustomerLogin from './pages/customer/Login';
+import CustomerDashboard from './pages/customer/Dashboard';
+import OrderHistory from './pages/customer/OrderHistory';
+import OrderDetail from './pages/customer/OrderDetail';
+import AccountSettings from './pages/customer/AccountSettings';
+
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <CartProvider>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<Home />} />
-          <Route path="/shop" element={<Shop />} />
-          <Route path="/shop/:slug" element={<ProductDetail />} />
-          <Route path="/gallery" element={<Gallery />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/services" element={<Services />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/order/success" element={<OrderSuccess />} />
+        <CustomerAuthProvider>
+          <CartProvider>
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<Home />} />
+              <Route path="/shop" element={<Shop />} />
+              <Route path="/shop/:slug" element={<ProductDetail />} />
+              <Route path="/gallery" element={<Gallery />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/services" element={<Services />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/order/success" element={<OrderSuccess />} />
 
-          {/* Auth */}
-          <Route path="/login" element={<LoginPage />} />
+              {/* Admin Auth */}
+              <Route path="/login" element={<LoginPage />} />
+
+              {/* Customer Auth */}
+              <Route path="/customer/register" element={<CustomerRegister />} />
+              <Route path="/customer/login" element={<CustomerLogin />} />
+              <Route
+                path="/customer/dashboard"
+                element={
+                  <CustomerProtectedRoute>
+                    <CustomerDashboard />
+                  </CustomerProtectedRoute>
+                }
+              />
+              <Route
+                path="/customer/orders"
+                element={
+                  <CustomerProtectedRoute>
+                    <OrderHistory />
+                  </CustomerProtectedRoute>
+                }
+              />
+              <Route
+                path="/customer/orders/:id"
+                element={
+                  <CustomerProtectedRoute>
+                    <OrderDetail />
+                  </CustomerProtectedRoute>
+                }
+              />
+              <Route
+                path="/customer/settings"
+                element={
+                  <CustomerProtectedRoute>
+                    <AccountSettings />
+                  </CustomerProtectedRoute>
+                }
+              />
 
           {/* Admin Routes */}
           <Route
@@ -174,10 +221,11 @@ function App() {
             }
           />
 
-          {/* 404 Catch-all */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-        </CartProvider>
+              {/* 404 Catch-all */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </CartProvider>
+        </CustomerAuthProvider>
       </AuthProvider>
     </BrowserRouter>
   );

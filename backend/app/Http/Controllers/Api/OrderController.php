@@ -212,4 +212,33 @@ class OrderController extends Controller
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ]);
     }
+
+    /**
+     * Get customer's own orders.
+     */
+    public function customerOrders(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $orders = Order::where('customer_email', $user->email)
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        return response()->json($orders);
+    }
+
+    /**
+     * Get customer's specific order detail.
+     */
+    public function customerOrderDetail(Request $request, string $id): JsonResponse
+    {
+        $user = $request->user();
+
+        $order = Order::with(['items.product'])
+            ->where('id', $id)
+            ->where('customer_email', $user->email)
+            ->firstOrFail();
+
+        return response()->json($order);
+    }
 }
