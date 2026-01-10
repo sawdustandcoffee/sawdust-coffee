@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\NewQuoteRequest;
 use App\Models\QuoteRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class QuoteRequestController extends Controller
 {
@@ -77,7 +80,18 @@ class QuoteRequestController extends Controller
 
         $quote = QuoteRequest::create($validated);
 
-        // TODO: Send email notification to admin
+        // Send email notification to admin
+        try {
+            $adminEmail = env('ADMIN_EMAIL', 'info@sawdustandcoffee.com');
+            Mail::to($adminEmail)
+                ->send(new NewQuoteRequest($quote));
+            Log::info('Quote request notification sent to admin', ['quote_id' => $quote->id]);
+        } catch (\Exception $e) {
+            Log::error('Failed to send quote request notification', [
+                'quote_id' => $quote->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         return response()->json([
             'message' => 'Quote request submitted successfully. We will contact you soon!',

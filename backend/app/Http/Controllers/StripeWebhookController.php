@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\OrderConfirmation;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Stripe\Stripe;
 use Stripe\Webhook;
 use Stripe\Exception\SignatureVerificationException;
@@ -133,8 +135,17 @@ class StripeWebhookController extends Controller
                 'total' => $order->total,
             ]);
 
-            // TODO: Send order confirmation email to customer
-            // TODO: Send order notification email to admin
+            // Send order confirmation email to customer
+            try {
+                Mail::to($order->customer_email)
+                    ->send(new OrderConfirmation($order));
+                Log::info('Order confirmation email sent', ['order_id' => $order->id]);
+            } catch (\Exception $emailError) {
+                Log::error('Failed to send order confirmation email', [
+                    'order_id' => $order->id,
+                    'error' => $emailError->getMessage(),
+                ]);
+            }
 
         } catch (\Exception $e) {
             Log::error('Failed to create order from Stripe session', [

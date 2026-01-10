@@ -20,5 +20,5 @@ Allow: /checkout
 # Crawl-delay (optional, helps prevent server overload)
 Crawl-delay: 1
 
-# Sitemap location (when you create one)
-# Sitemap: https://www.sawdustandcoffee.com/sitemap.xml
+# Sitemap location
+Sitemap: https://www.sawdustandcoffee.com/sitemap.xml

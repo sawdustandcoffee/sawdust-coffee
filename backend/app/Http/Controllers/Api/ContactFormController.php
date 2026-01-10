@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\NewContactSubmission;
 use App\Models\ContactFormSubmission;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class ContactFormController extends Controller
 {
@@ -66,7 +69,18 @@ class ContactFormController extends Controller
 
         $submission = ContactFormSubmission::create($validated);
 
-        // TODO: Send email notification to admin
+        // Send email notification to admin
+        try {
+            $adminEmail = env('ADMIN_EMAIL', 'info@sawdustandcoffee.com');
+            Mail::to($adminEmail)
+                ->send(new NewContactSubmission($submission));
+            Log::info('Contact form notification sent to admin', ['submission_id' => $submission->id]);
+        } catch (\Exception $e) {
+            Log::error('Failed to send contact form notification', [
+                'submission_id' => $submission->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         return response()->json([
             'message' => 'Thank you for your message! We will get back to you soon.',
