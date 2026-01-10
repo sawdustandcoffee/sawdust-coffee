@@ -28,6 +28,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Admin routes
     Route::prefix('admin')->group(function () {
+        // Dashboard
+        Route::get('/dashboard', [\App\Http\Controllers\Api\DashboardController::class, 'index']);
+        Route::get('/dashboard/revenue-chart', [\App\Http\Controllers\Api\DashboardController::class, 'revenueChart']);
+        Route::get('/dashboard/order-status-chart', [\App\Http\Controllers\Api\DashboardController::class, 'orderStatusChart']);
+        Route::get('/dashboard/product-category-chart', [\App\Http\Controllers\Api\DashboardController::class, 'productCategoryChart']);
+
         Route::apiResource('products', \App\Http\Controllers\Api\ProductController::class);
         Route::apiResource('categories', \App\Http\Controllers\Api\ProductCategoryController::class);
         Route::apiResource('gallery', \App\Http\Controllers\Api\GalleryItemController::class);
