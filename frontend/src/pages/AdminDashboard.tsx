@@ -39,21 +39,46 @@ interface DashboardStats {
 export default function Dashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
   useEffect(() => {
     fetchDashboardStats();
-  }, []);
 
-  const fetchDashboardStats = async () => {
+    // Auto-refresh every 60 seconds if enabled
+    if (autoRefresh) {
+      const interval = setInterval(() => {
+        fetchDashboardStats(true); // Silent refresh
+      }, 60000); // 60 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [autoRefresh]);
+
+  const fetchDashboardStats = async (silent = false) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       const response = await api.get('/admin/dashboard');
       setStats(response.data);
+      setLastUpdated(new Date());
     } catch (err) {
       console.error('Failed to load dashboard stats', err);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
+  };
+
+  const handleManualRefresh = () => {
+    fetchDashboardStats();
+  };
+
+  const formatLastUpdated = () => {
+    const now = new Date();
+    const diff = Math.floor((now.getTime() - lastUpdated.getTime()) / 1000);
+
+    if (diff < 60) return `${diff}s ago`;
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    return lastUpdated.toLocaleTimeString();
   };
 
   if (loading) {
@@ -80,9 +105,34 @@ export default function Dashboard() {
     <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600 mt-1">Welcome to Sawdust & Coffee Admin</p>
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+            <p className="text-gray-600 mt-1">Welcome to Sawdust & Coffee Admin</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="text-sm text-gray-600">
+              Updated {formatLastUpdated()}
+            </div>
+            <button
+              onClick={handleManualRefresh}
+              className="p-2 hover:bg-gray-100 rounded-lg transition"
+              title="Refresh dashboard"
+            >
+              <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </button>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={autoRefresh}
+                onChange={(e) => setAutoRefresh(e.target.checked)}
+                className="rounded text-coffee focus:ring-coffee"
+              />
+              <span className="text-sm text-gray-700">Auto-refresh</span>
+            </label>
+          </div>
         </div>
 
         {/* Stats Grid */}
