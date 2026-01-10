@@ -6,6 +6,7 @@ import { Product, ProductReview, PaginatedResponse } from '../../types';
 import { Button, Spinner, Badge } from '../../components/ui';
 import PublicLayout from '../../layouts/PublicLayout';
 import RelatedProducts from '../../components/RelatedProducts';
+import ProductBadge from '../../components/ProductBadge';
 import { useCart, SelectedOption } from '../../context/CartContext';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { useRecentlyViewed } from '../../context/RecentlyViewedContext';
@@ -359,6 +360,15 @@ export default function ProductDetail() {
                     <Badge key={category.id} variant="info">
                       {category.name}
                     </Badge>
+                  ))}
+                </div>
+              )}
+
+              {/* Product Badges */}
+              {product.badges && product.badges.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {product.badges.map((badge, index) => (
+                    <ProductBadge key={index} badge={badge} size="md" />
                   ))}
                 </div>
               )}

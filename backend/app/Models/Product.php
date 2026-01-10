@@ -20,6 +20,7 @@ class Product extends Model
         'inventory',
         'active',
         'featured',
+        'badges',
         'sku',
         'sale_price',
     ];
@@ -30,6 +31,7 @@ class Product extends Model
         'inventory' => 'integer',
         'active' => 'boolean',
         'featured' => 'boolean',
+        'badges' => 'array',
     ];
 
     /**

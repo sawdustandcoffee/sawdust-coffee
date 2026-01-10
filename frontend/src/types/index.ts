@@ -16,6 +16,7 @@ export interface Product {
   inventory: number;
   active: boolean;
   featured: boolean;
+  badges?: string[];
   sku?: string;
   created_at: string;
   updated_at: string;

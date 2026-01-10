@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Product } from '../types';
 import { useCart, SelectedOption } from '../context/CartContext';
 import { Button } from './ui';
+import ProductBadge from './ProductBadge';
 
 interface QuickViewModalProps {
   product: Product | null;
@@ -161,6 +162,15 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
                           >
                             {category.name}
                           </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Product Badges */}
+                    {product.badges && product.badges.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {product.badges.map((badge, index) => (
+                          <ProductBadge key={index} badge={badge} size="sm" />
                         ))}
                       </div>
                     )}

@@ -9,6 +9,7 @@ import { useCart } from '../../context/CartContext';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { useComparison } from '../../context/ComparisonContext';
 import QuickViewModal from '../../components/QuickViewModal';
+import ProductBadge from '../../components/ProductBadge';
 import SEO from '../../components/SEO';
 
 export default function Shop() {
@@ -464,11 +465,17 @@ export default function Shop() {
                             <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                           </svg>
                         </button>
-                        {product.sale_price && (
-                          <div className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                            Sale
-                          </div>
-                        )}
+                        {/* Badges */}
+                        <div className="absolute top-2 right-2 flex flex-col gap-2 items-end">
+                          {product.sale_price && (
+                            <div className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                              Sale
+                            </div>
+                          )}
+                          {product.badges && product.badges.map((badge, index) => (
+                            <ProductBadge key={index} badge={badge} size="sm" />
+                          ))}
+                        </div>
                         {product.inventory === 0 && (
                           <div className="absolute bottom-2 left-2 bg-gray-800 text-white px-3 py-1 rounded-full text-sm font-semibold">
                             Sold Out
