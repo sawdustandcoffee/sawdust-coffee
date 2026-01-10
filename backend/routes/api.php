@@ -62,6 +62,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/stats/quotes', [\App\Http\Controllers\Api\QuoteRequestController::class, 'stats']);
         Route::get('/stats/contact', [\App\Http\Controllers\Api\ContactFormController::class, 'stats']);
 
+        // Activity logs
+        Route::get('/activity-logs', [\App\Http\Controllers\Api\ActivityLogController::class, 'index']);
+
         // Additional routes
         Route::get('/gallery/categories', [\App\Http\Controllers\Api\GalleryItemController::class, 'categories']);
         Route::get('/content/group/{group}', [\App\Http\Controllers\Api\SiteContentController::class, 'publicGroup']);

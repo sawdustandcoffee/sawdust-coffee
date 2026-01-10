@@ -19,16 +19,37 @@ export default function Orders() {
     admin_notes: '',
   });
   const [updating, setUpdating] = useState(false);
+  const [filters, setFilters] = useState({
+    search: '',
+    status: '',
+    paymentStatus: '',
+    startDate: '',
+    endDate: '',
+  });
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     fetchOrders();
-  }, [page]);
+  }, [page, filters]);
 
   const fetchOrders = async () => {
     try {
       setLoading(true);
+      const params = new URLSearchParams({
+        page: page.toString(),
+        per_page: '20',
+        sort_by: 'created_at',
+        sort_dir: 'desc',
+      });
+
+      if (filters.search) params.append('search', filters.search);
+      if (filters.status) params.append('status', filters.status);
+      if (filters.paymentStatus === 'paid') params.append('paid_only', 'true');
+      if (filters.startDate) params.append('start_date', filters.startDate);
+      if (filters.endDate) params.append('end_date', filters.endDate);
+
       const response = await api.get<PaginatedResponse<Order>>(
-        `/admin/orders?page=${page}&per_page=20&sort_by=created_at&sort_dir=desc`
+        `/admin/orders?${params}`
       );
       setOrders(response.data.data);
       setTotalPages(response.data.last_page);
@@ -79,7 +100,14 @@ export default function Orders() {
 
   const handleExportCsv = async () => {
     try {
-      const response = await api.get('/admin/orders-export/csv', {
+      const params = new URLSearchParams();
+      if (filters.search) params.append('search', filters.search);
+      if (filters.status) params.append('status', filters.status);
+      if (filters.paymentStatus === 'paid') params.append('paid_only', 'true');
+      if (filters.startDate) params.append('start_date', filters.startDate);
+      if (filters.endDate) params.append('end_date', filters.endDate);
+
+      const response = await api.get(`/admin/orders-export/csv?${params}`, {
         responseType: 'blob',
       });
 
@@ -95,6 +123,17 @@ export default function Orders() {
     } catch (err: any) {
       alert(err.response?.data?.message || 'Failed to export orders');
     }
+  };
+
+  const handleClearFilters = () => {
+    setFilters({
+      search: '',
+      status: '',
+      paymentStatus: '',
+      startDate: '',
+      endDate: '',
+    });
+    setPage(1);
   };
 
   const getStatusBadge = (status: string) => {
@@ -123,10 +162,111 @@ export default function Orders() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold text-gray-900">Orders</h1>
-          <Button variant="secondary" onClick={handleExportCsv}>
-            Export to CSV
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="secondary" onClick={() => setShowFilters(!showFilters)}>
+              {showFilters ? 'Hide Filters' : 'Show Filters'}
+            </Button>
+            <Button variant="secondary" onClick={handleExportCsv}>
+              Export to CSV
+            </Button>
+          </div>
         </div>
+
+        {showFilters && (
+          <Card>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Search
+                </label>
+                <input
+                  type="text"
+                  placeholder="Order #, customer name or email..."
+                  value={filters.search}
+                  onChange={(e) => {
+                    setFilters({ ...filters, search: e.target.value });
+                    setPage(1);
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coffee"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Order Status
+                </label>
+                <select
+                  value={filters.status}
+                  onChange={(e) => {
+                    setFilters({ ...filters, status: e.target.value });
+                    setPage(1);
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coffee"
+                >
+                  <option value="">All Statuses</option>
+                  <option value="pending">Pending</option>
+                  <option value="processing">Processing</option>
+                  <option value="shipped">Shipped</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Payment Status
+                </label>
+                <select
+                  value={filters.paymentStatus}
+                  onChange={(e) => {
+                    setFilters({ ...filters, paymentStatus: e.target.value });
+                    setPage(1);
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coffee"
+                >
+                  <option value="">All Payments</option>
+                  <option value="paid">Paid Only</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Start Date
+                </label>
+                <input
+                  type="date"
+                  value={filters.startDate}
+                  onChange={(e) => {
+                    setFilters({ ...filters, startDate: e.target.value });
+                    setPage(1);
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coffee"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  End Date
+                </label>
+                <input
+                  type="date"
+                  value={filters.endDate}
+                  onChange={(e) => {
+                    setFilters({ ...filters, endDate: e.target.value });
+                    setPage(1);
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coffee"
+                />
+              </div>
+
+              <div className="flex items-end">
+                <Button variant="secondary" onClick={handleClearFilters} className="w-full">
+                  Clear Filters
+                </Button>
+              </div>
+            </div>
+          </Card>
+        )}
 
         <Card>
           {loading ? (

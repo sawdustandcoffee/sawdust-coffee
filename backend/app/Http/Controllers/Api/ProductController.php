@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\Product;
 use App\Models\ProductImage;
 use Illuminate\Http\JsonResponse;
@@ -87,6 +88,15 @@ class ProductController extends Controller
             $product->categories()->attach($validated['category_ids']);
         }
 
+        // Log activity
+        ActivityLog::log(
+            'created',
+            'Product',
+            $product->id,
+            "Created product: {$product->name}",
+            ['product' => $product->toArray()]
+        );
+
         return response()->json([
             'message' => 'Product created successfully',
             'product' => $product->load(['categories', 'images', 'variants']),
@@ -132,6 +142,15 @@ class ProductController extends Controller
             $product->categories()->sync($validated['category_ids']);
         }
 
+        // Log activity
+        ActivityLog::log(
+            'updated',
+            'Product',
+            $product->id,
+            "Updated product: {$product->name}",
+            ['changes' => $validated]
+        );
+
         return response()->json([
             'message' => 'Product updated successfully',
             'product' => $product->load(['categories', 'images', 'variants']),
@@ -144,7 +163,16 @@ class ProductController extends Controller
     public function destroy(string $id): JsonResponse
     {
         $product = Product::findOrFail($id);
+        $productName = $product->name;
         $product->delete();
+
+        // Log activity
+        ActivityLog::log(
+            'deleted',
+            'Product',
+            null,
+            "Deleted product: {$productName}"
+        );
 
         return response()->json([
             'message' => 'Product deleted successfully',
@@ -350,6 +378,15 @@ class ProductController extends Controller
                     'message' => 'Invalid action',
                 ], 400);
         }
+
+        // Log activity
+        ActivityLog::log(
+            'bulk_' . $action,
+            'Product',
+            null,
+            "Performed bulk {$action} on {$count} product(s)",
+            ['product_ids' => $productIds, 'count' => $count]
+        );
 
         return response()->json([
             'message' => $message,
