@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\OrderConfirmation;
+use App\Mail\OrderConfirmationMail;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
@@ -89,20 +89,20 @@ class StripeWebhookController extends Controller
 
             // Create order
             $order = Order::create([
+                'order_number' => Order::generateOrderNumber(),
                 'customer_name' => $metadata->customer_name ?? $stripeSession->customer_details->name,
                 'customer_email' => $metadata->customer_email ?? $stripeSession->customer_details->email,
                 'customer_phone' => $metadata->customer_phone ?? $stripeSession->customer_details->phone,
                 'shipping_address' => $metadata->shipping_address ?? '',
-                'shipping_city' => $metadata->shipping_city ?? '',
-                'shipping_state' => $metadata->shipping_state ?? '',
-                'shipping_zip' => $metadata->shipping_zip ?? '',
-                'shipping_country' => 'US',
+                'city' => $metadata->shipping_city ?? '',
+                'state' => $metadata->shipping_state ?? '',
+                'zip' => $metadata->shipping_zip ?? '',
                 'subtotal' => $subtotal,
                 'tax' => $tax,
-                'shipping_cost' => $shipping,
+                'shipping' => $shipping,
                 'total' => $total,
                 'status' => 'pending',
-                'payment_status' => 'paid',
+                'paid_at' => now(),
                 'stripe_session_id' => $session->id,
                 'stripe_payment_intent' => $session->payment_intent,
             ]);
@@ -120,11 +120,12 @@ class StripeWebhookController extends Controller
                     OrderItem::create([
                         'order_id' => $order->id,
                         'product_id' => $product->id,
-                        'variant_id' => null, // Would need to be passed in metadata for accurate tracking
+                        'product_variant_id' => null, // Would need to be passed in metadata for accurate tracking
                         'product_name' => $lineItem->description,
+                        'variant_name' => null,
                         'quantity' => $lineItem->quantity,
-                        'unit_price' => $lineItem->amount_total / $lineItem->quantity / 100,
-                        'total_price' => $lineItem->amount_total / 100,
+                        'price_at_purchase' => $lineItem->amount_total / $lineItem->quantity / 100,
+                        'subtotal' => $lineItem->amount_total / 100,
                     ]);
                 }
             }
@@ -137,8 +138,10 @@ class StripeWebhookController extends Controller
 
             // Send order confirmation email to customer
             try {
+                // Load order items for email
+                $order->load('items.product');
                 Mail::to($order->customer_email)
-                    ->send(new OrderConfirmation($order));
+                    ->send(new OrderConfirmationMail($order));
                 Log::info('Order confirmation email sent', ['order_id' => $order->id]);
             } catch (\Exception $emailError) {
                 Log::error('Failed to send order confirmation email', [
@@ -162,8 +165,8 @@ class StripeWebhookController extends Controller
 
         // Update order payment status if needed
         $order = Order::where('stripe_payment_intent', $paymentIntent->id)->first();
-        if ($order && $order->payment_status !== 'paid') {
-            $order->update(['payment_status' => 'paid']);
+        if ($order && !$order->paid_at) {
+            $order->update(['paid_at' => now()]);
             Log::info('Order payment status updated to paid', ['order_id' => $order->id]);
         }
     }
@@ -175,14 +178,14 @@ class StripeWebhookController extends Controller
             'failure_message' => $paymentIntent->last_payment_error->message ?? 'Unknown error',
         ]);
 
-        // Update order payment status to failed
+        // Mark order with payment failure note
         $order = Order::where('stripe_payment_intent', $paymentIntent->id)->first();
         if ($order) {
             $order->update([
-                'payment_status' => 'failed',
+                'status' => 'cancelled',
                 'admin_notes' => 'Payment failed: ' . ($paymentIntent->last_payment_error->message ?? 'Unknown error'),
             ]);
-            Log::info('Order payment status updated to failed', ['order_id' => $order->id]);
+            Log::info('Order marked as cancelled due to payment failure', ['order_id' => $order->id]);
         }
     }
 }
