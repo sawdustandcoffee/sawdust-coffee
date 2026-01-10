@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\AdminOrderNotificationMail;
 use App\Mail\OrderConfirmationMail;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -145,6 +146,19 @@ class StripeWebhookController extends Controller
                 Log::info('Order confirmation email sent', ['order_id' => $order->id]);
             } catch (\Exception $emailError) {
                 Log::error('Failed to send order confirmation email', [
+                    'order_id' => $order->id,
+                    'error' => $emailError->getMessage(),
+                ]);
+            }
+
+            // Send notification to admin
+            try {
+                $adminEmail = env('ADMIN_EMAIL', 'info@sawdustandcoffee.com');
+                Mail::to($adminEmail)
+                    ->send(new AdminOrderNotificationMail($order));
+                Log::info('Admin order notification sent', ['order_id' => $order->id]);
+            } catch (\Exception $emailError) {
+                Log::error('Failed to send admin order notification', [
                     'order_id' => $order->id,
                     'error' => $emailError->getMessage(),
                 ]);

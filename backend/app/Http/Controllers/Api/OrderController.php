@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\OrderShippedMail;
 use App\Models\Order;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Response;
 
 class OrderController extends Controller
@@ -79,7 +81,27 @@ class OrderController extends Controller
             'admin_notes' => 'nullable|string',
         ]);
 
+        // Check if status is being changed to "shipped"
+        $statusChangedToShipped = isset($validated['status']) &&
+                                   $validated['status'] === 'shipped' &&
+                                   $order->status !== 'shipped';
+
         $order->update($validated);
+
+        // Send shipped notification email
+        if ($statusChangedToShipped) {
+            try {
+                $order->load('items');
+                Mail::to($order->customer_email)
+                    ->send(new OrderShippedMail($order));
+                \Log::info('Order shipped email sent', ['order_id' => $order->id]);
+            } catch (\Exception $e) {
+                \Log::error('Failed to send order shipped email', [
+                    'order_id' => $order->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
 
         return response()->json([
             'message' => 'Order updated successfully',
