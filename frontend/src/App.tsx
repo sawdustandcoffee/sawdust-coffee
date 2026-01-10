@@ -16,6 +16,7 @@ import ActivityLog from './pages/admin/ActivityLog';
 import Users from './pages/admin/Users';
 import EmailPreview from './pages/admin/EmailPreview';
 import Analytics from './pages/admin/Analytics';
+import Settings from './pages/admin/Settings';
 
 // Public pages
 import Home from './pages/public/Home';
@@ -161,6 +162,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Analytics />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/settings"
+            element={
+              <ProtectedRoute>
+                <Settings />
               </ProtectedRoute>
             }
           />

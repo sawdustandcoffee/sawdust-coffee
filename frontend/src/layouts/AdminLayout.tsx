@@ -29,6 +29,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { path: '/admin/content', label: 'Site Content', icon: '📝' },
     { path: '/admin/users', label: 'Users', icon: '👥' },
     { path: '/admin/email-preview', label: 'Email Templates', icon: '📧' },
+    { path: '/admin/settings', label: 'Settings', icon: '⚙️' },
     { path: '/admin/activity', label: 'Activity Log', icon: '📋' },
   ];
 
