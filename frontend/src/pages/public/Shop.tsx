@@ -6,6 +6,7 @@ import { Button, Spinner } from '../../components/ui';
 import PublicLayout from '../../layouts/PublicLayout';
 import RecentlyViewed from '../../components/RecentlyViewed';
 import Breadcrumb, { BreadcrumbItem } from '../../components/Breadcrumb';
+import SocialShare from '../../components/SocialShare';
 import { useCart } from '../../context/CartContext';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { useComparison } from '../../context/ComparisonContext';
@@ -478,6 +479,26 @@ export default function Shop() {
                             <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                           </svg>
                         </button>
+                        {/* Share Button */}
+                        <div
+                          className="absolute top-26 left-2 z-10"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }}
+                        >
+                          <SocialShare
+                            url={`${window.location.origin}/shop/${product.slug}`}
+                            title={product.name}
+                            description={product.description || ''}
+                            imageUrl={
+                              product.images && product.images.length > 0
+                                ? product.images[0].path
+                                : ''
+                            }
+                            size="sm"
+                          />
+                        </div>
                         {/* Badges */}
                         <div className="absolute top-2 right-2 flex flex-col gap-2 items-end">
                           {product.sale_price && (

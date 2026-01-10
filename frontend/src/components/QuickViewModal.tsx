@@ -4,6 +4,7 @@ import { Product } from '../types';
 import { useCart, SelectedOption } from '../context/CartContext';
 import { Button } from './ui';
 import ProductBadge from './ProductBadge';
+import SocialShare from './SocialShare';
 
 interface QuickViewModalProps {
   product: Product | null;
@@ -123,9 +124,22 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
 
                   {/* Right: Info */}
                   <div className="flex flex-col">
-                    <h2 className="text-2xl font-bold text-coffee-dark mb-2">
-                      {product.name}
-                    </h2>
+                    <div className="flex items-start justify-between mb-2">
+                      <h2 className="text-2xl font-bold text-coffee-dark flex-1">
+                        {product.name}
+                      </h2>
+                      <SocialShare
+                        url={`${window.location.origin}/shop/${product.slug}`}
+                        title={product.name}
+                        description={product.description || ''}
+                        imageUrl={
+                          product.images && product.images.length > 0
+                            ? product.images[0].path
+                            : ''
+                        }
+                        size="sm"
+                      />
+                    </div>
 
                     {/* Price */}
                     <div className="mb-4">

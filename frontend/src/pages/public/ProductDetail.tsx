@@ -8,6 +8,7 @@ import PublicLayout from '../../layouts/PublicLayout';
 import RelatedProducts from '../../components/RelatedProducts';
 import ProductBadge from '../../components/ProductBadge';
 import Breadcrumb, { BreadcrumbItem } from '../../components/Breadcrumb';
+import SocialShare from '../../components/SocialShare';
 import { useCart, SelectedOption } from '../../context/CartContext';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { useRecentlyViewed } from '../../context/RecentlyViewedContext';
@@ -348,9 +349,22 @@ export default function ProductDetail() {
 
             {/* Product Info */}
             <div>
-              <h1 className="text-4xl font-bold text-coffee-dark mb-4">
-                {product.name}
-              </h1>
+              <div className="flex items-start justify-between mb-4">
+                <h1 className="text-4xl font-bold text-coffee-dark flex-1">
+                  {product.name}
+                </h1>
+                <SocialShare
+                  url={`${window.location.origin}/shop/${product.slug}`}
+                  title={product.name}
+                  description={product.description || ''}
+                  imageUrl={
+                    product.images && product.images.length > 0
+                      ? product.images[0].path
+                      : ''
+                  }
+                  size="md"
+                />
+              </div>
 
               {/* Categories */}
               {product.categories && product.categories.length > 0 && (
