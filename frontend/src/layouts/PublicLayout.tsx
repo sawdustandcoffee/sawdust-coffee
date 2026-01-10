@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useCustomerAuth } from '../context/CustomerAuthContext';
 import CartDrawer from '../components/CartDrawer';
 
 interface PublicLayoutProps {
@@ -9,9 +10,18 @@ interface PublicLayoutProps {
 
 export default function PublicLayout({ children }: PublicLayoutProps) {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const { getItemCount } = useCart();
+  const { user, logout } = useCustomerAuth();
+
+  const handleLogout = async () => {
+    await logout();
+    setIsUserMenuOpen(false);
+    navigate('/');
+  };
 
   const navItems = [
     { path: '/', label: 'Home' },
@@ -84,6 +94,84 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
                   </span>
                 )}
               </button>
+
+              {/* User Menu */}
+              {user ? (
+                <div className="relative">
+                  <button
+                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                    className="flex items-center space-x-2 text-white hover:text-sawdust transition"
+                  >
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    <span className="text-sm">{user.name}</span>
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {isUserMenuOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-10"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      />
+                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-20">
+                        <Link
+                          to="/customer/dashboard"
+                          className="block px-4 py-2 text-gray-800 hover:bg-coffee-light transition"
+                          onClick={() => setIsUserMenuOpen(false)}
+                        >
+                          Dashboard
+                        </Link>
+                        <Link
+                          to="/customer/orders"
+                          className="block px-4 py-2 text-gray-800 hover:bg-coffee-light transition"
+                          onClick={() => setIsUserMenuOpen(false)}
+                        >
+                          My Orders
+                        </Link>
+                        <Link
+                          to="/customer/settings"
+                          className="block px-4 py-2 text-gray-800 hover:bg-coffee-light transition"
+                          onClick={() => setIsUserMenuOpen(false)}
+                        >
+                          Account Settings
+                        </Link>
+                        <div className="border-t border-gray-200 my-2" />
+                        <button
+                          onClick={handleLogout}
+                          className="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 transition"
+                        >
+                          Logout
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <div className="flex items-center space-x-4">
+                  <Link
+                    to="/customer/login"
+                    className="text-white hover:text-sawdust transition"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/customer/register"
+                    className="px-4 py-2 bg-sawdust hover:bg-sawdust-dark text-white rounded-lg transition"
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              )}
             </div>
 
             {/* Mobile Menu and Cart */}
@@ -151,6 +239,64 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
                   {item.label}
                 </Link>
               ))}
+
+              {/* Mobile User Menu */}
+              <div className="border-t border-wood-700 mt-4 pt-4">
+                {user ? (
+                  <>
+                    <div className="text-sm text-wood-300 mb-2">
+                      Logged in as {user.name}
+                    </div>
+                    <Link
+                      to="/customer/dashboard"
+                      className="block py-2 text-white hover:text-sawdust transition"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Dashboard
+                    </Link>
+                    <Link
+                      to="/customer/orders"
+                      className="block py-2 text-white hover:text-sawdust transition"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      My Orders
+                    </Link>
+                    <Link
+                      to="/customer/settings"
+                      className="block py-2 text-white hover:text-sawdust transition"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Account Settings
+                    </Link>
+                    <button
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        handleLogout();
+                      }}
+                      className="block py-2 text-red-400 hover:text-red-300 transition w-full text-left"
+                    >
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      to="/customer/login"
+                      className="block py-2 text-white hover:text-sawdust transition"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Login
+                    </Link>
+                    <Link
+                      to="/customer/register"
+                      className="block py-2 text-sawdust hover:text-sawdust-light font-semibold transition"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Sign Up
+                    </Link>
+                  </>
+                )}
+              </div>
             </nav>
           )}
         </div>

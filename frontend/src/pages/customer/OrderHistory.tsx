@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import CustomerLayout from '../../layouts/CustomerLayout';
 import api from '../../lib/axios';
 
 interface Order {
@@ -67,28 +68,14 @@ export default function OrderHistory() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-coffee-dark">Order History</h1>
-              <p className="mt-1 text-sm text-gray-600">
-                View and track all your orders
-              </p>
-            </div>
-            <Link
-              to="/customer/dashboard"
-              className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
-            >
-              ← Back to Dashboard
-            </Link>
-          </div>
-        </div>
-      </div>
-
+    <CustomerLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-coffee-dark">Order History</h1>
+          <p className="mt-1 text-gray-600">
+            View and track all your orders
+          </p>
+        </div>
         {loading ? (
           <div className="text-center py-12">
             <div className="text-gray-500">Loading orders...</div>
@@ -206,6 +193,6 @@ export default function OrderHistory() {
           </>
         )}
       </div>
-    </div>
+    </CustomerLayout>
   );
 }

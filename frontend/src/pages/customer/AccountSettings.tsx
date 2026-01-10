@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
+import CustomerLayout from '../../layouts/CustomerLayout';
 
 export default function AccountSettings() {
   const { user, updateProfile, logout } = useCustomerAuth();
@@ -90,28 +91,14 @@ export default function AccountSettings() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-coffee-dark">Account Settings</h1>
-              <p className="mt-1 text-sm text-gray-600">
-                Manage your account information and password
-              </p>
-            </div>
-            <Link
-              to="/customer/dashboard"
-              className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
-            >
-              ← Back to Dashboard
-            </Link>
-          </div>
-        </div>
-      </div>
-
+    <CustomerLayout>
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-coffee-dark">Account Settings</h1>
+          <p className="mt-1 text-gray-600">
+            Manage your account information and password
+          </p>
+        </div>
         <div className="bg-white rounded-lg shadow">
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-xl font-semibold text-gray-900">Profile Information</h2>
@@ -254,6 +241,6 @@ export default function AccountSettings() {
           </div>
         </div>
       </div>
-    </div>
+    </CustomerLayout>
   );
 }
