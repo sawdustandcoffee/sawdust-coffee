@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import api from '../../lib/axios';
 import { Product, GalleryItem } from '../../types';
 import { Button, Spinner } from '../../components/ui';
@@ -31,6 +32,34 @@ export default function Home() {
     }
   };
 
+  const organizationSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    name: 'Sawdust & Coffee Woodworking',
+    description: 'Handcrafted custom woodworking from Wareham, Massachusetts. Specializing in live edge furniture, CNC signs, laser engraving, and epoxy designs.',
+    url: 'https://www.sawdustandcoffee.com',
+    telephone: '774-836-4958',
+    email: 'info@sawdustandcoffee.com',
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'Wareham',
+      addressRegion: 'MA',
+      addressCountry: 'US'
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: 41.7612,
+      longitude: -70.7154
+    },
+    priceRange: '$$',
+    slogan: 'Make Cool Sh!t',
+    founder: [
+      { '@type': 'Person', name: 'Paul Neri' },
+      { '@type': 'Person', name: 'Jason Neri' },
+      { '@type': 'Person', name: 'Patrick Willett' }
+    ]
+  };
+
   return (
     <PublicLayout>
       <SEO
@@ -38,6 +67,11 @@ export default function Home() {
         description="Handcrafted custom woodworking from Wareham, Massachusetts. Specializing in live edge furniture, CNC signs, laser engraving, epoxy designs, and more. Make Cool Sh!t with us!"
         keywords="custom furniture, live edge tables, CNC signs, laser engraving, woodworking Massachusetts, Cape Cod woodworking, epoxy resin furniture"
       />
+      <Helmet>
+        <script type="application/ld+json">
+          {JSON.stringify(organizationSchema)}
+        </script>
+      </Helmet>
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-wood-700 to-wood-900 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

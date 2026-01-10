@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import api from '../../lib/axios';
 import { Product } from '../../types';
 import { Button, Spinner, Badge } from '../../components/ui';
@@ -71,8 +72,49 @@ export default function ProductDetail() {
 
   const hasImages = product.images && product.images.length > 0;
 
+  // Generate JSON-LD structured data for SEO
+  const generateStructuredData = () => {
+    const price = product.sale_price || product.price;
+    const imageUrl = hasImages
+      ? product.images![0].path
+      : 'https://www.sawdustandcoffee.com/placeholder.png';
+
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      name: product.name,
+      description: product.description || product.long_description || '',
+      image: imageUrl,
+      sku: product.sku || undefined,
+      brand: {
+        '@type': 'Brand',
+        name: 'Sawdust & Coffee Woodworking'
+      },
+      offers: {
+        '@type': 'Offer',
+        url: `https://www.sawdustandcoffee.com/shop/${product.slug}`,
+        priceCurrency: 'USD',
+        price: parseFloat(price).toFixed(2),
+        availability: product.inventory > 0
+          ? 'https://schema.org/InStock'
+          : 'https://schema.org/OutOfStock',
+        seller: {
+          '@type': 'Organization',
+          name: 'Sawdust & Coffee Woodworking'
+        }
+      }
+    };
+  };
+
   return (
     <PublicLayout>
+      <Helmet>
+        <title>{product.name} - Sawdust & Coffee</title>
+        <meta name="description" content={product.description || product.name} />
+        <script type="application/ld+json">
+          {JSON.stringify(generateStructuredData())}
+        </script>
+      </Helmet>
       <div className="bg-gray-50 min-h-screen py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Breadcrumb */}
