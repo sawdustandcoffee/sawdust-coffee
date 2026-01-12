@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../../lib/axios';
-import AdminLayout from '../../layouts/AdminLayout';
-import { Card, Spinner } from '../../components/ui';
-import RevenueChart from '../../components/admin/RevenueChart';
-import OrderStatusChart from '../../components/admin/OrderStatusChart';
+import api from '../lib/axios';
+import AdminLayout from '../layouts/AdminLayout';
+import { Card, Spinner } from '../components/ui';
+import RevenueChart from '../components/admin/RevenueChart';
+import OrderStatusChart from '../components/admin/OrderStatusChart';
 
 interface DashboardStats {
   products: {

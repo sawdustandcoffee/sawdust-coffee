@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import api from '../../api/axios';
+import api from '../../lib/axios';
 import { ProductBundle } from '../../types';
 import Breadcrumb from '../../components/Breadcrumb';
 import SocialShare from '../../components/SocialShare';

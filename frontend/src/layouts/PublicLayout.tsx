@@ -252,6 +252,7 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
               </svg>
             </button>
           </div>
+        </div>
 
           {/* Mobile Navigation */}
           {isMobileMenuOpen && (
