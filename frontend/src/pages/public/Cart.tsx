@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { Button } from '../../components/ui';
 import Breadcrumb from '../../components/Breadcrumb';
+import CartRecommendations from '../../components/CartRecommendations';
 import PublicLayout from '../../layouts/PublicLayout';
 import SEO from '../../components/SEO';
 
@@ -226,6 +227,15 @@ export default function Cart() {
               </div>
             </div>
           </div>
+
+          {/* Cart Recommendations */}
+          {items.length > 0 && (
+            <div className="mt-12">
+              <CartRecommendations
+                cartProductIds={items.map((item) => item.product.id)}
+              />
+            </div>
+          )}
         </div>
       </div>
     </PublicLayout>

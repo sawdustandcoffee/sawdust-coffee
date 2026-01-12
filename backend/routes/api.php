@@ -164,6 +164,11 @@ Route::prefix('public')->group(function () {
         Route::get('/collections/{slug}', [\App\Http\Controllers\Api\CollectionController::class, 'publicShow']);
         Route::get('/gallery', [\App\Http\Controllers\Api\GalleryItemController::class, 'publicIndex']);
         Route::get('/content', [\App\Http\Controllers\Api\SiteContentController::class, 'publicIndex']);
+
+        // Product recommendations
+        Route::get('/recommendations/product/{productId}', [\App\Http\Controllers\Api\RecommendationController::class, 'forProduct']);
+        Route::post('/recommendations/cart', [\App\Http\Controllers\Api\RecommendationController::class, 'forCart']);
+        Route::post('/recommendations/personalized', [\App\Http\Controllers\Api\RecommendationController::class, 'personalized']);
     });
 
     // Write operations - stricter rate limit

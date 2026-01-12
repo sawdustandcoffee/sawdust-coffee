@@ -13,6 +13,7 @@ import ImageLightbox from '../../components/ImageLightbox';
 import ProductQuestions from '../../components/ProductQuestions';
 import ProductSpecifications from '../../components/ProductSpecifications';
 import ProductReviews from '../../components/ProductReviews';
+import RecommendedProducts from '../../components/RecommendedProducts';
 import { useCart, SelectedOption } from '../../context/CartContext';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { useRecentlyViewed } from '../../context/RecentlyViewedContext';
@@ -880,6 +881,11 @@ export default function ProductDetail() {
           {/* Questions & Answers */}
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <ProductQuestions productId={product.id} />
+          </div>
+
+          {/* Recommended Products */}
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <RecommendedProducts productId={product.id} />
           </div>
 
           {/* Related Products */}
