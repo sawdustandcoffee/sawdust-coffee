@@ -190,7 +190,7 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
               ) : (
                 <div className="flex items-center space-x-4">
                   <Link
-                    to="/customer/login"
+                    to="/login"
                     className="text-white hover:text-sawdust transition"
                   >
                     Login
@@ -313,7 +313,7 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
                 ) : (
                   <>
                     <Link
-                      to="/customer/login"
+                      to="/login"
                       className="block py-2 text-white hover:text-sawdust transition"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >

@@ -18,7 +18,7 @@ export default function CustomerProtectedRoute({ children }: CustomerProtectedRo
   }
 
   if (!user) {
-    return <Navigate to="/customer/login" state={{ from: location }} replace />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   return <>{children}</>;

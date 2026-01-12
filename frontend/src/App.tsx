@@ -85,12 +85,12 @@ function App() {
               <Route path="/newsletter/confirm/:token" element={<NewsletterConfirm />} />
               <Route path="/newsletter/unsubscribe/:token" element={<NewsletterUnsubscribe />} />
 
-              {/* Admin Auth */}
+              {/* Unified Auth - both admin and customer use same login */}
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/customer/login" element={<Navigate to="/login" replace />} />
 
-              {/* Customer Auth */}
+              {/* Customer Registration & Password Reset */}
               <Route path="/customer/register" element={<CustomerRegister />} />
-              <Route path="/customer/login" element={<CustomerLogin />} />
               <Route path="/customer/forgot-password" element={<ForgotPassword />} />
               <Route path="/customer/reset-password" element={<ResetPassword />} />
               <Route

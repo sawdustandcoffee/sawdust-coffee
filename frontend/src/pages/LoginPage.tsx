@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function LoginPage() {
@@ -7,7 +7,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -16,8 +16,28 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
+      // Login and get updated user
       await login(email, password);
-      navigate('/admin');
+
+      // Make a direct API call to check user status after login
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/user`, {
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const loggedInUser = data.user;
+
+        // Redirect based on user type
+        if (loggedInUser?.is_admin) {
+          navigate('/admin');
+        } else {
+          navigate('/customer/dashboard');
+        }
+      } else {
+        // Fallback - try admin first
+        navigate('/admin');
+      }
     } catch (err: any) {
       setError(err.message || 'Login failed. Please check your credentials.');
     } finally {
@@ -33,7 +53,7 @@ export default function LoginPage() {
             <h1 className="text-3xl font-bold text-coffee-dark mb-2">
               Sawdust & Coffee
             </h1>
-            <p className="text-gray-600">Admin Login</p>
+            <p className="text-gray-600">Sign in to your account</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -82,8 +102,19 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-gray-600">
-            <p>Default credentials: admin@sawdustandcoffee.com / password</p>
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-600 mb-3">
+              Don't have an account?{' '}
+              <Link to="/customer/register" className="font-medium text-coffee hover:text-coffee-dark">
+                Create one now
+              </Link>
+            </p>
+            <Link
+              to="/customer/forgot-password"
+              className="text-sm font-medium text-coffee hover:text-coffee-dark"
+            >
+              Forgot password?
+            </Link>
           </div>
         </div>
       </div>
