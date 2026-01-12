@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class SiteContent extends Model
 {
+    protected $table = 'site_content';
+
     protected $fillable = [
         'key',
         'value',
