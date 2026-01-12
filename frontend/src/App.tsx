@@ -33,6 +33,7 @@ import ProductDetail from './pages/public/ProductDetail';
 import BundleDetail from './pages/public/BundleDetail';
 import Collections from './pages/public/Collections';
 import CollectionDetail from './pages/public/CollectionDetail';
+import SearchResults from './pages/public/SearchResults';
 import ProductComparison from './pages/public/ProductComparison';
 import Gallery from './pages/public/Gallery';
 import About from './pages/public/About';
@@ -72,6 +73,7 @@ function App() {
               <Route path="/bundles/:slug" element={<BundleDetail />} />
               <Route path="/collections" element={<Collections />} />
               <Route path="/collections/:slug" element={<CollectionDetail />} />
+              <Route path="/search" element={<SearchResults />} />
               <Route path="/compare" element={<ProductComparison />} />
               <Route path="/gallery" element={<Gallery />} />
               <Route path="/about" element={<About />} />

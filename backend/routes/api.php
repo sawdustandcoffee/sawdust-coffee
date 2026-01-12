@@ -169,6 +169,11 @@ Route::prefix('public')->group(function () {
         Route::get('/recommendations/product/{productId}', [\App\Http\Controllers\Api\RecommendationController::class, 'forProduct']);
         Route::post('/recommendations/cart', [\App\Http\Controllers\Api\RecommendationController::class, 'forCart']);
         Route::post('/recommendations/personalized', [\App\Http\Controllers\Api\RecommendationController::class, 'personalized']);
+
+        // Search
+        Route::get('/search/autocomplete', [\App\Http\Controllers\Api\SearchController::class, 'autocomplete']);
+        Route::get('/search', [\App\Http\Controllers\Api\SearchController::class, 'search']);
+        Route::get('/search/popular', [\App\Http\Controllers\Api\SearchController::class, 'popularSearches']);
     });
 
     // Write operations - stricter rate limit
