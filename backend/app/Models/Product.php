@@ -206,4 +206,12 @@ class Product extends Model
             ->where('is_published', true)
             ->orderBy('created_at', 'desc');
     }
+
+    /**
+     * Get the tags for the product.
+     */
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(ProductTag::class, 'product_product_tag');
+    }
 }

@@ -193,13 +193,20 @@ class ProductController extends Controller
      */
     public function publicIndex(Request $request): JsonResponse
     {
-        $query = Product::with(['categories', 'primaryImage'])
+        $query = Product::with(['categories', 'primaryImage', 'tags'])
             ->where('active', true);
 
         // Filter by category
         if ($request->has('category')) {
             $query->whereHas('categories', function ($q) use ($request) {
                 $q->where('product_categories.slug', $request->category);
+            });
+        }
+
+        // Filter by tag
+        if ($request->has('tag')) {
+            $query->whereHas('tags', function ($q) use ($request) {
+                $q->where('product_tags.slug', $request->tag);
             });
         }
 
@@ -271,7 +278,7 @@ class ProductController extends Controller
      */
     public function publicShow(string $slug): JsonResponse
     {
-        $product = Product::with(['categories', 'images', 'activeVariants', 'options.values'])
+        $product = Product::with(['categories', 'images', 'activeVariants', 'options.values', 'tags'])
             ->where('slug', $slug)
             ->where('active', true)
             ->firstOrFail();

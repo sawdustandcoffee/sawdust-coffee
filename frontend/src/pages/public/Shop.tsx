@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../../lib/axios';
-import { Product, ProductCategory, PaginatedResponse } from '../../types';
+import { Product, ProductCategory, ProductTag, PaginatedResponse } from '../../types';
 import { Button, Spinner } from '../../components/ui';
 import PublicLayout from '../../layouts/PublicLayout';
 import RecentlyViewed from '../../components/RecentlyViewed';
@@ -17,10 +17,12 @@ import SEO from '../../components/SEO';
 export default function Shop() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<ProductCategory[]>([]);
+  const [tags, setTags] = useState<ProductTag[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [selectedTag, setSelectedTag] = useState<string>('');
   const [sortBy, setSortBy] = useState('featured');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchInput, setSearchInput] = useState('');
@@ -39,11 +41,12 @@ export default function Shop() {
 
   useEffect(() => {
     fetchCategories();
+    fetchTags();
   }, []);
 
   useEffect(() => {
     fetchProducts();
-  }, [page, selectedCategory, sortBy, searchQuery, priceMin, priceMax, inStockOnly, onSaleOnly]);
+  }, [page, selectedCategory, selectedTag, sortBy, searchQuery, priceMin, priceMax, inStockOnly, onSaleOnly]);
 
   useEffect(() => {
     if (user) {
@@ -62,6 +65,15 @@ export default function Shop() {
     }
   };
 
+  const fetchTags = async () => {
+    try {
+      const response = await api.get('/public/tags');
+      setTags(response.data);
+    } catch (err) {
+      console.error('Failed to load tags', err);
+    }
+  };
+
   const fetchProducts = async () => {
     try {
       setLoading(true);
@@ -69,6 +81,10 @@ export default function Shop() {
 
       if (selectedCategory) {
         url += `&category=${selectedCategory}`;
+      }
+
+      if (selectedTag) {
+        url += `&tag=${selectedTag}`;
       }
 
       if (searchQuery) {
@@ -289,6 +305,50 @@ export default function Shop() {
               </div>
             </div>
 
+            {/* Tag Filter */}
+            {tags.length > 0 && (
+              <div className="border-t pt-6 mt-6">
+                <h3 className="text-sm font-semibold text-gray-700 mb-3">Filter by Style</h3>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => {
+                      setSelectedTag('');
+                      setPage(1);
+                    }}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition ${
+                      selectedTag === ''
+                        ? 'bg-coffee text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    All Styles
+                  </button>
+                  {tags.map((tag) => (
+                    <button
+                      key={tag.id}
+                      onClick={() => {
+                        setSelectedTag(tag.slug);
+                        setPage(1);
+                      }}
+                      style={{
+                        backgroundColor: selectedTag === tag.slug ? tag.color : undefined,
+                        borderColor: tag.color,
+                        color: selectedTag === tag.slug ? '#ffffff' : tag.color,
+                      }}
+                      className={`px-4 py-2 rounded-full text-sm font-medium border-2 transition ${
+                        selectedTag === tag.slug
+                          ? 'shadow-md'
+                          : 'bg-white hover:bg-opacity-10'
+                      }`}
+                    >
+                      {tag.name}
+                      {tag.products_count !== undefined && ` (${tag.products_count})`}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Advanced Filters */}
             <div className="border-t pt-6 mt-6">
               <h3 className="text-sm font-semibold text-gray-700 mb-4">Advanced Filters</h3>
@@ -366,12 +426,14 @@ export default function Shop() {
               </div>
 
               {/* Clear Filters Button */}
-              {(priceMin || priceMax || inStockOnly || onSaleOnly) && (
+              {(selectedCategory || selectedTag || priceMin || priceMax || inStockOnly || onSaleOnly) && (
                 <div className="mt-4">
                   <Button
                     variant="secondary"
                     size="sm"
                     onClick={() => {
+                      setSelectedCategory('');
+                      setSelectedTag('');
                       setPriceMin('');
                       setPriceMax('');
                       setInStockOnly(false);
@@ -526,9 +588,28 @@ export default function Shop() {
                         </h3>
                       </Link>
                       {product.description && (
-                        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                        <p className="text-sm text-gray-600 mb-2 line-clamp-2">
                           {product.description}
                         </p>
+                      )}
+                      {/* Tags */}
+                      {product.tags && product.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mb-3">
+                          {product.tags.slice(0, 3).map((tag) => (
+                            <span
+                              key={tag.id}
+                              style={{ backgroundColor: tag.color }}
+                              className="px-2 py-0.5 text-xs font-medium text-white rounded-full"
+                            >
+                              {tag.name}
+                            </span>
+                          ))}
+                          {product.tags.length > 3 && (
+                            <span className="px-2 py-0.5 text-xs font-medium text-gray-500">
+                              +{product.tags.length - 3} more
+                            </span>
+                          )}
+                        </div>
                       )}
                       <div className="flex items-center justify-between mb-3">
                         {product.sale_price ? (

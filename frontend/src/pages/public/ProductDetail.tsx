@@ -415,6 +415,21 @@ export default function ProductDetail() {
                 </div>
               )}
 
+              {/* Product Tags */}
+              {product.tags && product.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {product.tags.map((tag) => (
+                    <span
+                      key={tag.id}
+                      style={{ backgroundColor: tag.color }}
+                      className="px-3 py-1 text-sm font-medium text-white rounded-full"
+                    >
+                      {tag.name}
+                    </span>
+                  ))}
+                </div>
+              )}
+
               {/* Price */}
               <div className="mb-6">
                 {product.sale_price ? (

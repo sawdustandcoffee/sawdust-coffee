@@ -26,9 +26,20 @@ export interface Product {
   images?: ProductImage[];
   variants?: ProductVariant[];
   options?: ProductOption[];
+  tags?: ProductTag[];
   effective_price?: string;
   is_on_sale?: boolean;
   is_in_stock?: boolean;
+}
+
+export interface ProductTag {
+  id: number;
+  name: string;
+  slug: string;
+  color: string;
+  sort_order: number;
+  active: boolean;
+  products_count?: number;
 }
 
 export interface ProductCategory {
