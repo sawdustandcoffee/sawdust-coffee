@@ -1,3 +1,38 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* Tailwind CSS v4 Theme Configuration */
+@theme {
+  /* Custom color palette for woodworking aesthetic */
+  --color-wood-50: #fdf8f6;
+  --color-wood-100: #f2e8e5;
+  --color-wood-200: #eaddd7;
+  --color-wood-300: #e0cec7;
+  --color-wood-400: #d2bab0;
+  --color-wood-500: #bfa094;
+  --color-wood-600: #a18072;
+  --color-wood-700: #977669;
+  --color-wood-800: #846358;
+  --color-wood-900: #43302b;
+
+  --color-sawdust-light: #f5e6d3;
+  --color-sawdust: #d4a574;
+  --color-sawdust-dark: #8b6f47;
+
+  --color-coffee-light: #8d6e63;
+  --color-coffee: #5d4037;
+  --color-coffee-dark: #3e2723;
+}
+
+/* Base styles */
+body {
+  @apply bg-white text-gray-900;
+}
+
+/* Custom component styles */
+.btn-primary {
+  @apply bg-coffee text-white px-6 py-2 rounded-lg hover:bg-coffee-dark transition;
+}
+
+.btn-secondary {
+  @apply bg-sawdust text-white px-6 py-2 rounded-lg hover:bg-sawdust-dark transition;
+}
