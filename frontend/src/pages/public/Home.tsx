@@ -2,15 +2,17 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import api from '../../lib/axios';
-import { Product, GalleryItem } from '../../types';
+import { Product, GalleryItem, Collection } from '../../types';
 import { Button, Spinner } from '../../components/ui';
 import PublicLayout from '../../layouts/PublicLayout';
 import RecentlyViewed from '../../components/RecentlyViewed';
+import CollectionCard from '../../components/CollectionCard';
 import SEO from '../../components/SEO';
 
 export default function Home() {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
+  const [featuredCollections, setFeaturedCollections] = useState<Collection[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -19,13 +21,15 @@ export default function Home() {
 
   const fetchHomeData = async () => {
     try {
-      const [productsRes, galleryRes] = await Promise.all([
+      const [productsRes, galleryRes, collectionsRes] = await Promise.all([
         api.get('/public/products?featured=true&per_page=6'),
         api.get('/public/gallery?featured_only=true&per_page=6'),
+        api.get('/public/collections?featured=true'),
       ]);
 
       setFeaturedProducts(productsRes.data.data || productsRes.data);
       setGalleryItems(galleryRes.data.data || galleryRes.data);
+      setFeaturedCollections(collectionsRes.data);
     } catch (err) {
       console.error('Failed to load home data', err);
     } finally {
@@ -324,6 +328,34 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Featured Collections */}
+      {!loading && featuredCollections.length > 0 && (
+        <section className="py-16 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold text-coffee-dark mb-4">
+                Featured Collections
+              </h2>
+              <p className="text-lg text-gray-600">
+                Explore our curated collections
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {featuredCollections.map((collection) => (
+                <CollectionCard key={collection.id} collection={collection} />
+              ))}
+            </div>
+
+            <div className="text-center mt-12">
+              <Link to="/collections">
+                <Button size="lg">View All Collections</Button>
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Recently Viewed Products */}
       <section className="py-12 bg-gray-50">

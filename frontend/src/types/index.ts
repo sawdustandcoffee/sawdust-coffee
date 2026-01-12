@@ -283,6 +283,22 @@ export interface ProductBundle {
   products?: Product[];
 }
 
+export interface Collection {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string;
+  image_path?: string;
+  type: 'manual' | 'auto_new' | 'auto_featured' | 'auto_sale';
+  active: boolean;
+  featured: boolean;
+  sort_order: number;
+  product_count: number;
+  created_at: string;
+  updated_at: string;
+  products?: Product[];
+}
+
 export interface ApiError {
   message: string;
   errors?: Record<string, string[]>;
