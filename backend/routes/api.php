@@ -54,6 +54,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::apiResource('categories', \App\Http\Controllers\Api\ProductCategoryController::class);
         Route::apiResource('tags', \App\Http\Controllers\Api\ProductTagController::class);
+        Route::apiResource('bundles', \App\Http\Controllers\Api\ProductBundleController::class);
         Route::apiResource('gallery', \App\Http\Controllers\Api\GalleryItemController::class);
         Route::post('/gallery/{id}/upload-image', [\App\Http\Controllers\Api\GalleryItemController::class, 'uploadImage']);
         Route::delete('/gallery/{id}/delete-image', [\App\Http\Controllers\Api\GalleryItemController::class, 'deleteImage']);
@@ -156,6 +157,8 @@ Route::prefix('public')->group(function () {
         Route::get('/products/{id}/related', [\App\Http\Controllers\Api\ProductController::class, 'relatedProducts']);
         Route::get('/categories', [\App\Http\Controllers\Api\ProductCategoryController::class, 'publicIndex']);
         Route::get('/tags', [\App\Http\Controllers\Api\ProductTagController::class, 'publicIndex']);
+        Route::get('/bundles', [\App\Http\Controllers\Api\ProductBundleController::class, 'publicIndex']);
+        Route::get('/bundles/{slug}', [\App\Http\Controllers\Api\ProductBundleController::class, 'publicShow']);
         Route::get('/gallery', [\App\Http\Controllers\Api\GalleryItemController::class, 'publicIndex']);
         Route::get('/content', [\App\Http\Controllers\Api\SiteContentController::class, 'publicIndex']);
     });

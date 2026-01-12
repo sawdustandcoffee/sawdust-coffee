@@ -261,6 +261,26 @@ export interface StockNotification {
   product?: Product;
 }
 
+export interface ProductBundle {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string;
+  long_description?: string;
+  image_path?: string;
+  bundle_price: string;
+  discount_percentage?: string;
+  active: boolean;
+  featured: boolean;
+  sort_order: number;
+  regular_price: number;
+  savings_amount: number;
+  savings_percentage: number;
+  created_at: string;
+  updated_at: string;
+  products?: Product[];
+}
+
 export interface ApiError {
   message: string;
   errors?: Record<string, string[]>;

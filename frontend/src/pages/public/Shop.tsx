@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../../lib/axios';
-import { Product, ProductCategory, ProductTag, PaginatedResponse } from '../../types';
+import { Product, ProductCategory, ProductTag, ProductBundle, PaginatedResponse } from '../../types';
 import { Button, Spinner } from '../../components/ui';
 import PublicLayout from '../../layouts/PublicLayout';
 import RecentlyViewed from '../../components/RecentlyViewed';
@@ -12,13 +12,19 @@ import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { useComparison } from '../../context/ComparisonContext';
 import QuickViewModal from '../../components/QuickViewModal';
 import ProductBadge from '../../components/ProductBadge';
+import BundleCard from '../../components/BundleCard';
 import SEO from '../../components/SEO';
 
 export default function Shop() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
+  const [bundles, setBundles] = useState<ProductBundle[]>([]);
   const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [tags, setTags] = useState<ProductTag[]>([]);
   const [loading, setLoading] = useState(true);
+  const [view, setView] = useState<'products' | 'bundles'>(
+    searchParams.get('view') === 'bundles' ? 'bundles' : 'products'
+  );
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
@@ -45,8 +51,12 @@ export default function Shop() {
   }, []);
 
   useEffect(() => {
-    fetchProducts();
-  }, [page, selectedCategory, selectedTag, sortBy, searchQuery, priceMin, priceMax, inStockOnly, onSaleOnly]);
+    if (view === 'products') {
+      fetchProducts();
+    } else {
+      fetchBundles();
+    }
+  }, [view, page, selectedCategory, selectedTag, sortBy, searchQuery, priceMin, priceMax, inStockOnly, onSaleOnly]);
 
   useEffect(() => {
     if (user) {
@@ -120,6 +130,31 @@ export default function Shop() {
       setTotalPages(response.data.last_page);
     } catch (err) {
       console.error('Failed to load products', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchBundles = async () => {
+    try {
+      setLoading(true);
+      let url = '/public/bundles?';
+
+      if (sortBy === 'price_low' || sortBy === 'price_asc') {
+        url += 'sort=price_low';
+      } else if (sortBy === 'price_high' || sortBy === 'price_desc') {
+        url += 'sort=price_high';
+      } else if (sortBy === 'newest') {
+        url += 'sort=newest';
+      } else {
+        url += 'sort=ordered';
+      }
+
+      const response = await api.get<ProductBundle[]>(url);
+      setBundles(response.data);
+      setTotalPages(1); // Bundles aren't paginated
+    } catch (err) {
+      console.error('Failed to load bundles', err);
     } finally {
       setLoading(false);
     }
@@ -223,6 +258,40 @@ export default function Shop() {
             <p className="text-lg text-gray-600">
               Browse our collection of handcrafted pieces
             </p>
+          </div>
+
+          {/* View Toggle */}
+          <div className="flex justify-center mb-6">
+            <div className="inline-flex rounded-lg border border-gray-300 overflow-hidden">
+              <button
+                onClick={() => {
+                  setView('products');
+                  setSearchParams({});
+                  setPage(1);
+                }}
+                className={`px-6 py-3 font-medium transition ${
+                  view === 'products'
+                    ? 'bg-coffee text-white'
+                    : 'bg-white text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                Products
+              </button>
+              <button
+                onClick={() => {
+                  setView('bundles');
+                  setSearchParams({ view: 'bundles' });
+                  setPage(1);
+                }}
+                className={`px-6 py-3 font-medium transition ${
+                  view === 'bundles'
+                    ? 'bg-coffee text-white'
+                    : 'bg-white text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                Bundles
+              </button>
+            </div>
           </div>
 
           {/* Search and Filters */}
@@ -448,11 +517,25 @@ export default function Shop() {
             </div>
           </div>
 
-          {/* Products Grid */}
+          {/* Products/Bundles Grid */}
           {loading ? (
             <div className="flex justify-center py-20">
               <Spinner size="lg" />
             </div>
+          ) : view === 'bundles' ? (
+            bundles.length === 0 ? (
+              <div className="text-center py-20">
+                <p className="text-xl text-gray-600">
+                  No bundles available. Check back soon!
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                {bundles.map((bundle) => (
+                  <BundleCard key={bundle.id} bundle={bundle} />
+                ))}
+              </div>
+            )
           ) : products.length === 0 ? (
             <div className="text-center py-20">
               <p className="text-xl text-gray-600">
