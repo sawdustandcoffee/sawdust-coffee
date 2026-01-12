@@ -31,10 +31,8 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // Redirect to login if unauthorized
-      window.location.href = '/login';
-    }
+    // Don't automatically redirect on 401 - let components handle auth errors
+    // Protected routes already handle authentication via ProtectedRoute component
     return Promise.reject(error);
   }
 );
