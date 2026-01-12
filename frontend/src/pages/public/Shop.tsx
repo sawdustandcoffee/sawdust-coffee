@@ -13,6 +13,7 @@ import { useComparison } from '../../context/ComparisonContext';
 import QuickViewModal from '../../components/QuickViewModal';
 import ProductBadge from '../../components/ProductBadge';
 import BundleCard from '../../components/BundleCard';
+import StarRating from '../../components/StarRating';
 import SEO from '../../components/SEO';
 
 export default function Shop() {
@@ -692,6 +693,18 @@ export default function Shop() {
                               +{product.tags.length - 3} more
                             </span>
                           )}
+                        </div>
+                      )}
+                      {/* Star Rating */}
+                      {product.average_rating !== undefined && product.average_rating > 0 && (
+                        <div className="mb-3">
+                          <StarRating
+                            rating={product.average_rating}
+                            readonly
+                            size="sm"
+                            showCount
+                            count={product.review_count}
+                          />
                         </div>
                       )}
                       <div className="flex items-center justify-between mb-3">

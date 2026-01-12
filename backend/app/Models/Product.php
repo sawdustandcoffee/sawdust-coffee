@@ -37,6 +37,14 @@ class Product extends Model
         'specifications' => 'array',
     ];
 
+    protected $appends = [
+        'effective_price',
+        'is_on_sale',
+        'is_in_stock',
+        'average_rating',
+        'review_count',
+    ];
+
     /**
      * Get the categories for the product.
      */

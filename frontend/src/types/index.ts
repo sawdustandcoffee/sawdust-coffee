@@ -30,6 +30,8 @@ export interface Product {
   effective_price?: string;
   is_on_sale?: boolean;
   is_in_stock?: boolean;
+  average_rating?: number;
+  review_count?: number;
 }
 
 export interface ProductTag {
