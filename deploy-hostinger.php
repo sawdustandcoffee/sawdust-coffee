@@ -82,32 +82,57 @@ if (!file_exists('frontend/.env') && file_exists('frontend/.env.example')) {
 
 // Build frontend
 logMessage("Building frontend (this may take 1-2 minutes)...");
+
+// Check if npm exists
+logMessage("Checking for npm...");
+$output = [];
+exec('which npm 2>&1', $output, $return);
+if ($return !== 0 || empty($output)) {
+    logMessage("❌ npm not found! Trying to use node modules path...");
+    // Try common npm paths
+    $npmPaths = [
+        '/usr/local/bin/npm',
+        '/usr/bin/npm',
+        '~/.nvm/versions/node/*/bin/npm',
+        '/opt/alt/alt-nodejs*/root/usr/bin/npm'
+    ];
+    foreach ($npmPaths as $path) {
+        if (file_exists($path) || glob($path)) {
+            logMessage("Found npm at: $path");
+            putenv("PATH=" . dirname($path) . ":" . getenv("PATH"));
+            break;
+        }
+    }
+} else {
+    logMessage("✓ npm found at: " . trim($output[0]));
+}
+
 logMessage("Changing to frontend directory...");
 chdir('frontend');
 logMessage("Current directory: " . getcwd());
 
 logMessage("Running: npm ci --production");
 $output = [];
-exec('npm ci --production 2>&1', $output, $return);
+exec('timeout 300 npm ci --production 2>&1', $output, $return);
 logMessage("npm ci exit code: $return");
 if ($return !== 0) {
     logMessage("❌ npm install failed with exit code: $return");
-    logMessage("Output: " . implode("\n", $output));
+    logMessage("Output (first 20 lines): " . implode("\n", array_slice($output, 0, 20)));
     exit(1);
 }
-logMessage("✓ npm dependencies installed");
+logMessage("✓ npm dependencies installed (" . count($output) . " lines of output)");
 
 logMessage("Running: npm run build");
 $output = [];
-exec('npm run build 2>&1', $output, $return);
+exec('timeout 600 npm run build 2>&1', $output, $return);
 logMessage("npm build exit code: $return");
 if ($return !== 0) {
     logMessage("❌ Frontend build failed with exit code: $return");
-    logMessage("Output: " . implode("\n", $output));
+    logMessage("Output (first 50 lines): " . implode("\n", array_slice($output, 0, 50)));
     exit(1);
 }
 chdir('..');
-logMessage("✓ Frontend built successfully");
+logMessage("✓ Frontend built successfully (" . count($output) . " lines of output)");
 
 // Deploy to backend/public
 logMessage("Deploying frontend to backend/public...");
