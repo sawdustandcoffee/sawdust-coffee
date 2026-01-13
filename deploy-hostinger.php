@@ -45,14 +45,22 @@ if (!file_exists('frontend/.env') && file_exists('frontend/.env.example')) {
 // Build frontend
 echo "Building frontend (this may take 1-2 minutes)..." . PHP_EOL;
 chdir('frontend');
+
+echo "Running: npm ci --production" . PHP_EOL;
 exec('npm ci --production 2>&1', $output, $return);
 if ($return !== 0) {
-    echo "❌ npm install failed!" . PHP_EOL;
+    echo "❌ npm install failed with exit code: $return" . PHP_EOL;
+    echo "Output: " . implode("\n", $output) . PHP_EOL;
     exit(1);
 }
+echo "✓ npm dependencies installed" . PHP_EOL;
+
+echo "Running: npm run build" . PHP_EOL;
+$output = [];
 exec('npm run build 2>&1', $output, $return);
 if ($return !== 0) {
-    echo "❌ Frontend build failed!" . PHP_EOL;
+    echo "❌ Frontend build failed with exit code: $return" . PHP_EOL;
+    echo "Output: " . implode("\n", $output) . PHP_EOL;
     exit(1);
 }
 chdir('..');
