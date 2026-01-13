@@ -2,11 +2,11 @@
 set -e  # Exit on error
 
 echo "=== Hostinger Auto-Deploy Started ==="
+echo "Working directory: $(pwd)"
 echo "Commit: $(git log -1 --oneline)"
 echo "Time: $(date)"
 
-# Navigate to project root
-cd /home/u135614800/sawdust-coffee
+# Already in project root - no need to cd
 
 # Detect if this is first deployment
 FIRST_DEPLOY=false
