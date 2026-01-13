@@ -4,16 +4,21 @@
     "type": "project",
     "require": {},
     "scripts": {
+        "deploy-backend": [
+            "composer install --no-dev --no-interaction --optimize-autoloader --working-dir=backend",
+            "php backend/artisan migrate --force",
+            "php backend/artisan config:cache",
+            "php backend/artisan route:cache",
+            "php backend/artisan view:cache"
+        ],
+        "deploy-frontend": [
+            "cd frontend && npm ci --production && npm run build && cd ..",
+            "cp -r frontend/dist/* backend/public/"
+        ],
         "post-install-cmd": [
             "@php -r \"echo '=== Hostinger Deployment Started ===' . PHP_EOL;\"",
-            "cd backend && composer install --no-dev --no-interaction --optimize-autoloader",
-            "cd backend && php artisan migrate --force",
-            "cd backend && php artisan config:cache",
-            "cd backend && php artisan route:cache",
-            "cd backend && php artisan view:cache",
-            "cd frontend && npm ci --production",
-            "cd frontend && npm run build",
-            "cp -r frontend/dist/* backend/public/",
+            "@deploy-backend",
+            "@deploy-frontend",
             "@php -r \"echo '=== Deployment Complete ===' . PHP_EOL;\""
         ],
         "post-update-cmd": [
