@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { getProductImageUrl } from '../lib/imageUtils';
 import { Link } from 'react-router-dom';
 import { Product } from '../types';
 import { useCart, SelectedOption } from '../context/CartContext';
@@ -134,7 +135,7 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
                         description={product.description || ''}
                         imageUrl={
                           product.images && product.images.length > 0
-                            ? product.images[0].path
+                            ? getProductImageUrl(product)
                             : ''
                         }
                         size="sm"

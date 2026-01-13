@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { getProductImageUrl } from '../lib/imageUtils';
 import { useCart } from '../context/CartContext';
 import { Button } from './ui';
 
@@ -72,7 +73,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 const imageUrl =
                   item.product.images && item.product.images.length > 0
                     ? item.product.images.find((img) => img.is_primary)?.path ||
-                      item.product.images[0].path
+                      item.getProductImageUrl(product)
                     : '/placeholder.png';
 
                 return (

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { getProductImageUrl } from '../../lib/imageUtils';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import api from '../../lib/axios';
@@ -150,7 +151,7 @@ export default function Home() {
                       <div className="aspect-square bg-gray-200 flex items-center justify-center">
                         {product.images && product.images[0] ? (
                           <img
-                            src={product.images[0].path}
+                            src={getProductImageUrl(product)}
                             alt={product.images[0].alt_text || product.name}
                             className="w-full h-full object-cover group-hover:scale-105 transition"
                             loading="lazy"

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { getStorageUrl } from '../lib/imageUtils';
 
 interface ImageLightboxProps {
   images: { path: string; alt_text?: string }[];
@@ -163,7 +164,7 @@ export default function ImageLightbox({
         }}
       >
         <img
-          src={currentImage.path}
+          src={getStorageUrl(currentImage.path)}
           alt={currentImage.alt_text || `Image ${currentIndex + 1}`}
           className={`max-w-full max-h-full object-contain transition-transform duration-300 ${
             isZoomed ? 'scale-150 cursor-zoom-out' : 'scale-100 cursor-zoom-in'
@@ -189,7 +190,7 @@ export default function ImageLightbox({
               }`}
             >
               <img
-                src={image.path}
+                src={getStorageUrl(image.path)}
                 alt={image.alt_text || `Thumbnail ${index + 1}`}
                 className="w-full h-full object-cover"
               />

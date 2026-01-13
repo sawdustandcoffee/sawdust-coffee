@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { getProductImageUrl } from '../../lib/imageUtils';
 import { useParams, Link } from 'react-router-dom';
 import api from '../../lib/axios';
 import { ProductBundle } from '../../types';
@@ -214,7 +215,7 @@ export default function BundleDetail() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {bundle.products.map((product) => {
               const productImage = product.images?.[0]?.path
-                ? `${import.meta.env.VITE_API_URL}/storage/${product.images[0].path}`
+                ? `${import.meta.env.VITE_API_URL}/storage/${getProductImageUrl(product)}`
                 : '/placeholder-product.jpg';
               const quantity = (product as any).pivot?.quantity || 1;
 

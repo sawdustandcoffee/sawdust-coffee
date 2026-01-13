@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { getProductImageUrl } from '../../lib/imageUtils';
 import { useParams, Link } from 'react-router-dom';
 import api from '../../lib/axios';
 import { Collection, Product } from '../../types';
@@ -137,7 +138,7 @@ export default function CollectionDetail() {
                     <div className="aspect-square bg-gray-200 relative">
                       {product.images && product.images[0] ? (
                         <img
-                          src={product.images[0].path}
+                          src={getProductImageUrl(product)}
                           alt={product.images[0].alt_text || product.name}
                           className="w-full h-full object-cover hover:scale-105 transition duration-300"
                         />

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../../lib/axios';
+import { getProductImageUrl } from '../../lib/imageUtils';
 import { Product, ProductCategory, ProductTag, ProductBundle, PaginatedResponse } from '../../types';
 import { Button, Spinner } from '../../components/ui';
 import PublicLayout from '../../layouts/PublicLayout';
@@ -554,10 +555,10 @@ export default function Shop() {
                     {/* Image - Clickable */}
                     <Link to={`/shop/${product.slug}`} className="block">
                       <div className="aspect-square bg-gray-200 relative">
-                        {product.images && product.images[0] ? (
+                        {getProductImageUrl(product) ? (
                           <img
-                            src={product.images[0].path}
-                            alt={product.images[0].alt_text || product.name}
+                            src={getProductImageUrl(product)}
+                            alt={product.images?.[0]?.alt_text || product.name}
                             className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                             loading="lazy"
                           />
@@ -637,11 +638,7 @@ export default function Shop() {
                             url={`${window.location.origin}/shop/${product.slug}`}
                             title={product.name}
                             description={product.description || ''}
-                            imageUrl={
-                              product.images && product.images.length > 0
-                                ? product.images[0].path
-                                : ''
-                            }
+                            imageUrl={getProductImageUrl(product)}
                             size="sm"
                           />
                         </div>

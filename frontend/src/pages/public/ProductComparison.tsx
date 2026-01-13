@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { getProductImageUrl } from '../../lib/imageUtils';
 import { useComparison } from '../../context/ComparisonContext';
 import { useCart } from '../../context/CartContext';
 import PublicLayout from '../../layouts/PublicLayout';
@@ -137,7 +138,7 @@ export default function ProductComparison() {
                             <div className="aspect-square bg-gray-200 rounded overflow-hidden max-w-xs mx-auto">
                               {product.images && product.images[0] ? (
                                 <img
-                                  src={product.images[0].path}
+                                  src={getProductImageUrl(product)}
                                   alt={product.images[0].alt_text || product.name}
                                   className="w-full h-full object-cover hover:scale-105 transition"
                                 />

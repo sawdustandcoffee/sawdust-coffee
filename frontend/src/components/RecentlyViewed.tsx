@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { getProductImageUrl } from '../lib/imageUtils';
 import { useRecentlyViewed } from '../context/RecentlyViewedContext';
 import { Button } from './ui';
 import { useCart } from '../context/CartContext';
@@ -62,7 +63,7 @@ export default function RecentlyViewed({
               >
                 {product.images && product.images[0] ? (
                   <img
-                    src={product.images[0].path}
+                    src={getProductImageUrl(product)}
                     alt={product.images[0].alt_text || product.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                     loading="lazy"

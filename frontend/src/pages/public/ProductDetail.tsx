@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import { getProductImageUrl } from '../../lib/imageUtils';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import api from '../../lib/axios';
@@ -23,6 +24,9 @@ export default function ProductDetail() {
   const { slug } = useParams();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Debug logging
+  console.log('ProductDetail mounted, slug:', slug);
   const [selectedImage, setSelectedImage] = useState(0);
   const [error, setError] = useState('');
   const [quantity, setQuantity] = useState(1);
@@ -56,6 +60,7 @@ export default function ProductDetail() {
     if (slug) {
       fetchProduct();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
   useEffect(() => {
@@ -63,23 +68,19 @@ export default function ProductDetail() {
       fetchReviews();
       if (user) {
         checkWishlist();
-      }
-      // Set default email for stock notifications if user is logged in
-      if (user) {
-        setStockNotificationEmail(user.email);
-      }
-      // Check if email is subscribed to stock notifications
-      if (stockNotificationEmail && product.inventory === 0) {
-        checkStockNotificationStatus();
+        // Set default email for stock notifications if user is logged in (only once)
+        setStockNotificationEmail(prev => prev || user.email);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product, user]);
 
   useEffect(() => {
     if (product && stockNotificationEmail && product.inventory === 0) {
       checkStockNotificationStatus();
     }
-  }, [stockNotificationEmail]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stockNotificationEmail, product?.id]);
 
   const fetchProduct = async () => {
     try {
@@ -258,7 +259,7 @@ export default function ProductDetail() {
   const generateStructuredData = () => {
     const price = product.sale_price || product.price;
     const imageUrl = hasImages
-      ? product.images![0].path
+      ? getProductImageUrl(product)
       : 'https://www.sawdustandcoffee.com/placeholder.png';
 
     return {
@@ -326,7 +327,7 @@ export default function ProductDetail() {
                 {hasImages ? (
                   <>
                     <img
-                      src={product.images![selectedImage].path}
+                      src={getProductImageUrl(product, selectedImage)}
                       alt={product.images![selectedImage].alt_text || product.name}
                       className="w-full h-full object-cover"
                       loading="lazy"
@@ -367,7 +368,7 @@ export default function ProductDetail() {
                       }`}
                     >
                       <img
-                        src={image.path}
+                        src={getProductImageUrl(product, index)}
                         alt={image.alt_text || product.name}
                         className="w-full h-full object-cover"
                         loading="lazy"
@@ -390,7 +391,7 @@ export default function ProductDetail() {
                   description={product.description || ''}
                   imageUrl={
                     product.images && product.images.length > 0
-                      ? product.images[0].path
+                      ? getProductImageUrl(product)
                       : ''
                   }
                   size="md"

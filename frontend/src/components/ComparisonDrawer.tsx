@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { getProductImageUrl } from '../lib/imageUtils';
 import { useComparison } from '../context/ComparisonContext';
 
 export default function ComparisonDrawer() {
@@ -40,7 +41,7 @@ export default function ComparisonDrawer() {
                 >
                   {product.images && product.images[0] ? (
                     <img
-                      src={product.images[0].path}
+                      src={getProductImageUrl(product)}
                       alt={product.name}
                       className="w-full h-full object-cover"
                     />
