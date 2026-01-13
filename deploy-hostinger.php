@@ -32,81 +32,108 @@ if (!is_dir('frontend')) {
 logMessage("=== Backend Deployment ===");
 
 // Create .env if doesn't exist
+logMessage("Checking for backend/.env...");
 if (!file_exists('backend/.env') && file_exists('backend/.env.example')) {
     copy('backend/.env.example', 'backend/.env');
-    echo "✓ Created backend/.env from example" . PHP_EOL;
-    echo "⚠️  CONFIGURE backend/.env with database credentials before next deploy!" . PHP_EOL;
+    logMessage("✓ Created backend/.env from example");
+    logMessage("⚠️  CONFIGURE backend/.env with database credentials before next deploy!");
 } else {
-    echo "✓ backend/.env exists" . PHP_EOL;
+    logMessage("✓ backend/.env exists");
 }
 
 // Run migrations (may fail if .env not configured)
-echo PHP_EOL . "Running database migrations..." . PHP_EOL;
+logMessage("");
+logMessage("Running database migrations...");
+$output = [];
 exec('php backend/artisan migrate --force 2>&1', $output, $return);
+logMessage("Migration exit code: $return");
 if ($return === 0) {
-    echo "✓ Migrations completed" . PHP_EOL;
+    logMessage("✓ Migrations completed");
 } else {
-    echo "⚠️  Migrations skipped (database not configured)" . PHP_EOL;
+    logMessage("⚠️  Migrations skipped (database not configured)");
+    logMessage("Migration output: " . implode("\n", array_slice($output, 0, 5)));
 }
 
 // Cache Laravel configs
-echo "Caching Laravel configs..." . PHP_EOL;
+logMessage("Caching Laravel configs...");
+$output = [];
 exec('php backend/artisan config:cache 2>&1', $output, $return);
+logMessage("config:cache exit code: $return");
+$output = [];
 exec('php backend/artisan route:cache 2>&1', $output, $return);
+logMessage("route:cache exit code: $return");
+$output = [];
 exec('php backend/artisan view:cache 2>&1', $output, $return);
-echo "✓ Laravel optimized" . PHP_EOL;
+logMessage("view:cache exit code: $return");
+logMessage("✓ Laravel optimized");
 
 // Frontend deployment
-echo PHP_EOL . "=== Frontend Deployment ===" . PHP_EOL;
+logMessage("");
+logMessage("=== Frontend Deployment ===");
 
 // Create frontend .env if doesn't exist
+logMessage("Checking for frontend/.env...");
 if (!file_exists('frontend/.env') && file_exists('frontend/.env.example')) {
     copy('frontend/.env.example', 'frontend/.env');
-    echo "✓ Created frontend/.env from example" . PHP_EOL;
+    logMessage("✓ Created frontend/.env from example");
+} else {
+    logMessage("✓ frontend/.env exists");
 }
 
 // Build frontend
-echo "Building frontend (this may take 1-2 minutes)..." . PHP_EOL;
+logMessage("Building frontend (this may take 1-2 minutes)...");
+logMessage("Changing to frontend directory...");
 chdir('frontend');
+logMessage("Current directory: " . getcwd());
 
-echo "Running: npm ci --production" . PHP_EOL;
+logMessage("Running: npm ci --production");
+$output = [];
 exec('npm ci --production 2>&1', $output, $return);
+logMessage("npm ci exit code: $return");
 if ($return !== 0) {
-    echo "❌ npm install failed with exit code: $return" . PHP_EOL;
-    echo "Output: " . implode("\n", $output) . PHP_EOL;
+    logMessage("❌ npm install failed with exit code: $return");
+    logMessage("Output: " . implode("\n", $output));
     exit(1);
 }
-echo "✓ npm dependencies installed" . PHP_EOL;
+logMessage("✓ npm dependencies installed");
 
-echo "Running: npm run build" . PHP_EOL;
+logMessage("Running: npm run build");
 $output = [];
 exec('npm run build 2>&1', $output, $return);
+logMessage("npm build exit code: $return");
 if ($return !== 0) {
-    echo "❌ Frontend build failed with exit code: $return" . PHP_EOL;
-    echo "Output: " . implode("\n", $output) . PHP_EOL;
+    logMessage("❌ Frontend build failed with exit code: $return");
+    logMessage("Output: " . implode("\n", $output));
     exit(1);
 }
 chdir('..');
-echo "✓ Frontend built successfully" . PHP_EOL;
+logMessage("✓ Frontend built successfully");
 
 // Deploy to backend/public
-echo "Deploying frontend to backend/public..." . PHP_EOL;
-exec('rm -rf backend/public/index.html backend/public/assets backend/public/vite.svg 2>&1');
+logMessage("Deploying frontend to backend/public...");
+logMessage("Removing old frontend files...");
+exec('rm -rf backend/public/index.html backend/public/assets backend/public/vite.svg 2>&1', $output, $return);
+logMessage("Copying new frontend files...");
+$output = [];
 exec('cp -r frontend/dist/* backend/public/ 2>&1', $output, $return);
+logMessage("Copy exit code: $return");
 if ($return === 0) {
-    echo "✓ Frontend deployed!" . PHP_EOL;
+    logMessage("✓ Frontend deployed!");
 } else {
-    echo "❌ Frontend deployment failed!" . PHP_EOL;
+    logMessage("❌ Frontend deployment failed!");
+    logMessage("Output: " . implode("\n", $output));
     exit(1);
 }
 
-echo PHP_EOL . "=== Deployment Complete ===" . PHP_EOL;
-echo "🎉 Site deployed to: https://capecodwoodworking.com" . PHP_EOL;
+logMessage("");
+logMessage("=== Deployment Complete ===");
+logMessage("🎉 Site deployed to: https://capecodwoodworking.com");
 
 if (!file_exists('backend/.env.configured')) {
-    echo PHP_EOL . "📝 NEXT STEPS:" . PHP_EOL;
-    echo "1. Edit backend/.env with your database credentials" . PHP_EOL;
-    echo "2. Push any change to trigger re-deployment" . PHP_EOL;
+    logMessage("");
+    logMessage("📝 NEXT STEPS:");
+    logMessage("1. Edit backend/.env with your database credentials");
+    logMessage("2. Push any change to trigger re-deployment");
 }
 
 exit(0);
