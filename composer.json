@@ -5,23 +5,11 @@
     "require": {},
     "scripts": {
         "deploy-backend": [
-            "@php -r \"echo 'Installing backend dependencies...' . PHP_EOL;\"",
-            "composer install --no-dev --no-interaction --optimize-autoloader --working-dir=backend",
-            "@php -r \"if (!file_exists('backend/.env') && file_exists('backend/.env.example')) { copy('backend/.env.example', 'backend/.env'); echo 'Created backend/.env from example - CONFIGURE IT BEFORE NEXT DEPLOY' . PHP_EOL; }\"",
-            "@php -r \"if (file_exists('backend/.env')) { echo 'Running Laravel optimizations...' . PHP_EOL; exec('php backend/artisan migrate --force 2>&1', $out, $ret); if ($ret !== 0) echo 'Migrations skipped (configure .env first)' . PHP_EOL; exec('php backend/artisan config:cache 2>&1'); exec('php backend/artisan route:cache 2>&1'); exec('php backend/artisan view:cache 2>&1'); }\""
-        ],
-        "deploy-frontend": [
-            "@php -r \"echo 'Building frontend...' . PHP_EOL;\"",
-            "@php -r \"if (!file_exists('frontend/.env') && file_exists('frontend/.env.example')) { copy('frontend/.env.example', 'frontend/.env'); echo 'Created frontend/.env from example' . PHP_EOL; }\"",
-            "cd frontend && npm ci --production && npm run build && cd ..",
-            "@php -r \"echo 'Deploying frontend to backend/public...' . PHP_EOL;\"",
-            "@php -r \"shell_exec('cp -r frontend/dist/* backend/public/'); echo 'Frontend deployed!' . PHP_EOL;\""
+            "composer install --no-dev --no-interaction --optimize-autoloader --working-dir=backend"
         ],
         "post-install-cmd": [
-            "@php -r \"echo '=== Hostinger Deployment Started ===' . PHP_EOL;\"",
             "@deploy-backend",
-            "@deploy-frontend",
-            "@php -r \"echo '=== Deployment Complete ===' . PHP_EOL; if (!file_exists('backend/.env.configured')) echo 'NEXT: Configure backend/.env with database credentials, then push any change to re-deploy!' . PHP_EOL;\""
+            "php deploy-hostinger.php"
         ],
         "post-update-cmd": [
             "@post-install-cmd"
