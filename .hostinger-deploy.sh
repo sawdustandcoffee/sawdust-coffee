@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Remove set -e temporarily to see all errors
 # set -e  # Exit on error
 

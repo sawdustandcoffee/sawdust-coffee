@@ -5,10 +5,10 @@
     "require": {},
     "scripts": {
         "post-install-cmd": [
-            "bash .hostinger-deploy.sh"
+            "sh .hostinger-deploy.sh"
         ],
         "post-update-cmd": [
-            "bash .hostinger-deploy.sh"
+            "sh .hostinger-deploy.sh"
         ]
     }
 }
