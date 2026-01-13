@@ -1,10 +1,19 @@
 #!/bin/bash
-set -e  # Exit on error
+# Remove set -e temporarily to see all errors
+# set -e  # Exit on error
 
 echo "=== Hostinger Auto-Deploy Started ==="
 echo "Working directory: $(pwd)"
 echo "Commit: $(git log -1 --oneline)"
 echo "Time: $(date)"
+echo ""
+echo "=== Environment Check ==="
+echo "PHP version: $(php -v | head -n 1)"
+echo "Composer: $(which composer || echo 'NOT FOUND')"
+echo "Node: $(which node || echo 'NOT FOUND')"
+echo "NPM: $(which npm || echo 'NOT FOUND')"
+echo "PATH: $PATH"
+echo ""
 
 # Already in project root - no need to cd
 
