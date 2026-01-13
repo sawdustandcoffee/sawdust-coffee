@@ -1,0 +1,14 @@
+{
+    "name": "sawdustandcoffee/sawdust-coffee",
+    "description": "Sawdust & Coffee E-commerce Platform",
+    "type": "project",
+    "require": {},
+    "scripts": {
+        "post-install-cmd": [
+            "bash .hostinger-deploy.sh"
+        ],
+        "post-update-cmd": [
+            "bash .hostinger-deploy.sh"
+        ]
+    }
+}
