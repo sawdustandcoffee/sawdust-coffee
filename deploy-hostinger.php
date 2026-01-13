@@ -88,32 +88,62 @@ logMessage("Checking for npm...");
 $output = [];
 exec('which npm 2>&1', $output, $return);
 if ($return !== 0 || empty($output)) {
-    logMessage("❌ npm not found! Trying to use node modules path...");
-    // Try common npm paths
-    $npmPaths = [
+    logMessage("⚠️ npm not in PATH. Searching common locations...");
+
+    // Try to find npm using common paths
+    $npmFound = false;
+    $searchPaths = [
         '/usr/local/bin/npm',
         '/usr/bin/npm',
-        '~/.nvm/versions/node/*/bin/npm',
-        '/opt/alt/alt-nodejs*/root/usr/bin/npm'
+        '/opt/alt/*/root/usr/bin/npm'
     ];
-    foreach ($npmPaths as $path) {
-        if (file_exists($path) || glob($path)) {
-            logMessage("Found npm at: $path");
-            putenv("PATH=" . dirname($path) . ":" . getenv("PATH"));
+
+    foreach ($searchPaths as $pattern) {
+        $matches = glob($pattern);
+        if (!empty($matches)) {
+            $npmPath = $matches[0];
+            logMessage("✓ Found npm at: $npmPath");
+            // Add to PATH
+            $npmDir = dirname($npmPath);
+            $currentPath = getenv('PATH');
+            putenv("PATH=$npmDir:$currentPath");
+            logMessage("Added $npmDir to PATH");
+            $npmFound = true;
             break;
         }
     }
+
+    if (!$npmFound) {
+        logMessage("❌ npm not found! Cannot build frontend.");
+        logMessage("Available paths checked: " . implode(", ", $searchPaths));
+        exit(1);
+    }
 } else {
-    logMessage("✓ npm found at: " . trim($output[0]));
+    logMessage("✓ npm found in PATH at: " . trim($output[0]));
 }
 
 logMessage("Changing to frontend directory...");
 chdir('frontend');
 logMessage("Current directory: " . getcwd());
 
-logMessage("Running: npm ci --production");
+// Verify npm is accessible
+logMessage("Verifying npm is accessible...");
 $output = [];
+exec('npm --version 2>&1', $output, $return);
+if ($return === 0) {
+    logMessage("✓ npm version: " . trim($output[0]));
+} else {
+    logMessage("❌ npm --version failed with exit code: $return");
+    logMessage("Output: " . implode("\n", $output));
+    exit(1);
+}
+
+logMessage("Running: npm ci --production (with 5-minute timeout)");
+$output = [];
+$startTime = time();
 exec('timeout 300 npm ci --production 2>&1', $output, $return);
+$elapsed = time() - $startTime;
+logMessage("npm ci completed in $elapsed seconds");
 logMessage("npm ci exit code: $return");
 if ($return !== 0) {
     logMessage("❌ npm install failed with exit code: $return");
@@ -122,9 +152,12 @@ if ($return !== 0) {
 }
 logMessage("✓ npm dependencies installed (" . count($output) . " lines of output)");
 
-logMessage("Running: npm run build");
+logMessage("Running: npm run build (with 10-minute timeout)");
 $output = [];
+$startTime = time();
 exec('timeout 600 npm run build 2>&1', $output, $return);
+$elapsed = time() - $startTime;
+logMessage("npm build completed in $elapsed seconds");
 logMessage("npm build exit code: $return");
 if ($return !== 0) {
     logMessage("❌ Frontend build failed with exit code: $return");
