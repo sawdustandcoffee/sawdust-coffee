@@ -1,12 +1,35 @@
 #!/usr/bin/env php
 <?php
+// Force output immediately
+ob_implicit_flush(true);
+@ob_end_flush();
 
-echo "=== Hostinger Deployment Started ===" . PHP_EOL;
-echo "Working directory: " . getcwd() . PHP_EOL;
-echo PHP_EOL;
+// Also log to file for debugging
+$logFile = 'deployment.log';
+function logMessage($msg) {
+    global $logFile;
+    echo $msg . PHP_EOL;
+    file_put_contents($logFile, date('Y-m-d H:i:s') . ' - ' . $msg . PHP_EOL, FILE_APPEND);
+}
+
+logMessage("=== Hostinger Deployment Started ===");
+logMessage("PHP Version: " . PHP_VERSION);
+logMessage("Working directory: " . getcwd());
+logMessage("Script: " . __FILE__);
+logMessage("");
+
+// Check if required directories exist
+if (!is_dir('backend')) {
+    logMessage("❌ ERROR: backend/ directory not found!");
+    exit(1);
+}
+if (!is_dir('frontend')) {
+    logMessage("❌ ERROR: frontend/ directory not found!");
+    exit(1);
+}
 
 // Backend deployment
-echo "=== Backend Deployment ===" . PHP_EOL;
+logMessage("=== Backend Deployment ===");
 
 // Create .env if doesn't exist
 if (!file_exists('backend/.env') && file_exists('backend/.env.example')) {
