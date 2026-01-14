@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import api from '../../lib/axios';
-import { Product, ProductCategory, ProductTag, PaginatedResponse } from '../../types';
+import { Product, ProductCategory, ProductTag } from '../../types';
 import { Button, Spinner } from '../../components/ui';
 import PublicLayout from '../../layouts/PublicLayout';
 import Breadcrumb from '../../components/Breadcrumb';

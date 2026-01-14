@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import { getProductImageUrl } from '../../lib/imageUtils';
 import { useCart } from '../../context/CartContext';
+import { getProductImageUrl } from '../../lib/imageUtils';
 import { Button } from '../../components/ui';
 import Breadcrumb from '../../components/Breadcrumb';
 import CartRecommendations from '../../components/CartRecommendations';
@@ -62,13 +62,19 @@ export default function Cart() {
               <div className="bg-white rounded-lg shadow-lg p-6">
                 <div className="space-y-6">
                   {items.map((item) => {
-                    const price = item.product.effective_price || item.product.price;
-                    const variantModifier = item.variant?.price_modifier || 0;
+                    const price = typeof item.product.effective_price === 'number'
+                      ? item.product.effective_price
+                      : typeof item.product.price === 'number'
+                      ? item.product.price
+                      : 0;
+                    const variantModifier = typeof item.variant?.price_modifier === 'number'
+                      ? item.variant.price_modifier
+                      : 0;
                     const itemPrice = price + variantModifier;
                     const imageUrl =
                       item.product.images && item.product.images.length > 0
                         ? item.product.images.find((img) => img.is_primary)?.path ||
-                          item.getProductImageUrl(product)
+                          getProductImageUrl(item.product)
                         : '/placeholder.png';
 
                     return (

@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import api from '../../lib/axios';
-import { Button } from '../ui';
 
 interface ProductImage {
   id: number;
   path: string;
-  alt_text: string;
+  alt_text?: string;
   sort_order: number;
   is_primary: boolean;
 }

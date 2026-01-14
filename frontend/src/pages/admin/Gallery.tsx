@@ -20,7 +20,7 @@ export default function Gallery() {
     featured: false,
     sort_order: '0',
   });
-  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [formErrors, setFormErrors] = useState<Record<string, string[]>>({});
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);

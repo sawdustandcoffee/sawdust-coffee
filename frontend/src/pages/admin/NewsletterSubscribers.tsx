@@ -202,7 +202,7 @@ export default function NewsletterSubscribers() {
                           {subscriber.is_active ? (
                             <Badge variant="success">Active</Badge>
                           ) : (
-                            <Badge variant="secondary">Unsubscribed</Badge>
+                            <Badge variant="default">Unsubscribed</Badge>
                           )}
                           {subscriber.is_confirmed ? (
                             <Badge variant="info">Confirmed</Badge>

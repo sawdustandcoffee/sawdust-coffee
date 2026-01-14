@@ -204,7 +204,7 @@ export default function Users() {
                           {user.is_admin ? (
                             <Badge variant="success">Admin</Badge>
                           ) : (
-                            <Badge variant="secondary">User</Badge>
+                            <Badge variant="default">User</Badge>
                           )}
                         </td>
                         <td className="py-3 px-4 text-gray-600">

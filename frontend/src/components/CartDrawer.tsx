@@ -67,13 +67,19 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
           ) : (
             <div className="space-y-4">
               {items.map((item) => {
-                const price = item.product.effective_price || item.product.price;
-                const variantModifier = item.variant?.price_modifier || 0;
+                const price = typeof item.product.effective_price === 'number'
+                  ? item.product.effective_price
+                  : typeof item.product.price === 'number'
+                  ? item.product.price
+                  : 0;
+                const variantModifier = typeof item.variant?.price_modifier === 'number'
+                  ? item.variant.price_modifier
+                  : 0;
                 const itemPrice = price + variantModifier;
                 const imageUrl =
                   item.product.images && item.product.images.length > 0
                     ? item.product.images.find((img) => img.is_primary)?.path ||
-                      item.getProductImageUrl(product)
+                      getProductImageUrl(item.product)
                     : '/placeholder.png';
 
                 return (

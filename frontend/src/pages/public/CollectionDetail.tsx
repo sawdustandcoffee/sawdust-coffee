@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { getProductImageUrl } from '../../lib/imageUtils';
 import { useParams, Link } from 'react-router-dom';
 import api from '../../lib/axios';
-import { Collection, Product } from '../../types';
+import { Collection } from '../../types';
 import { Button, Spinner } from '../../components/ui';
 import PublicLayout from '../../layouts/PublicLayout';
 import Breadcrumb from '../../components/Breadcrumb';

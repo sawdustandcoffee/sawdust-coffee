@@ -1,0 +1,9 @@
+# Ignore Laravel-specific files
+/hot
+/build
+/storage
+
+# Track frontend build files (committed by GitHub Actions)
+!/index.html
+!/assets
+!/vite.svg

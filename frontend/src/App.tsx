@@ -48,7 +48,6 @@ import NotFound from './pages/NotFound';
 
 // Customer pages
 import CustomerRegister from './pages/customer/Register';
-import CustomerLogin from './pages/customer/Login';
 import ForgotPassword from './pages/customer/ForgotPassword';
 import ResetPassword from './pages/customer/ResetPassword';
 import CustomerDashboard from './pages/customer/Dashboard';

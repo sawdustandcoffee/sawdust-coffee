@@ -143,7 +143,7 @@ export default function Content() {
             {groups.map((group) => (
               <button
                 key={group}
-                onClick={() => setSelectedGroup(group)}
+                onClick={() => setSelectedGroup(group || 'all')}
                 className={`px-4 py-2 rounded-lg transition ${
                   selectedGroup === group
                     ? 'bg-coffee text-white'

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getProductImageUrl } from '../../lib/imageUtils';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import api from '../../lib/axios';
 import { WishlistItem } from '../../types';
@@ -14,7 +14,6 @@ export default function Wishlist() {
   const [loading, setLoading] = useState(true);
   const [removingId, setRemovingId] = useState<number | null>(null);
   const { addToCart } = useCart();
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetchWishlist();
@@ -112,7 +111,6 @@ export default function Wishlist() {
             if (!item.product) return null;
 
             const product = item.product;
-            const price = product.sale_price || product.price;
 
             return (
               <div

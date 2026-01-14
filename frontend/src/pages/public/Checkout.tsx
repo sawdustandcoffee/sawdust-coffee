@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { Button, Input } from '../../components/ui';
 import PublicLayout from '../../layouts/PublicLayout';
@@ -7,7 +7,6 @@ import api from '../../lib/axios';
 
 export default function Checkout() {
   const { items, getSubtotal } = useCart();
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
@@ -285,8 +284,14 @@ export default function Checkout() {
 
                 <div className="space-y-4 mb-6">
                   {items.map((item) => {
-                    const price = item.product.effective_price || item.product.price;
-                    const variantModifier = item.variant?.price_modifier || 0;
+                    const price = typeof item.product.effective_price === 'number'
+                      ? item.product.effective_price
+                      : typeof item.product.price === 'number'
+                      ? item.product.price
+                      : 0;
+                    const variantModifier = typeof item.variant?.price_modifier === 'number'
+                      ? item.variant.price_modifier
+                      : 0;
                     const itemPrice = price + variantModifier;
 
                     return (

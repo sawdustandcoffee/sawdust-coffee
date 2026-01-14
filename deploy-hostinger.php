@@ -10,6 +10,10 @@ function logMessage($msg) {
     global $logFile;
     echo $msg . PHP_EOL;
     file_put_contents($logFile, date('Y-m-d H:i:s') . ' - ' . $msg . PHP_EOL, FILE_APPEND);
+    // Force flush to ensure log is written immediately
+    if (function_exists('flush')) {
+        @flush();
+    }
 }
 
 logMessage("=== Hostinger Deployment Started ===");
@@ -80,92 +84,15 @@ if (!file_exists('frontend/.env') && file_exists('frontend/.env.example')) {
     logMessage("✓ frontend/.env exists");
 }
 
-// Build frontend
-logMessage("Building frontend (this may take 1-2 minutes)...");
-
-// Check if npm exists
-logMessage("Checking for npm...");
-$output = [];
-exec('which npm 2>&1', $output, $return);
-if ($return !== 0 || empty($output)) {
-    logMessage("⚠️ npm not in PATH. Searching common locations...");
-
-    // Try to find npm using common paths
-    $npmFound = false;
-    $searchPaths = [
-        '/usr/local/bin/npm',
-        '/usr/bin/npm',
-        '/opt/alt/*/root/usr/bin/npm'
-    ];
-
-    foreach ($searchPaths as $pattern) {
-        $matches = glob($pattern);
-        if (!empty($matches)) {
-            $npmPath = $matches[0];
-            logMessage("✓ Found npm at: $npmPath");
-            // Add to PATH
-            $npmDir = dirname($npmPath);
-            $currentPath = getenv('PATH');
-            putenv("PATH=$npmDir:$currentPath");
-            logMessage("Added $npmDir to PATH");
-            $npmFound = true;
-            break;
-        }
-    }
-
-    if (!$npmFound) {
-        logMessage("❌ npm not found! Cannot build frontend.");
-        logMessage("Available paths checked: " . implode(", ", $searchPaths));
-        exit(1);
-    }
-} else {
-    logMessage("✓ npm found in PATH at: " . trim($output[0]));
-}
-
-logMessage("Changing to frontend directory...");
-chdir('frontend');
-logMessage("Current directory: " . getcwd());
-
-// Verify npm is accessible
-logMessage("Verifying npm is accessible...");
-$output = [];
-exec('npm --version 2>&1', $output, $return);
-if ($return === 0) {
-    logMessage("✓ npm version: " . trim($output[0]));
-} else {
-    logMessage("❌ npm --version failed with exit code: $return");
-    logMessage("Output: " . implode("\n", $output));
+// Check if pre-built dist folder exists (from GitHub Actions)
+logMessage("Checking for pre-built frontend...");
+if (!is_dir('frontend/dist')) {
+    logMessage("❌ frontend/dist not found!");
+    logMessage("GitHub Actions should build the frontend and commit the dist/ folder.");
+    logMessage("If this is a fresh deployment, push a change to trigger the build workflow.");
     exit(1);
 }
-
-logMessage("Running: npm ci --production (with 5-minute timeout)");
-$output = [];
-$startTime = time();
-exec('timeout 300 npm ci --production 2>&1', $output, $return);
-$elapsed = time() - $startTime;
-logMessage("npm ci completed in $elapsed seconds");
-logMessage("npm ci exit code: $return");
-if ($return !== 0) {
-    logMessage("❌ npm install failed with exit code: $return");
-    logMessage("Output (first 20 lines): " . implode("\n", array_slice($output, 0, 20)));
-    exit(1);
-}
-logMessage("✓ npm dependencies installed (" . count($output) . " lines of output)");
-
-logMessage("Running: npm run build (with 10-minute timeout)");
-$output = [];
-$startTime = time();
-exec('timeout 600 npm run build 2>&1', $output, $return);
-$elapsed = time() - $startTime;
-logMessage("npm build completed in $elapsed seconds");
-logMessage("npm build exit code: $return");
-if ($return !== 0) {
-    logMessage("❌ Frontend build failed with exit code: $return");
-    logMessage("Output (first 50 lines): " . implode("\n", array_slice($output, 0, 50)));
-    exit(1);
-}
-chdir('..');
-logMessage("✓ Frontend built successfully (" . count($output) . " lines of output)");
+logMessage("✓ Pre-built frontend found at frontend/dist");
 
 // Deploy to backend/public
 logMessage("Deploying frontend to backend/public...");

@@ -1,14 +1,14 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { getProductImageUrl } from '../../lib/imageUtils';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import api from '../../lib/axios';
-import { Product, ProductReview, PaginatedResponse } from '../../types';
+import { Product } from '../../types';
 import { Button, Spinner, Badge } from '../../components/ui';
 import PublicLayout from '../../layouts/PublicLayout';
 import RelatedProducts from '../../components/RelatedProducts';
 import ProductBadge from '../../components/ProductBadge';
-import Breadcrumb, { BreadcrumbItem } from '../../components/Breadcrumb';
+import Breadcrumb from '../../components/Breadcrumb';
 import SocialShare from '../../components/SocialShare';
 import ImageLightbox from '../../components/ImageLightbox';
 import ProductQuestions from '../../components/ProductQuestions';
@@ -31,16 +31,6 @@ export default function ProductDetail() {
   const [error, setError] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
-  const [reviews, setReviews] = useState<ProductReview[]>([]);
-  const [reviewsLoading, setReviewsLoading] = useState(false);
-  const [averageRating, setAverageRating] = useState(0);
-  const [reviewCount, setReviewCount] = useState(0);
-  const [showReviewForm, setShowReviewForm] = useState(false);
-  const [reviewRating, setReviewRating] = useState(5);
-  const [reviewText, setReviewText] = useState('');
-  const [reviewSubmitting, setReviewSubmitting] = useState(false);
-  const [reviewError, setReviewError] = useState('');
-  const [reviewSuccess, setReviewSuccess] = useState('');
   const [inWishlist, setInWishlist] = useState(false);
   const [togglingWishlist, setTogglingWishlist] = useState(false);
   const [stockNotificationEmail, setStockNotificationEmail] = useState('');
@@ -65,7 +55,6 @@ export default function ProductDetail() {
 
   useEffect(() => {
     if (product) {
-      fetchReviews();
       if (user) {
         checkWishlist();
         // Set default email for stock notifications if user is logged in (only once)
@@ -98,61 +87,11 @@ export default function ProductDetail() {
     }
   };
 
-  const fetchReviews = async () => {
-    if (!product) return;
-
-    try {
-      setReviewsLoading(true);
-      const response = await api.get<{
-        reviews: PaginatedResponse<ProductReview>;
-        average_rating: number;
-        review_count: number;
-      }>(`/public/products/${product.id}/reviews`);
-      setReviews(response.data.reviews.data);
-      setAverageRating(response.data.average_rating);
-      setReviewCount(response.data.review_count);
-    } catch (err) {
-      console.error('Failed to load reviews', err);
-    } finally {
-      setReviewsLoading(false);
-    }
-  };
-
   const handleAddToCart = () => {
     if (product) {
       addToCart(product, quantity, undefined, selectedOptions.length > 0 ? selectedOptions : undefined);
       setAddedToCart(true);
       setTimeout(() => setAddedToCart(false), 2000);
-    }
-  };
-
-  const handleSubmitReview = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!product || !user) return;
-
-    setReviewError('');
-    setReviewSuccess('');
-
-    try {
-      setReviewSubmitting(true);
-      await api.post(`/customer/products/${product.id}/reviews`, {
-        rating: reviewRating,
-        review_text: reviewText,
-      });
-
-      setReviewSuccess('Thank you for your review! It will be published after approval.');
-      setReviewText('');
-      setReviewRating(5);
-      setShowReviewForm(false);
-
-      // Optionally refresh reviews (though new review won't show until approved)
-      // fetchReviews();
-    } catch (err: any) {
-      setReviewError(
-        err.response?.data?.message || 'Failed to submit review. Please try again.'
-      );
-    } finally {
-      setReviewSubmitting(false);
     }
   };
 

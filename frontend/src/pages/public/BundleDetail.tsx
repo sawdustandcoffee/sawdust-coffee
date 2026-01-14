@@ -45,7 +45,7 @@ export default function BundleDetail() {
       // Add all products in the bundle to cart
       for (const product of bundle.products) {
         const quantity = (product as any).pivot?.quantity || 1;
-        await addToCart(product.id, quantity);
+        addToCart(product, quantity);
       }
 
       setSuccessMessage('Bundle added to cart successfully!');
@@ -189,7 +189,7 @@ export default function BundleDetail() {
                 url={window.location.href}
                 title={bundle.name}
                 description={bundle.description}
-                image={imagePath}
+                imageUrl={imagePath}
               />
             </div>
           </div>

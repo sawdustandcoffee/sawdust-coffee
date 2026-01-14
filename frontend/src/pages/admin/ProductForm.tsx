@@ -38,8 +38,9 @@ export default function ProductForm() {
 
   const fetchCategories = async () => {
     try {
-      const response = await api.get<ProductCategory[]>('/admin/categories?per_page=100');
-      setCategories(response.data.data || response.data);
+      const response = await api.get<{ data: ProductCategory[] } | ProductCategory[]>('/admin/categories?per_page=100');
+      const categoriesData = Array.isArray(response.data) ? response.data : response.data.data;
+      setCategories(categoriesData);
     } catch (err) {
       console.error('Failed to load categories', err);
     }

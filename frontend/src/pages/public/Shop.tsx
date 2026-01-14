@@ -6,7 +6,7 @@ import { Product, ProductCategory, ProductTag, ProductBundle, PaginatedResponse 
 import { Button, Spinner } from '../../components/ui';
 import PublicLayout from '../../layouts/PublicLayout';
 import RecentlyViewed from '../../components/RecentlyViewed';
-import Breadcrumb, { BreadcrumbItem } from '../../components/Breadcrumb';
+import Breadcrumb from '../../components/Breadcrumb';
 import SocialShare from '../../components/SocialShare';
 import { useCart } from '../../context/CartContext';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
@@ -187,7 +187,7 @@ export default function Shop() {
   const fetchWishlist = async () => {
     try {
       const response = await api.get('/customer/wishlist');
-      const productIds = new Set(response.data.map((item: any) => item.product_id));
+      const productIds = new Set<number>(response.data.map((item: any) => item.product_id));
       setWishlistProductIds(productIds);
     } catch (err) {
       console.error('Failed to load wishlist', err);

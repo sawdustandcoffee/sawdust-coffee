@@ -1,0 +1,63 @@
+name: Build Frontend
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/build-frontend.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+      - name: Deploy to backend/public
+        run: |
+          # Remove old frontend files from backend/public (keep Laravel files)
+          rm -f backend/public/index.html
+          rm -rf backend/public/assets
+          rm -f backend/public/vite.svg
+
+          # Copy new build
+          cp -r frontend/dist/* backend/public/
+
+      - name: Check if build files changed
+        id: check_dist
+        run: |
+          git add frontend/dist -f
+          git add backend/public/index.html backend/public/assets backend/public/vite.svg -f 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push built files
+        if: steps.check_dist.outputs.changed == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git commit -m "chore: build frontend [skip ci]"
+          git push
