@@ -7,6 +7,7 @@ use App\Models\GalleryItem;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductCategory;
+use App\Models\ProductImage;
 use App\Models\QuoteRequest;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -39,11 +40,12 @@ class DemoDataSeeder extends Seeder
         $this->command->info('Creating products...');
         $products = Product::factory()->count(25)->create();
 
-        // Attach random categories to products
+        // Attach random categories to products and create placeholder images
         foreach ($products as $product) {
             $product->categories()->attach(
                 $categories->random(rand(1, 3))->pluck('id')->toArray()
             );
+            $this->createPlaceholderImages($product);
         }
 
         // Create some featured products
@@ -52,6 +54,7 @@ class DemoDataSeeder extends Seeder
             $product->categories()->attach(
                 $categories->random(rand(1, 2))->pluck('id')->toArray()
             );
+            $this->createPlaceholderImages($product);
         });
 
         // Create some products on sale
@@ -60,6 +63,7 @@ class DemoDataSeeder extends Seeder
             $product->categories()->attach(
                 $categories->random(rand(1, 2))->pluck('id')->toArray()
             );
+            $this->createPlaceholderImages($product);
         });
 
         // Create some out of stock products
@@ -68,6 +72,7 @@ class DemoDataSeeder extends Seeder
             $product->categories()->attach(
                 $categories->random(rand(1, 2))->pluck('id')->toArray()
             );
+            $this->createPlaceholderImages($product);
         });
 
         // Create gallery items
@@ -143,5 +148,24 @@ class DemoDataSeeder extends Seeder
         $this->command->info('Admin Login:');
         $this->command->info('Email: admin@sawdustandcoffee.com');
         $this->command->info('Password: password123');
+    }
+
+    /**
+     * Create placeholder images for a product
+     */
+    private function createPlaceholderImages(Product $product): void
+    {
+        // Create 1-3 images per product
+        $imageCount = rand(1, 3);
+
+        for ($i = 0; $i < $imageCount; $i++) {
+            ProductImage::create([
+                'product_id' => $product->id,
+                'path' => 'products/placeholder.jpg',
+                'alt_text' => $product->name . ' - Image ' . ($i + 1),
+                'sort_order' => $i,
+                'is_primary' => $i === 0, // First image is primary
+            ]);
+        }
     }
 }
