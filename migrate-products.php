@@ -191,6 +191,17 @@ try {
             $category = DB::table('product_categories')->first();
         }
 
+        // Generate unique SKU
+        $baseSku = 'SD-' . strtoupper(substr(str_replace('-', '', $productData['slug']), 0, 10));
+        $sku = $baseSku;
+        $counter = 1;
+
+        // Ensure SKU is unique
+        while (DB::table('products')->where('sku', $sku)->exists()) {
+            $sku = $baseSku . '-' . $counter;
+            $counter++;
+        }
+
         // Create product
         $productId = DB::table('products')->insertGetId([
             'name' => $productData['name'],
@@ -202,7 +213,7 @@ try {
             'inventory' => $productData['inventory'],
             'active' => $productData['active'],
             'featured' => $productData['featured'],
-            'sku' => 'SD-' . strtoupper(substr($productData['slug'], 0, 8)),
+            'sku' => $sku,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -220,6 +231,10 @@ try {
 
         // Download and save image
         $imageUrl = $productData['image_url'];
+
+        // Try full-size image first (remove -300x300)
+        $fullSizeUrl = str_replace('-300x300', '', $imageUrl);
+
         $extension = pathinfo(parse_url($imageUrl, PHP_URL_PATH), PATHINFO_EXTENSION);
 
         // Handle .avif extension (convert to jpg for compatibility)
@@ -230,17 +245,32 @@ try {
         $filename = $productData['slug'] . '.' . $extension;
         $filepath = $storageDir . '/' . $filename;
 
-        echo "  Downloading image: $imageUrl\n";
+        echo "  Downloading image (trying full size first)...\n";
 
-        $ch = curl_init($imageUrl);
+        // Try full-size image first
+        $ch = curl_init($fullSizeUrl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
         $imageData = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        if ($httpCode === 200 && $imageData) {
+        // If full-size fails, try the original URL
+        if ($httpCode !== 200 || !$imageData) {
+            echo "  Full-size failed (HTTP $httpCode), trying thumbnail...\n";
+            $ch = curl_init($imageUrl);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+            $imageData = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+        }
+
+        if ($httpCode === 200 && $imageData && strlen($imageData) > 0) {
             file_put_contents($filepath, $imageData);
             echo "  ✓ Image saved: $filename (" . number_format(strlen($imageData)) . " bytes)\n";
 
@@ -259,6 +289,20 @@ try {
             $imageCount++;
         } else {
             echo "  ✗ Failed to download image (HTTP $httpCode)\n";
+            echo "  → Using placeholder image instead\n";
+
+            // Create placeholder image record
+            DB::table('product_images')->insert([
+                'product_id' => $productId,
+                'path' => 'products/placeholder.jpg',
+                'alt_text' => $productData['name'],
+                'sort_order' => 0,
+                'is_primary' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            echo "  ✓ Placeholder image assigned\n";
         }
 
         echo "\n";
