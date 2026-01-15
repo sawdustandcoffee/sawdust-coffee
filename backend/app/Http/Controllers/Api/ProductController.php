@@ -193,7 +193,7 @@ class ProductController extends Controller
      */
     public function publicIndex(Request $request): JsonResponse
     {
-        $query = Product::with(['categories', 'primaryImage', 'tags'])
+        $query = Product::with(['categories', 'primaryImage'])
             ->where('active', true);
 
         // Filter by category
@@ -203,12 +203,12 @@ class ProductController extends Controller
             });
         }
 
-        // Filter by tag
-        if ($request->has('tag')) {
-            $query->whereHas('tags', function ($q) use ($request) {
-                $q->where('product_tags.slug', $request->tag);
-            });
-        }
+        // Filter by tag (disabled - tags table not implemented yet)
+        // if ($request->has('tag')) {
+        //     $query->whereHas('tags', function ($q) use ($request) {
+        //         $q->where('product_tags.slug', $request->tag);
+        //     });
+        // }
 
         // Filter featured
         if ($request->boolean('featured')) {
@@ -278,7 +278,7 @@ class ProductController extends Controller
      */
     public function publicShow(string $slug): JsonResponse
     {
-        $product = Product::with(['categories', 'images', 'activeVariants', 'options.values', 'tags'])
+        $product = Product::with(['categories', 'images', 'activeVariants', 'options.values'])
             ->where('slug', $slug)
             ->where('active', true)
             ->firstOrFail();
