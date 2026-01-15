@@ -278,7 +278,7 @@ class ProductController extends Controller
      */
     public function publicShow(string $slug): JsonResponse
     {
-        $product = Product::with(['categories', 'images', 'activeVariants', 'options.values'])
+        $product = Product::with(['categories', 'images'])
             ->where('slug', $slug)
             ->where('active', true)
             ->firstOrFail();
