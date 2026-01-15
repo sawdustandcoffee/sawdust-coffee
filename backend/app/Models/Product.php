@@ -41,8 +41,9 @@ class Product extends Model
         'effective_price',
         'is_on_sale',
         'is_in_stock',
-        'average_rating',
-        'review_count',
+        // Disabled until product_reviews table is created
+        // 'average_rating',
+        // 'review_count',
     ];
 
     /**
